@@ -6,6 +6,14 @@ on:
     paths:
       - 'workshops/**'
 
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-west-2
+  SHARED_SERVICES_ACCOUNT_ID: '009661764016'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -13,6 +21,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ env.SHARED_SERVICES_ACCOUNT_ID }}:role/GitHubActionsRole
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: GitHubActions-LandingPages-Deploy
 
       - name: Detect changed versions
         id: detect
@@ -43,11 +58,29 @@ jobs:
           npm install -g @shoplazza/cli
           shoplazza --version || echo "CLI installed"
 
+      - name: Get Shoplazza credentials from SSM
+        id: ssm
+        run: |
+          # 从 SSM Parameter Store 获取 Shoplazza 凭证
+          SHOP_DOMAIN=$(aws ssm get-parameter --name "/sandwichlab/shoplazza/shop-domain" --with-decryption --query "Parameter.Value" --output text 2>/dev/null || echo "")
+          ACCESS_TOKEN=$(aws ssm get-parameter --name "/sandwichlab/shoplazza/access-token" --with-decryption --query "Parameter.Value" --output text 2>/dev/null || echo "")
+          THEME_ID=$(aws ssm get-parameter --name "/sandwichlab/shoplazza/theme-id" --with-decryption --query "Parameter.Value" --output text 2>/dev/null || echo "")
+
+          if [ -n "$SHOP_DOMAIN" ]; then
+            echo "shop_domain=$SHOP_DOMAIN" >> $GITHUB_OUTPUT
+            echo "access_token=$ACCESS_TOKEN" >> $GITHUB_OUTPUT
+            echo "theme_id=$THEME_ID" >> $GITHUB_OUTPUT
+            echo "has_credentials=true" >> $GITHUB_OUTPUT
+          else
+            echo "Warning: SSM parameters not found, using GitHub secrets"
+            echo "has_credentials=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Deploy to Shoplazza
         env:
-          SHOPLAZZA_SHOP_DOMAIN: ${{ secrets.SHOPLAZZA_SHOP_DOMAIN }}
-          SHOPLAZZA_ACCESS_TOKEN: ${{ secrets.SHOPLAZZA_ACCESS_TOKEN }}
-          SHOPLAZZA_THEME_ID: ${{ secrets.SHOPLAZZA_THEME_ID }}
+          SHOPLAZZA_SHOP_DOMAIN: ${{ steps.ssm.outputs.has_credentials == 'true' && steps.ssm.outputs.shop_domain || secrets.SHOPLAZZA_SHOP_DOMAIN }}
+          SHOPLAZZA_ACCESS_TOKEN: ${{ steps.ssm.outputs.has_credentials == 'true' && steps.ssm.outputs.access_token || secrets.SHOPLAZZA_ACCESS_TOKEN }}
+          SHOPLAZZA_THEME_ID: ${{ steps.ssm.outputs.has_credentials == 'true' && steps.ssm.outputs.theme_id || secrets.SHOPLAZZA_THEME_ID }}
         run: |
           echo "Deploying changed versions..."
 
