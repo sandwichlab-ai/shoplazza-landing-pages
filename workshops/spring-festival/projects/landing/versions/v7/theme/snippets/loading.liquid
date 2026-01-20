@@ -1,0 +1,19 @@
+{% comment %}
+  Renders a loading
+
+  Accepts:
+  - display: {Boolean} display loading. Default: false (optional)
+  - has_full_mask: {Boolean} loading has full mask. Default: false (optional)
+
+  Usage:
+  {% include 'loading', display: false, has_full_mask: true %}
+
+  Style:
+  .class[loading] ~ .loading{
+    display: var(--loading-show);
+  }
+{% endcomment %}
+
+<div class="loading items-center justify-center {{ class }}" role="loading" {% if has_full_mask %} has-full-mask {% endif %} {% if display %} show {% else %} hide {% endif %}>
+  <div class="loading-bounce"></div>
+</div>

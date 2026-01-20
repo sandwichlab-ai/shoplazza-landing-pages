@@ -1,0 +1,216 @@
+{% assign collection = collections[section.settings.collection.id] %}
+{% assign products = collection.products %}
+{% assign rows = section.settings.rows | default: 1 %}
+{% assign pc_num = section.settings.pc_per_row | default: 4 | times: rows %}
+{% assign mobile_num = section.settings.mobile_per_row | default: 2 | times: rows %}
+
+{% include 'card_spacing_css' %}
+<style>
+  [data-section-id="{{ section.id }}"] .collection_list {
+    padding-top: 16px; 
+    margin-top: -24px;
+    margin-left: -16px;
+  }
+  [data-section-id="{{ section.id }}"] .collection_item {
+    width: calc(100% / {{section.settings.mobile_per_row}});
+    padding-top: 24px;
+    padding-left: 16px;
+  }
+  [data-section-id="{{ section.id }}"] .collection_item .product-snippet__title {
+    text-align: left;
+  }
+  @media (min-width: 960px) {
+    [data-section-id="{{ section.id }}"] .collection_list {
+      padding-top: 28px;
+      margin-top: -44px;
+      margin-left: -40px;
+    }
+    [data-section-id="{{ section.id }}"] .collection_item {
+      width: calc(100% / {{section.settings.pc_per_row}});
+      padding-top: 44px;
+      padding-left: 40px;
+    }
+  }
+</style>
+{%- comment -%} 阿拉伯语言支持 {%- endcomment -%}
+{% if shop.locale == "ar-SA" %}
+  <style>
+    [data-section-id="{{ section.id }}"] .collection_item .product-snippet__title {
+      text-align: right;
+    }
+  </style>
+{% endif %}
+
+<div class="page-container featured_collection_third_{{section.id}}">
+  <div class="text-center items-center">
+    <div class="flex justify-between items-center">
+      <h3 class="featured__collection_third-title m-0 title-font type-heading-font-family text-left font-normal leading-1.2 break-words mr-5 lg:mr-10">{{section.settings.title}}</h3>
+      {% if section.settings.view_all %}
+        <a class="text-body-font-size lg:body-plus-2 underline leading-none flex-shrink-0 color-body z-10" href="{{collection.url}}">
+          {{ 'i18n.general.blog.view_all' | t }}
+        </a>
+    {% endif %}
+    </div>
+    <div class="collection_list flex flex-wrap m-0 box-border p-0 {% if section.settings.product_center %} justify-center {% endif %}">
+      {% if collection.id %}
+        {% for item in products limit: pc_num %}
+          <div class="collection_item flex-shrink-0 list-none box-border{% if forloop.index > mobile_num %} md:hidden {% endif %}">
+            {% include 'product', card_product: item, ssrIndex: forloop.index0, s_columns: pc_num, s_breakpoint: 3, s_common_columns: 4, sm_columns: mobile_num, sm_breakpoint: 2, sm_common_columns: 2 %}
+          </div>
+        {% endfor %}
+      {% else %}
+        {% for item in (1..pc_num) %}
+          <div class="collection_item flex-shrink-0 list-none box-border{% if forloop.index > mobile_num %} md:hidden {% endif %}">
+            {% include 'product', card_product: default_product, item_class: 'w-full' %}
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "featured_collection_third",
+  "settings": [
+    {
+      "type": "text",
+      "id": "title",
+      "label": {
+        "zh-CN": "标题",
+        "en-US": "Title"
+      },
+      "default": "Featured collection"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": {
+        "en-US": "Collection",
+        "zh-CN": "专辑"
+      }
+    },
+    {
+      "type": "select",
+      "id": "mobile_per_row",
+      "label": {
+        "en-US": "Mobile products per row",
+        "zh-CN": "移动端每行商品数量"
+      },
+      "options": [
+        {
+          "value": 1,
+          "label": {
+            "en-US": "Large grid",
+            "zh-CN": "一栏"
+          }
+        },
+        {
+          "value": 2,
+          "label": {
+            "en-US": "Small grid",
+            "zh-CN": "两栏"
+          }
+        }
+      ],
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "pc_per_row",
+      "step": 1,
+      "max": 6,
+      "min": 2,
+      "label": {
+        "en-US": "Desktop products per row",
+        "zh-CN": "PC端每行商品数量"
+      },
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "rows",
+      "step": 1,
+      "max": 5,
+      "min": 1,
+      "label": {
+        "en-US": "Rows of products",
+        "zh-CN": "商品行数"
+      },
+      "default": 1
+    },
+    {
+      "type": "checkbox",
+      "id": "product_center",
+      "label": {
+        "en-US": "Products centered",
+        "zh-CN": "商品居中"
+      },
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "view_all",
+      "label": {
+        "en-US": "Show 'View all' link",
+        "zh-CN": "开启 “View all“ 链接"
+      },
+      "default": true
+    },
+    {
+      "type": "spacing",
+      "id": "spacing",
+      "label": {
+        "en-US": "Spacing",
+        "zh-CN": "间距留白"
+      },
+      "pc": {
+        "top": "40",
+        "right": "",
+        "bottom": "40",
+        "left": ""
+      },
+      "mobile": {
+        "top": "20",
+        "right": "",
+        "bottom": "20",
+        "left": ""
+      },
+      "default": {
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        }
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "featured_collection_third",
+      "cname": {
+        "en-US": "Featured collection 3",
+        "zh-CN": "推荐专辑3"
+      },
+      "category": {
+        "en-US": "Collection",
+        "zh-CN": "专辑"
+      },
+      "ccategory": {
+        "en-US": "Collection",
+        "zh-CN": "专辑"
+      },
+      "display": true,
+      "blocks": [],
+      "icon": "oss/operation/dd25ddbd5c3cfd00a6349f55f285b811.svg"
+    }
+  ]
+}
+{% endschema %}

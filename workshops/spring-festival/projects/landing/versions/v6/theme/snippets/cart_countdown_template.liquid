@@ -1,0 +1,12 @@
+{% if settings.enable_countdown %}
+  <template id="cart-countdown-template">
+    <span>
+      <span spz-if="${!!data.mm}">
+        <span class="cart-countdown__number">${data.mm}</span>m
+      </span>
+      <span spz-if="${!!data.ss}">
+        <span class="cart-countdown__number">${data.ss}</span>s
+      </span>
+    </span>
+  </template>
+{% endif %}

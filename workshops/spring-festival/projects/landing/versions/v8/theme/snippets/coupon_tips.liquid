@@ -1,0 +1,11 @@
+{% comment %} counpon {% endcomment %}
+{% if plugins.coupon.config.personal_center %}
+  <div class="flex justify-center items-center mt-10">
+    {% include 'icon_discount', icon_class: 'mr-2' %}
+    {% if template.name == 'login' %}
+      {{ 'i18n.customers.login.login_discount' | t }}
+    {% else %}
+      {{ 'i18n.customers.register.register_discount' | t }}
+    {% endif %}
+  </div>
+{% endif %}

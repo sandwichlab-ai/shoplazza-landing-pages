@@ -1,0 +1,417 @@
+{% include 'card_spacing_css' %}
+{% assign collection = collections[section.settings.collection.id] %}
+{% assign cover_image = section.settings.cover_image %}
+{% assign cover_image_alt = '' %}
+{% if cover_image %}
+  {% assign cover_image_alt = images[cover_image.src].alt %}
+{% elsif collection and collection.id != 0 %}
+  {% assign cover_image = collection.image.src %}
+  {% assign cover_image_alt = cover_image.alt %}
+{% endif %}
+
+{% assign rows_of_products = section.settings.rows_of_products %}
+{% assign mobile_per_row = section.settings.mobile_per_row %}
+{% assign per_row = section.settings.per_row %}
+{% assign product_num_pc = per_row | times: rows_of_products %}
+{% assign product_num_mobile = mobile_per_row | times: rows_of_products %}
+
+{% assign max_count = product_num_pc %}
+{% if product_num_mobile > max_count %}
+  {% assign max_count = product_num_mobile %}
+{% endif %}
+
+{% assign products = collection.products %}
+{% assign product = section.settings.product %}
+{% assign product = all_products[product.id] %}
+{% assign layout = section.settings.layout %}
+
+{% assign offset = 0 %}
+{% unless product.id and product.id != 0 %}
+  {%- comment -%} get the frist pro {%- endcomment -%}
+  {% for item in products %}
+    {% if item.available %}
+      {% assign product = item %}
+      {% assign offset = forloop.index %}
+      {% break %}
+    {% endif %}
+  {% endfor %}
+{% endunless %}
+
+<style>
+  .gap-x-\[15px\] {
+    column-gap: 15px;
+  }
+  .featured__collection_head {
+    min-height: 576px;
+  }
+  .featured_product {
+    background-color: #f5f5f5;
+  }
+  .featured_product .{{product_snippet_prefix}} {
+    width: 211px;
+  }
+  .featured_des {
+    background-color: rgba(255, 255, 255, 0.8);
+  }
+  [data-section-id="{{ section.id }}"] .featured_des_heading {
+    color: var(--color-overlay-title);
+  }
+  [data-section-id="{{ section.id }}"] .featured_des_text {
+    color: var(--color-overlay-text);
+  }
+  @media(min-width: 960px) {
+    .featured_product .{{product_snippet_prefix}} {
+      width: 300px;
+    }
+    [data-section-id="{{ section.id }}"] [data-layout="right"]{
+      flex-direction: row-reverse;
+    }
+    [data-section-id="{{ section.id }}"] [data-layout="left"]{
+      flex-direction: row;
+    }
+  }
+</style>
+
+<div class="page-container">
+  <div class="featured__collection">
+    <div
+      class="featured__collection_head flex md:flex-col rounded-global-small direction_ltr_self"
+      data-layout="{{layout}}"
+    >
+      <div class="featured_product md:order-2 box-border flex justify-center items-center p-8 lg:w-1/2">
+        {% if product.id %}
+          {% if product.available %}
+            {% include 'product', card_product: product, label_type: 'main' %}
+          {% endif %}
+        {% else %}
+          {% unless collection.products_count >= 0 %}
+            {% include 'product', card_product: default_product %}
+          {% endunless %}
+        {% endif %}
+      </div>
+      <div class="md:order-1 relative lg:w-1/2 overflow-hidden">
+        <a
+          class="relative block w-full {% unless cover_image %} md:pb-full {% endunless %} lg:h-full"
+          {% include 'link', link: collection %}
+        >
+          {% if cover_image %}
+            <spz-img
+              class="lg:h-full"
+              src="{{ cover_image | img_url }}"
+              alt="{{ cover_image_alt | default: heading | escape }}"
+              layout="responsive"
+              width="375"
+              height="375"
+              object-fit="cover"
+              auto-fit
+              ssr
+              size-ratio="2"
+            ></spz-img>
+          {% else %}
+            {{ 'image' | placeholder_svg_tag: 'absolute inset-0 w-full h-full fill-svg bg-svg' }}
+          {% endif %}
+        </a>
+        {% if section.blocks.size > 0 %}
+          <div class="absolute left-0 right-0 bottom-3 px-3 flex justify-center lg:bottom-4 lg:px-12">
+            <div class="featured_des px-6 py-5 {% if settings.edges == 'round' %} rounded-global-fixed {% else %} rounded {% endif %} text-center overflow-hidden lg:px-12 lg:py-7">
+              {% for block in section.blocks %}
+                {% case block.type %}
+                  {% when 'heading' %}
+                    {% assign heading = block.settings.heading %}
+                    {% if heading %}
+                      <h4
+                        {{ block.shoplaza_attributes }}
+                        class="m-0 title-font type-heading-font-family font-normal leading-1.2"
+                      >
+                        <a
+                          class="featured_des_heading text-inherit no-underline"
+                          {% include 'link', link: collection %}
+                        >
+                          {{ heading | escape }}
+                        </a>
+                      </h4>
+                    {% endif %}
+                  {% when 'text' %}
+                    {% assign text = block.settings.text %}
+                    {% if text %}
+                      <p
+                        {{ block.shoplaza_attributes }}
+                        class="featured_des_text m-0 mt-2 body-plus-2 lg:mt-3"
+                      >
+                        {{ text | escape }}
+                      </p>
+                    {% endif %}
+                  {% when 'button' %}
+                    {% assign button_text = block.settings.button_text %}
+                    {% if button_text %}
+                      <a
+                        {{ block.shoplaza_attributes }}
+                        class="inline-block mt-4 px-6 py-2 button-primary body-plus-2 no-underline rounded-btn lg:mt-5"
+                        {% include 'link', link: collection %}
+                      >
+                        {{ button_text | escape }}
+                      </a>
+                    {% endif %}
+                {% endcase %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    {%- comment -%} product list {%- endcomment -%}
+    <div class="md:hidden grid grid-cols-{{ per_row }} gap-x-10 gap-y-11 mt-10">
+      {% if collection.id %}
+        {% for item in products offset: offset limit: product_num_pc %}
+          {% include 'product', card_product: item, label_type: 'lg' %}
+        {% endfor %}
+      {% else %}
+        {% for item in (1..product_num_pc) %}
+          {% include 'product', card_product: default_product %}
+        {% endfor %}
+      {% endif %}
+    </div>
+    <div class="lg:hidden grid mt-4 grid-cols-{{ mobile_per_row }} gap-x-[15px] gap-y-6">
+      {% if collection.id %}
+        {% for item in products offset: offset limit: product_num_mobile %}
+          {% include 'product', card_product: item, label_type: 'md' %}
+        {% endfor %}
+      {% else %}
+        {% for item in (1..product_num_mobile) %}
+          {% include 'product', card_product: default_product %}
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "featured_collection",
+    "max_blocks": 3,
+    "settings": [
+      {
+        "type": "collection",
+        "id": "collection",
+        "label": {
+          "en-US": "Collection",
+          "zh-CN": "专辑"
+        }
+      },
+      {
+        "type": "image_picker",
+        "id": "cover_image",
+        "label": {
+          "en-US": "Collection cover image",
+          "zh-CN": "专辑封面"
+        }
+      },
+      {
+        "type": "product",
+        "id": "product",
+        "label": {
+          "en-US": "Product",
+          "zh-CN": "商品"
+        }
+      },
+      {
+        "type": "select",
+        "id": "layout",
+        "label": {
+          "en-US": "Layout",
+          "zh-CN": "布局"
+        },
+        "options": [
+          {
+            "value": "left",
+            "label": {
+              "en-US": "Product left",
+              "zh-CN": "商品在左"
+            }
+          }, {
+            "value": "right",
+            "label": {
+              "en-US": "Product right",
+              "zh-CN": "商品在右"
+            }
+          }
+        ],
+        "default": "right"
+      }, {
+        "type": "select",
+        "id": "mobile_per_row",
+        "label": {
+          "en-US": "Mobile products per row",
+          "zh-CN": "移动端每行商品数量"
+        },
+        "options": [
+          {
+            "value": 1,
+            "label": {
+              "en-US": "Large grid",
+              "zh-CN": "一栏"
+            }
+          }, {
+            "value": 2,
+            "label": {
+              "en-US": "Small grid",
+              "zh-CN": "两栏"
+            }
+          }
+        ],
+        "default": 2
+      }, {
+        "type": "range",
+        "id": "per_row",
+        "label": {
+          "en-US": "Desktop products per row",
+          "zh-CN": "PC端每行商品数量"
+        },
+        "unit": "",
+        "step": 1,
+        "min": 2,
+        "max": 6,
+        "default": 4
+      }, {
+        "type": "range",
+        "id": "rows_of_products",
+        "label": {
+          "en-US": "Rows of products",
+          "zh-CN": "商品行数"
+        },
+        "unit": "",
+        "step": 1,
+        "min": 1,
+        "max": 5,
+        "default": 1
+      }, {
+        "type": "spacing",
+        "id": "spacing",
+        "label": {
+          "en-US": "Spacing",
+          "zh-CN": "间距留白"
+        },
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        },
+        "default": {
+          "pc": {
+            "top": "40",
+            "right": "",
+            "bottom": "40",
+            "left": ""
+          },
+          "mobile": {
+            "top": "20",
+            "right": "",
+            "bottom": "20",
+            "left": ""
+          }
+        }
+      }
+    ],
+    "blocks": [
+      {
+        "type": "heading",
+        "name": {
+          "en-US": "Heading",
+          "zh-CN": "标题"
+        },
+        "limit": 1,
+        "settings": [
+          {
+            "type": "text",
+            "id": "heading",
+            "label": {
+              "en-US": "Heading",
+              "zh-CN": "标题"
+            },
+            "default": "Featured collection"
+          }
+        ]
+      }, {
+        "type": "text",
+        "name": {
+          "en-US": "Text",
+          "zh-CN": "文字"
+        },
+        "limit": 1,
+        "settings": [
+          {
+            "type": "textarea",
+            "id": "text",
+            "label": {
+              "en-US": "Text",
+              "zh-CN": "文字"
+            },
+            "default": ""
+          }
+        ]
+      }, {
+        "type": "button",
+        "name": {
+          "en-US": "Button",
+          "zh-CN": "按钮"
+        },
+        "limit": 1,
+        "settings": [
+          {
+            "type": "text",
+            "id": "button_text",
+            "label": {
+              "en-US": "Button",
+              "zh-CN": "按钮"
+            },
+            "default": "Shop now"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "featured_collection",
+        "cname": {
+          "en-US": "Featured collection",
+          "zh-CN": "推荐专辑"
+        },
+        "category": {
+          "en-US": "Collection",
+          "zh-CN": "专辑"
+        },
+        "ccategory": {
+          "en-US": "Collection",
+          "zh-CN": "专辑"
+        },
+        "icon": "oss/operation/e900ecfba2345a83595b9309653785a7.svg",
+        "display": true,
+        "blocks": [
+          {
+            "type": "heading",
+            "settings": {
+              "heading": "Featured collection"
+            }
+          }, {
+            "type": "text",
+            "settings": {
+              "text": ""
+            }
+          }, {
+            "type": "button",
+            "settings": {
+              "button_text": "Shop now"
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

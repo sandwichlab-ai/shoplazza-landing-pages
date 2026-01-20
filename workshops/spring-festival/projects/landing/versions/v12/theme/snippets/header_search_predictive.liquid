@@ -1,0 +1,93 @@
+{% if settings.search_predictive_on %}
+  <style>
+    .header__search_predictive_render{
+      background-color: var(--color-header-bg);
+    }
+    .header__search_product_list_wrap{
+      padding: 24px 0 70px;
+    }
+    .header__search_product_list{
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 16px;
+      row-gap: 24px;
+    }
+    .header__search_product_list[data-empty],
+    .header__search_product__empty,
+    .header__search_product__view_more_wrap{
+      display: none;
+    }
+    .header__search_product_list[hasmore] + .header__search_product__view_more_wrap,
+    .header__search_product_list[data-empty] ~ .header__search_product__empty{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .header__search_product_list[loading] ~ .loading{
+      display: var(--loading-show);
+    }
+    .header__search_product_list ~ .loading .loading-bounce{
+      border-bottom-color: var(--color-body-text);
+    }
+    .header__search_product__view_more{
+      margin: 24px auto 0;
+      padding: 8px 24px;
+      font-weight: 600;
+      font-size: 16px;
+      line-height: 24px;
+    }
+    @media (min-width: 960px) {
+      .header__search_product_list{
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        column-gap: 24px;
+      }
+      .header__search_product_list_wrap{
+        padding: 24px 0 40px;
+      }
+    }
+  </style>
+  {% assign list_id = 'header_search_product_list' %}
+  {% if render_id_suffix %}
+    {% assign list_id = list_id | append: render_id_suffix %}
+  {% endif %}
+  <template id="header_search_product_list_template{{render_id_suffix}}">
+    {% include 'product_snippet', source_id: list_id, product_id: '${data.id}' %}
+  </template>
+  <spz-render id="header_search_predictive_render{{render_id_suffix}}" class="header__search_predictive_render" layout="container" manual>
+    <template>
+      <div class="page-container">
+        ${(function(){
+          if (data === undefined || typeof data !== 'string' || data == '') return '';
+          const keyword = encodeURIComponent(data);
+          return `
+            <div class="header__search_product_list_wrap">
+              <spz-list
+                class="header__search_product_list"
+                id="{{list_id}}"
+                layout="container"
+                initial-page="0"
+                size="limit"
+                page-size="4"
+                src="{{ '/api/search' | add_root_url }}?keyword=${keyword}"
+                list="data.products"
+                total="data.total"
+                template="header_search_product_list_template{{render_id_suffix}}"
+              ></spz-list>
+              <div class="header__search_product__view_more_wrap">
+                <a
+                  href="{{ '/search?q=${keyword}' | add_root_url }}"
+                  class="header__search_product__view_more button-primary rounded-btn no-underline">
+                  {{ 'i18n.general.view.view_more' | t }}
+                </a>
+              </div>
+              <div class="header__search_product__empty">
+                {{ 'i18n.search.no_results' | t : name: '${data}' }}
+              </div>
+              {% include 'loading', display: false, has_full_mask: false %}
+            </div>
+          `
+        })()}
+      </div>
+    </template>
+  </spz-render>
+{% endif %}

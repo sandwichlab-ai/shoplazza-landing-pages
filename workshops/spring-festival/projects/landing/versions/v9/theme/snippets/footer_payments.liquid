@@ -1,0 +1,36 @@
+{% assign title = block.settings.title %}
+{% assign icons = block.settings.icons %}
+{% assign customized_icon = block.settings.customized_icon %}
+
+{% if shop.enabled_payment_types.size > 0 and customized_icon == false %}
+  {% assign icons = '' %}
+  {% for item in shop.enabled_payment_types %}
+    {% for icon in shop.enabled_payment_resources[item].support_cards %}
+      {% assign icons = icons | append: icon.icon_svg | append: ',' %}
+    {% endfor %}
+  {% endfor %}
+  {% assign icons = icons | split: ',' %}
+{% endif %}
+
+{% capture content_items_dom %}
+  {% for icon in icons %}
+    {% assign icon = icon | strip %}
+    {% if icon != '' %}
+      <li class="footer__payment__item">
+        {% if customized_icon %}
+          {{ icon | placeholder_svg_tag }}
+        {% else %}
+          <spz-img src="{{ icon | img_url: '100x' }}" layout="fixed" width="38" height="24" object-fit="cover"></spz-img>
+        {% endif %}
+      </li>
+    {% endif %}
+  {% endfor %}
+{% endcapture %}
+
+{% if icons.size == 0 %}
+  {% assign has_content = false %}
+{% else %}
+  {% assign has_content = true %}
+{% endif %}
+
+{% render 'footer_block_template', title, content_items_dom, has_content, block_class: 'footer__block-payment' %}

@@ -1,0 +1,82 @@
+{% assign template_base = template.name | split: '.' | first %}
+{% assign og_title = shop.name  %}
+{% assign og_url = canonical_url | default: shop.url %}
+{% assign og_type = 'website' %}
+{% assign og_description = page_description | default: shop.description | default: shop.name %}
+
+{% assign page_image = images[settings.share_cover] %}
+
+{% if template_base == 'product' %}
+  {% assign og_title = product.title | strip_html %}
+  {% assign og_type = 'product' %}
+  {% assign og_description = product.meta_description | newline_to_br | replace: "<br />", " " | default: shop.name %}
+  {% if og_description == " " %}
+    {% assign og_description = shop.name %}
+  {% endif %}
+  {% if product.image %}
+    {% assign page_image = product.image %}
+  {% endif %}
+{% elsif template_base == 'article' %}
+  {% assign og_title = article.title | strip_html %}
+  {% assign og_type = 'article' %}
+  {% assign og_description = article.excerpt_or_content | strip_html %}
+  {% if article.image %}
+    {% assign page_image = article.image %}
+  {% endif %}
+{% elsif template_base == 'collection' %}
+  {% if collection.image.src != blank %}
+    {% assign page_image = collection.image %}
+  {% else %}
+    {% paginate collection.products by 1 %}
+      {% assign collection_product0 = collection.products[0] %}
+    {% endpaginate %}
+    {% if collection_product0 %}
+      {% assign page_image = collection_product0.image %}
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+<meta property="og:site_name" content="{{ shop.name | escape }}">
+<meta property="og:url" content="{{ og_url }}">
+<meta property="og:title" content="{{ og_title }}">
+<meta property="og:type" content="{{ og_type }}">
+<meta property="og:description" content="{{ og_description | strip_html | escape }}">
+{% if template_base == 'product' %}
+  {% assign productSelectedVariant = product.selected_or_first_available_variant %}
+  {% unless product.published %}
+    {% assign availability = 'discontinued' %}
+  {% else %}
+    {% if product.available %}
+      {% assign availability = 'in stock' %}
+    {% else %}
+      {% assign availability = 'out of stock' %}
+    {% endif %}
+  {% endunless %}
+
+  {% include 'setSelectedVariant' %}
+  {% if productSelectedVariant %}
+    {% if productSelectedVariant.available %}
+      {% assign availability = 'in stock' %}
+    {% else %}
+      {% assign availability = 'out of stock' %}
+    {% endif %}
+  {% endif %}
+  <meta property="product:price:amount" content="{% if productSelectedVariant %}{{ productSelectedVariant.price }}{% else %}{{ product.price }}{% endif %}">
+  <meta property="product:price:currency" content="{{shop.currency_code}}">
+  <meta property="product:condition" content="new">
+  <meta property="product:availability" content="{{ availability }}">
+  <meta property="product:retailer_item_id" content="{% if productSelectedVariant %}{{ productSelectedVariant.id }}{% else %}{{ product.id }}{% endif %}">
+{% endif %}
+
+{% if page_image.src %}
+  <meta property="og:image" content="http:{{ page_image | img_url }}">
+  <meta property="og:image:secure_url" content="https:{{ page_image | img_url }}">
+  <meta property="og:image:width" content="{{ page_image.width }}">
+  <meta property="og:image:height" content="{{ page_image.height }}">
+  <meta property="og:image:alt" content="{{ page_image.alt | escape }}">
+{% endif %}
+
+<meta name="twitter:site" content="{{ settings.social_twitter_link | split: 'twitter.com/' | last | prepend: '@' }}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ og_title }}">
+<meta name="twitter:description" content="{{ og_description | strip_html | escape }}">

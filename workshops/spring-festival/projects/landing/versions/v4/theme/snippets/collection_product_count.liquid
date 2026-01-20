@@ -1,0 +1,21 @@
+<spz-render manual id='collection_product_count' layout='container'>
+  <span>
+    {% assign product_name = 'i18n.collection.collection_detail.products_name' | t %}
+    {% if product_total < 2 %}
+      {% assign product_name = 'i18n.collection.collection_detail.product_name' | t %}
+    {% endif %}
+    {{product_total}}
+    {{product_name}}
+  </span>
+  <template>
+    <span>
+      ${function(){
+          const product_total = data.total
+          if(product_total <= 1){
+            return `${product_total} {{ 'i18n.collection.collection_detail.product_name' | t  }}`
+          }
+          return `${product_total} {{ 'i18n.collection.collection_detail.products_name' | t }}`
+        }()}
+    </span>
+  </template>
+</spz-render>

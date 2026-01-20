@@ -1,0 +1,16 @@
+<div class="flex flex-wrap items-center color-body-70" {% if custom_shoplaza_attributes %}{{custom_shoplaza_attributes}}{% else %}{{ item.shoplaza_attributes }}{% endif %}>
+  {% if shop.wholesale_enabled %}
+    {% assign retail_price = product.retail_price_max | default: product.compare_at_price_max %}
+    {% if productSelectedVariant %}
+      {% assign retail_price = productSelectedVariant.retail_price | default: productSelectedVariant.compare_at_price %}
+    {% endif %}
+    <div class="{% if retail_price <= 0 %} hidden {% endif %} mr-2 {{item_class}}">{{ 'i18n.products.general.retail' | t }}&nbsp<span class="money">{{ retail_price | money_with_symbol }}</span></div>
+  {% endif %}
+
+  {% assign productSales = product.sales %}
+  {% assign formatSales = productSales %}
+
+  {% if productSales > 0 %}
+    <div class="body-minus-2 leading-1.2 {{item_class}}">{{ 'i18n.product.product_detail.sold' | t: count: formatSales }}</div>
+  {% endif %}
+</div>

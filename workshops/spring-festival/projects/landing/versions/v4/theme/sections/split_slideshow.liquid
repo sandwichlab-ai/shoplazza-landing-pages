@@ -1,0 +1,415 @@
+{% assign block_size = section.blocks.size %}
+{% include 'card_spacing_slide_css' %}
+{% include 'split_slideshow_css' %}
+<div class="{% unless section.settings.full_page %} page-container {% endunless %}">
+  <div class="slide_content relative" style="min-height: {{section.settings.mobile_height}}px;">
+    <spz-carousel
+      ssr
+      layout="container"
+      {% if section.settings.slide_style == "magazine" %}controls{% endif %}
+      {% if section.settings.auto_change %}autoplay{% endif %}
+      loop
+      animate-time="100"
+      initial-slide="0"
+      effect="fade"
+      class="split_slideshow-carousel"
+      delay="{{section.settings.second | times: 1000}}"
+      id="split_slideshow-carousel-{{ section.id }}"
+      @mounted="split_slideshow-{{ section.id }}-bar-render.rerender(data=event);split_slideshow-roll-arrows-{{ section.id }}-render.rerender(data=event);"
+      @slideChange="split_slideshow-{{ section.id }}-bar-render.rerender(data=event);split_slideshow-roll-arrows-{{ section.id }}-render.rerender(data=event);">
+      {% for item in section.blocks %}
+        {% assign default_img = 'lifestyle-1' | placeholder_svg %}
+        {% assign img = images[item.settings.img] | default: default_img %}
+        {% assign text_align = "left" %}
+        {% assign align_items = "center" %}
+        {% assign justify_content = "flex-start" %}
+        {% if section.settings.slide_style == "magazine" %}
+          {% assign text_align = "center" %}
+          {% assign justify_content = "center" %}
+        {% endif %}
+
+        <div
+          class="slick_item relative flex md:flex-col {% if item.settings.text_align == 'left' %} lg:flex-row-reverse {% endif %} box-border w-full flex-shrink-0 overflow-hidden " style="{% if item.settings.bg_color %} background-color: {{item.settings.bg_color}} {% endif %}" text_align="{{item.settings.text_align }}">
+          {% comment %} mobile {% endcomment %}
+          {% include 'split_slideshow_img', container_class: "lg:hidden split_slideshow_img h-full flex z-1", sizeRatio: 2 %}
+          {% include 'slideshow_text' container_class: 'lg:hidden slideshow_text_md split_text_magazine z-10', slide_style: section.settings.slide_style %}
+
+          {% comment %} pc {% endcomment %}
+          {% include 'split_slideshow_img', container_class: 'md:hidden h-full flex split_slideshow_img split_img_magazine z-1', slide_style: section.settings.slide_style, sizeRatio: 1 %}
+          {% include 'slideshow_text' container_class: 'md:hidden slideshow_text split_text_magazine z-10', slide_style: section.settings.slide_style, text_align: item.settings.text_align %}
+        </div>
+      {% endfor %}
+      {% if block_size > 1 %}
+        {% include 'icon_chevron_up', attr: 'pre ' %}
+        {% include 'icon_chevron_up', attr: 'next ' %}
+      {% endif %}
+    </spz-carousel>
+
+    {% if block_size > 1 %}
+      <spz-render
+        class="{% if section.settings.slide_style == "magazine" %} lg:right-[40px] {% else %} left-1/2 {% endif %} md:hidden slideshow-bar-container items-center justify-center absolute -translate-x-1/2 bottom-3 lg:bottom-5 z-10"
+        id="split_slideshow-{{ section.id }}-bar-render"
+        layout="container"
+        manual>
+        <template>
+          <ul class="flex justify-center items-center z-10 clear">
+            ${Array(data.total || 0).fill().map((val, idx) => idx).map((val, idx) => `
+            <li
+              class="slideshow-bar-item z-10"
+              data-active="${data.index == idx}"
+              @tap="split_slideshow-carousel-{{ section.id }}.goToSlide(index=${idx});"></li>
+            `).join('')}
+          </ul>
+        </template>
+      </spz-render>
+    {% endif %}
+
+    {% comment %} arrows {% endcomment %}
+    {% if section.settings.slide_style != 'magazine' %}
+      {% capture arrow_id %}split_slideshow-carousel-{{ section.id }}{% endcapture %}
+      {% capture render_id %}split_slideshow-roll-arrows-{{ section.id }}-render{% endcapture %}
+      {% include 'carousel_arrow', container_class: 'slideshow_carousel_arrow absolute z-10 -bottom-5 right-4 lg:right-[72px]', arrow_id: arrow_id, render_id: render_id %}
+    {% endif %}
+  </div>
+
+</div>
+
+{% schema %}
+  {
+    "name": "split_slideshow",
+    "class": "card-split-spacing",
+    "max_blocks": 5,
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "full_page",
+        "label": {
+          "en-US": "Full page width",
+          "zh-CN": "全屏宽度"
+        },
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "pc_height",
+        "step": 10,
+        "max": 750,
+        "min": 450,
+        "label": {
+          "en-US": "Desktop height",
+          "zh-CN": "PC端高度"
+        },
+        "default": 650,
+        "unit": "px"
+      },
+      {
+        "type": "range",
+        "id": "mobile_height",
+        "step": 10,
+        "max": 650,
+        "min": 350,
+        "label": {
+          "en-US": "Mobile height",
+          "zh-CN": "移动端高度"
+        },
+        "default": 450,
+        "unit": "px"
+      },
+      {
+        "type": "select",
+        "id": "slide_style",
+        "default": "classic",
+        "label": {
+          "en-US": "Slideshow style",
+          "zh-CN": "幻灯风格"
+        },
+        "options": [
+          {
+            "label": {
+              "en-US": "Classic",
+              "zh-CN": "经典"
+            },
+            "value": "classic"
+          }, {
+            "label": {
+              "en-US": "Magazine",
+              "zh-CN": "杂志"
+            },
+            "value": "magazine"
+          }
+        ]
+      }, {
+        "type": "checkbox",
+        "id": "auto_change",
+        "label": {
+          "en-US": "Auto-change slides",
+          "zh-CN": "自动切换幻灯"
+        },
+        "default": true
+      }, {
+        "type": "range",
+        "id": "second",
+        "step": 1,
+        "max": 10,
+        "min": 5,
+        "label": {
+          "en-US": "Change images every",
+          "zh-CN": "幻灯切换时间"
+        },
+        "default": 7,
+        "unit": "s"
+      }
+    ],
+    "blocks": [
+      {
+        "type": "slide",
+        "name": {
+          "en-US": "Slide",
+          "zh-CN": "幻灯"
+        },
+        "settings": [
+          {
+            "type": "text",
+            "id": "heading",
+            "label": {
+              "en-US": "Heading",
+              "zh-CN": "标题"
+            },
+            "default": "Overlaid Hero Slide"
+          },
+          {
+            "type": "range",
+            "id": "heading_size",
+            "step": 1,
+            "max": 100,
+            "min": 40,
+            "label": {
+              "en-US": "Heading text size",
+              "zh-CN": "标题字号"
+            },
+            "default": 70,
+            "unit": "px"
+          },
+          {
+            "type": "textarea",
+            "id": "text",
+            "label": {
+              "en-US": "Text",
+              "zh-CN": "文字"
+            },
+            "default": "And optional subtext"
+          },
+          {
+            "type": "url",
+            "id": "url1",
+            "label": {
+              "zh-CN": "幻灯链接 #1",
+              "en-US": "Link 1"
+            },
+            "default": ""
+          }, {
+            "type": "text",
+            "id": "link_text1",
+            "label": {
+              "zh-CN": "按钮文本 #1",
+              "en-US": "Button text 1"
+            },
+            "default": "Optional button"
+          }, {
+            "type": "url",
+            "id": "url2",
+            "label": {
+              "zh-CN": "幻灯链接 #2",
+              "en-US": "Link 2"
+            },
+            "default": ""
+          }, {
+            "type": "text",
+            "id": "link_text2",
+            "label": {
+              "zh-CN": "按钮文本 #2",
+              "en-US": "Button text 2"
+            },
+            "default": "Optional button"
+          }, {
+            "type": "select",
+            "id": "text_align",
+            "default": "left",
+            "label": {
+              "en-US": "Text position",
+              "zh-CN": "文字位置"
+            },
+            "options": [
+              {
+                "label": {
+                  "en-US": "Left",
+                  "zh-CN": "靠左"
+                },
+                "value": "left"
+              }, {
+                "label": {
+                  "en-US": "Right",
+                  "zh-CN": "靠右"
+                },
+                "value": "right"
+              }
+            ]
+          }, {
+            "type": "image_picker",
+            "resource_type": {
+              "design": {
+                "type": "Banner"
+              }
+            },
+            "id": "img",
+            "label": {
+              "en-US": "Image",
+              "zh-CN": "图片"
+            }
+          }, {
+            "type": "checkbox",
+            "id": "img_indent",
+            "label": {
+              "en-US": "Indent image",
+              "zh-CN": "图片缩进"
+            },
+            "info": {
+              "en-US": "This configuration does not work when the Slideshow style is magazine",
+              "zh-CN": "当幻灯风格为杂志时，此配置不生效"
+            },
+            "default": false
+          }, {
+            "type": "select",
+            "id": "img_position",
+            "default": "center",
+            "label": {
+              "en-US": "Image focal point",
+              "zh-CN": "图片焦点"
+            },
+            "options": [
+              {
+                "label": {
+                  "en-US": "Top left",
+                  "zh-CN": "左上"
+                },
+                "value": "left top"
+              },
+              {
+                "label": {
+                  "en-US": "Top",
+                  "zh-CN": "上"
+                },
+                "value": "top"
+              },
+              {
+                "label": {
+                  "en-US": "Top right",
+                  "zh-CN": "右上"
+                },
+                "value": "right top"
+              },
+              {
+                "label": {
+                  "en-US": "Left",
+                  "zh-CN": "左"
+                },
+                "value": "left"
+              }, {
+                "label": {
+                  "en-US": "Center",
+                  "zh-CN": "中"
+                },
+                "value": "center"
+              }, {
+                "label": {
+                  "en-US": "Right",
+                  "zh-CN": "右"
+                },
+                "value": "right"
+              }, {
+                "label": {
+                  "en-US": "Bottom left",
+                  "zh-CN": "左下"
+                },
+                "value": "left bottom"
+              }, {
+                "label": {
+                  "en-US": "Bottom",
+                  "zh-CN": "下"
+                },
+                "value": "bottom"
+              }, {
+                "label": {
+                  "en-US": "Bottom right",
+                  "zh-CN": "右下"
+                },
+                "value": "right bottom"
+              }
+            ]
+          }, {
+            "type": "color",
+            "id": "bg_color",
+            "label": {
+              "en-US": "Background color",
+              "zh-CN": "背景颜色"
+            },
+            "default": "#ffffff"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "split_slideshow",
+        "cname": {
+          "en-US": "Split slideshow",
+          "zh-CN": "分割幻灯"
+        },
+        "category": {
+          "zh-CN": "幻灯",
+          "en-US": "Slideshow"
+        },
+        "ccategory": {
+          "zh-CN": "幻灯",
+          "en-US": "Slideshow"
+        },
+        "display": true,
+        "blocks": [
+          {
+            "type": "slide",
+            "settings": {
+              "heading": "Overlaid Hero Slide",
+              "heading_size": 70,
+              "text": "And optional subtext",
+              "url1": "",
+              "link_text1": "Optional button",
+              "url2": "",
+              "link_text2": "Optional button",
+              "text_align": "left",
+              "img": "",
+              "img_indent": false,
+              "img_position": "center",
+              "bg_color": "#ffffff"
+            }
+          }, {
+            "type": "slide",
+            "settings": {
+              "heading": "Overlaid Hero Slide",
+              "heading_size": 70,
+              "text": "And optional subtext",
+              "url1": "",
+              "link_text1": "Optional button",
+              "url2": "",
+              "link_text2": "Optional button",
+              "text_align": "left",
+              "img": "",
+              "img_indent": false,
+              "img_position": "center",
+              "bg_color": "#ffffff"
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

@@ -1,0 +1,924 @@
+<style>
+/* 春节大促落地页 */
+.sf-landing {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #8B0000 0%, #DC143C 50%, #FF4500 100%);
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* 顶部横幅 */
+.sf-banner {
+  background: rgba(0,0,0,0.3);
+  padding: 12px 20px;
+  text-align: center;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.sf-banner-text {
+  color: #FFD700;
+  font-weight: 700;
+}
+
+/* 装饰元素 */
+.sf-lanterns {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  font-size: 48px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* 主内容区 */
+.sf-hero {
+  position: relative;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px 60px;
+  text-align: center;
+}
+
+.sf-hero-content {
+  max-width: 600px;
+  position: relative;
+  z-index: 1;
+}
+
+/* 年份标识 */
+.sf-year-badge {
+  display: inline-block;
+  background: #FFD700;
+  color: #8B0000;
+  padding: 8px 24px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(255,215,0,0.4);
+}
+
+/* 主标题 */
+.sf-title {
+  margin: 0 0 16px 0;
+  line-height: 1.1;
+}
+
+.sf-title-main {
+  display: block;
+  font-size: 64px;
+  font-weight: 900;
+  color: #FFD700;
+  text-shadow: 3px 3px 0 #8B0000, 0 0 30px rgba(255,215,0,0.5);
+  letter-spacing: 8px;
+}
+
+.sf-title-sub {
+  display: block;
+  font-size: 36px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 8px;
+  letter-spacing: 4px;
+}
+
+/* 副标题 */
+.sf-subtitle {
+  font-size: 18px;
+  color: rgba(255,255,255,0.9);
+  margin: 0 0 40px 0;
+  letter-spacing: 2px;
+}
+
+/* 折扣展示 */
+.sf-discount {
+  margin-bottom: 40px;
+}
+
+.sf-discount-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(0,0,0,0.3);
+  padding: 20px 40px;
+  border-radius: 16px;
+  border: 2px solid #FFD700;
+}
+
+.sf-discount-num {
+  font-size: 72px;
+  font-weight: 900;
+  color: #FFD700;
+  line-height: 1;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.sf-discount-text {
+  text-align: left;
+}
+
+.sf-discount-off {
+  font-size: 28px;
+  font-weight: 700;
+  color: #FFD700;
+}
+
+.sf-discount-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+}
+
+/* 倒计时 */
+.sf-countdown {
+  margin-bottom: 40px;
+}
+
+.sf-countdown-title {
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 12px;
+  letter-spacing: 2px;
+}
+
+.sf-timer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.sf-timer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sf-timer-num {
+  background: rgba(0,0,0,0.4);
+  border: 2px solid #FFD700;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 28px;
+  font-weight: 700;
+  min-width: 60px;
+  color: #FFD700;
+}
+
+.sf-timer-label {
+  font-size: 12px;
+  margin-top: 4px;
+  color: rgba(255,255,255,0.7);
+}
+
+.sf-timer-sep {
+  font-size: 28px;
+  font-weight: 700;
+  color: #FFD700;
+  margin-top: 12px;
+}
+
+/* 特色标签 */
+.sf-features {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.sf-feature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.15);
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 14px;
+}
+
+.sf-feature-icon {
+  font-size: 18px;
+}
+
+/* CTA 按钮 */
+.sf-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #FFD700;
+  color: #8B0000;
+  text-decoration: none;
+  padding: 20px 56px;
+  border-radius: 50px;
+  font-size: 20px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 30px rgba(255,215,0,0.4);
+}
+
+.sf-cta:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(255,215,0,0.6);
+  background: #FFF8DC;
+}
+
+/* 底部提示 */
+.sf-note {
+  margin-top: 24px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+}
+
+.sf-note strong {
+  color: #FFD700;
+}
+
+/* ========== 商品列表区域 ========== */
+.sf-products-section {
+  background: linear-gradient(180deg, rgba(139,0,0,0.95) 0%, #1a1a2e 100%);
+  padding: 60px 20px 80px;
+  position: relative;
+}
+
+.sf-products-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,0.2));
+  pointer-events: none;
+}
+
+.sf-section-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.sf-section-title {
+  font-size: 36px;
+  font-weight: 800;
+  color: #FFD700;
+  margin: 0 0 12px 0;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  letter-spacing: 4px;
+}
+
+.sf-section-subtitle {
+  font-size: 16px;
+  color: rgba(255,255,255,0.7);
+  margin: 0;
+}
+
+/* 分类筛选 */
+.sf-category-filter {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.sf-category-btn {
+  background: rgba(255,255,255,0.1);
+  border: 2px solid rgba(255,215,0,0.3);
+  color: rgba(255,255,255,0.8);
+  padding: 10px 24px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sf-category-btn:hover,
+.sf-category-btn.active {
+  background: #FFD700;
+  border-color: #FFD700;
+  color: #8B0000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255,215,0,0.4);
+}
+
+/* 商品网格 */
+.sf-products-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sf-products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+/* 商品卡片 */
+.sf-product-card {
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,215,0,0.1);
+}
+
+.sf-product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(255,215,0,0.15);
+  border-color: rgba(255,215,0,0.3);
+}
+
+.sf-product-image {
+  position: relative;
+  padding-top: 100%;
+  background: linear-gradient(135deg, #2a2a4a 0%, #1a1a2e 100%);
+  overflow: hidden;
+}
+
+.sf-product-image img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.sf-product-card:hover .sf-product-image img {
+  transform: scale(1.08);
+}
+
+/* 商品标签 */
+.sf-product-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: linear-gradient(135deg, #FF4500, #DC143C);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 2;
+  box-shadow: 0 2px 10px rgba(255,69,0,0.4);
+}
+
+.sf-product-badge.hot {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #8B0000;
+}
+
+.sf-product-badge.new {
+  background: linear-gradient(135deg, #00CED1, #20B2AA);
+}
+
+/* 快速操作 */
+.sf-product-actions {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+}
+
+.sf-product-card:hover .sf-product-actions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.sf-action-btn {
+  flex: 1;
+  background: rgba(255,215,0,0.95);
+  border: none;
+  color: #8B0000;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sf-action-btn:hover {
+  background: #fff;
+  transform: scale(1.05);
+}
+
+.sf-action-btn.secondary {
+  flex: 0 0 44px;
+  background: rgba(255,255,255,0.9);
+}
+
+/* 商品信息 */
+.sf-product-info {
+  padding: 16px;
+}
+
+.sf-product-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.sf-product-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.sf-price-current {
+  font-size: 20px;
+  font-weight: 800;
+  color: #FFD700;
+}
+
+.sf-price-original {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  text-decoration: line-through;
+}
+
+.sf-price-discount {
+  background: rgba(255,69,0,0.2);
+  color: #FF6347;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* 商品评分 */
+.sf-product-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sf-rating-stars {
+  color: #FFD700;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+.sf-rating-count {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+}
+
+/* 分页 */
+.sf-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 50px;
+}
+
+.sf-page-btn {
+  background: rgba(255,255,255,0.1);
+  border: 2px solid rgba(255,215,0,0.3);
+  color: rgba(255,255,255,0.8);
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sf-page-btn:hover,
+.sf-page-btn.active {
+  background: #FFD700;
+  border-color: #FFD700;
+  color: #8B0000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(255,215,0,0.4);
+}
+
+.sf-page-btn.nav {
+  width: auto;
+  padding: 0 20px;
+}
+
+.sf-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.sf-page-info {
+  color: rgba(255,255,255,0.6);
+  font-size: 14px;
+  margin: 0 16px;
+}
+
+/* 响应式 */
+@media (max-width: 1024px) {
+  .sf-products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .sf-title-main {
+    font-size: 42px;
+    letter-spacing: 4px;
+  }
+  .sf-title-sub {
+    font-size: 24px;
+  }
+  .sf-discount-num {
+    font-size: 48px;
+  }
+  .sf-timer-num {
+    font-size: 22px;
+    min-width: 50px;
+    padding: 10px 12px;
+  }
+  .sf-cta {
+    padding: 16px 40px;
+    font-size: 18px;
+  }
+  .sf-lanterns {
+    font-size: 32px;
+  }
+  .sf-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .sf-section-title {
+    font-size: 28px;
+  }
+  .sf-category-filter {
+    gap: 8px;
+  }
+  .sf-category-btn {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+  .sf-product-name {
+    font-size: 14px;
+  }
+  .sf-price-current {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sf-products-grid {
+    grid-template-columns: 1fr;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  .sf-page-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+}
+</style>
+
+<section class="sf-landing" data-project="landing" data-version="v2">
+  <!-- 顶部横幅 -->
+  <div class="sf-banner">
+    <span class="sf-banner-text">🧧 2026 春节大促 · 龙年送福 · 全场特惠 🧧</span>
+  </div>
+
+  <!-- 装饰灯笼 -->
+  <div class="sf-lanterns">
+    <span>🏮</span>
+    <span>🧧</span>
+    <span>🏮</span>
+    <span>🧧</span>
+    <span>🏮</span>
+  </div>
+
+  <!-- 主内容区 -->
+  <div class="sf-hero">
+    <div class="sf-hero-content">
+      <div class="sf-year-badge">🐉 龙年大吉 2026</div>
+
+      <h1 class="sf-title">
+        <span class="sf-title-main">春节大促</span>
+        <span class="sf-title-sub">新春特惠 福利来袭</span>
+      </h1>
+
+      <p class="sf-subtitle">全场商品低至3折 · 满额再减 · 好礼相送</p>
+
+      <!-- 折扣展示 -->
+      <div class="sf-discount">
+        <div class="sf-discount-box">
+          <span class="sf-discount-num">40%</span>
+          <div class="sf-discount-text">
+            <div class="sf-discount-off">OFF</div>
+            <div class="sf-discount-desc">最高立减四折</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 倒计时 -->
+      <div class="sf-countdown">
+        <div class="sf-countdown-title">距离活动结束还有</div>
+        <div class="sf-timer">
+          <div class="sf-timer-item">
+            <span class="sf-timer-num" id="sf-days">07</span>
+            <span class="sf-timer-label">天</span>
+          </div>
+          <span class="sf-timer-sep">:</span>
+          <div class="sf-timer-item">
+            <span class="sf-timer-num" id="sf-hours">23</span>
+            <span class="sf-timer-label">时</span>
+          </div>
+          <span class="sf-timer-sep">:</span>
+          <div class="sf-timer-item">
+            <span class="sf-timer-num" id="sf-minutes">59</span>
+            <span class="sf-timer-label">分</span>
+          </div>
+          <span class="sf-timer-sep">:</span>
+          <div class="sf-timer-item">
+            <span class="sf-timer-num" id="sf-seconds">59</span>
+            <span class="sf-timer-label">秒</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 特色标签 -->
+      <div class="sf-features">
+        <div class="sf-feature">
+          <span class="sf-feature-icon">🎁</span>
+          <span>满299减50</span>
+        </div>
+        <div class="sf-feature">
+          <span class="sf-feature-icon">🚚</span>
+          <span>全场包邮</span>
+        </div>
+        <div class="sf-feature">
+          <span class="sf-feature-icon">🧧</span>
+          <span>新春红包</span>
+        </div>
+      </div>
+
+      <a href="#sf-products" class="sf-cta">
+        🛒 立即抢购
+      </a>
+
+      <p class="sf-note">
+        🔥 已有 <strong>5,288</strong> 人参与抢购
+      </p>
+    </div>
+  </div>
+
+  <!-- 商品列表区域 -->
+  <div class="sf-products-section" id="sf-products">
+    <div class="sf-section-header">
+      <h2 class="sf-section-title">🎊 新春特惠好物 🎊</h2>
+      <p class="sf-section-subtitle">精选爆款，限时抢购，错过再等一年</p>
+    </div>
+
+    <!-- 分类筛选 -->
+    <div class="sf-category-filter">
+      <button class="sf-category-btn active" data-category="all">全部商品</button>
+      <button class="sf-category-btn" data-category="clothing">服饰鞋包</button>
+      <button class="sf-category-btn" data-category="beauty">美妆护肤</button>
+      <button class="sf-category-btn" data-category="digital">数码家电</button>
+      <button class="sf-category-btn" data-category="home">家居生活</button>
+      <button class="sf-category-btn" data-category="food">食品零食</button>
+    </div>
+
+    <!-- 商品网格 -->
+    <div class="sf-products-container">
+      <div class="sf-products-grid" id="sf-products-grid">
+        <!-- 商品会通过 JS 动态渲染 -->
+      </div>
+
+      <!-- 分页 -->
+      <div class="sf-pagination" id="sf-pagination">
+        <!-- 分页会通过 JS 动态渲染 -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // 隐藏 header/footer
+  document.querySelectorAll('[data-section-type="header"], [data-section-type="announcement"], footer, .footer, [class*="footer"], header, .header, [class*="header"]').forEach(el => {
+    el.style.display = 'none';
+  });
+
+  // 春节倒计时 - 到正月十五
+  function updateCountdown() {
+    const now = new Date();
+    const endDate = new Date('2026-02-12T23:59:59'); // 正月十五
+    const diff = endDate - now;
+
+    if (diff <= 0) {
+      document.querySelectorAll('.sf-timer-num').forEach(el => el.textContent = '00');
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById('sf-days').textContent = days.toString().padStart(2, '0');
+    document.getElementById('sf-hours').textContent = hours.toString().padStart(2, '0');
+    document.getElementById('sf-minutes').textContent = minutes.toString().padStart(2, '0');
+    document.getElementById('sf-seconds').textContent = seconds.toString().padStart(2, '0');
+  }
+
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
+
+  // ========== 商品数据和分页 ==========
+  const mockProducts = [
+    { id: 1, name: '龙年限定红色羊绒大衣', price: 899, original: 1599, badge: '热卖', badgeType: 'hot', category: 'clothing', rating: 4.9, reviews: 2341, image: 'https://picsum.photos/seed/coat/400/400' },
+    { id: 2, name: '新春护肤礼盒套装', price: 299, original: 599, badge: '新品', badgeType: 'new', category: 'beauty', rating: 4.8, reviews: 1892, image: 'https://picsum.photos/seed/beauty/400/400' },
+    { id: 3, name: '智能蓝牙降噪耳机 Pro', price: 459, original: 899, badge: '爆款', badgeType: 'hot', category: 'digital', rating: 4.9, reviews: 5672, image: 'https://picsum.photos/seed/earphone/400/400' },
+    { id: 4, name: '北欧风简约落地灯', price: 199, original: 399, badge: '', badgeType: '', category: 'home', rating: 4.7, reviews: 892, image: 'https://picsum.photos/seed/lamp/400/400' },
+    { id: 5, name: '新春坚果大礼包', price: 99, original: 199, badge: '热卖', badgeType: 'hot', category: 'food', rating: 4.9, reviews: 8234, image: 'https://picsum.photos/seed/nuts/400/400' },
+    { id: 6, name: '龙年生肖金饰项链', price: 1288, original: 2288, badge: '限定', badgeType: '', category: 'clothing', rating: 4.8, reviews: 456, image: 'https://picsum.photos/seed/necklace/400/400' },
+    { id: 7, name: '精华液抗老套装', price: 599, original: 1199, badge: '新品', badgeType: 'new', category: 'beauty', rating: 4.9, reviews: 2134, image: 'https://picsum.photos/seed/serum/400/400' },
+    { id: 8, name: '智能扫地机器人 X10', price: 1599, original: 2999, badge: '热卖', badgeType: 'hot', category: 'digital', rating: 4.8, reviews: 3421, image: 'https://picsum.photos/seed/robot/400/400' },
+    { id: 9, name: '记忆棉护颈枕头', price: 189, original: 359, badge: '', badgeType: '', category: 'home', rating: 4.7, reviews: 1567, image: 'https://picsum.photos/seed/pillow/400/400' },
+    { id: 10, name: '年货零食大礼包', price: 168, original: 298, badge: '爆款', badgeType: 'hot', category: 'food', rating: 4.9, reviews: 12453, image: 'https://picsum.photos/seed/snacks/400/400' },
+    { id: 11, name: '女士轻奢羊毛围巾', price: 259, original: 499, badge: '新品', badgeType: 'new', category: 'clothing', rating: 4.8, reviews: 1823, image: 'https://picsum.photos/seed/scarf/400/400' },
+    { id: 12, name: '面部按摩美容仪', price: 399, original: 799, badge: '', badgeType: '', category: 'beauty', rating: 4.7, reviews: 934, image: 'https://picsum.photos/seed/massager/400/400' },
+    { id: 13, name: '4K超清智能投影仪', price: 2499, original: 3999, badge: '热卖', badgeType: 'hot', category: 'digital', rating: 4.9, reviews: 2876, image: 'https://picsum.photos/seed/projector/400/400' },
+    { id: 14, name: '智能门锁指纹锁', price: 999, original: 1999, badge: '', badgeType: '', category: 'home', rating: 4.8, reviews: 1234, image: 'https://picsum.photos/seed/lock/400/400' },
+    { id: 15, name: '春节茶叶礼盒', price: 388, original: 688, badge: '新品', badgeType: 'new', category: 'food', rating: 4.9, reviews: 3245, image: 'https://picsum.photos/seed/tea/400/400' },
+    { id: 16, name: '男士商务休闲皮鞋', price: 399, original: 799, badge: '', badgeType: '', category: 'clothing', rating: 4.7, reviews: 2567, image: 'https://picsum.photos/seed/shoes/400/400' },
+    { id: 17, name: '龙年限定口红礼盒', price: 299, original: 599, badge: '限定', badgeType: '', category: 'beauty', rating: 4.9, reviews: 4532, image: 'https://picsum.photos/seed/lipstick/400/400' },
+    { id: 18, name: '无线充电宝 20000mAh', price: 149, original: 299, badge: '热卖', badgeType: 'hot', category: 'digital', rating: 4.8, reviews: 6723, image: 'https://picsum.photos/seed/powerbank/400/400' },
+    { id: 19, name: '龙年福字对联套装', price: 29, original: 59, badge: '爆款', badgeType: 'hot', category: 'home', rating: 4.9, reviews: 21345, image: 'https://picsum.photos/seed/couplet/400/400' },
+    { id: 20, name: '新疆红枣夹核桃', price: 59, original: 99, badge: '热卖', badgeType: 'hot', category: 'food', rating: 4.8, reviews: 18234, image: 'https://picsum.photos/seed/dates/400/400' },
+    { id: 21, name: '真皮手提包', price: 699, original: 1299, badge: '新品', badgeType: 'new', category: 'clothing', rating: 4.8, reviews: 1456, image: 'https://picsum.photos/seed/bag/400/400' },
+    { id: 22, name: '智能手表运动版', price: 899, original: 1499, badge: '热卖', badgeType: 'hot', category: 'digital', rating: 4.9, reviews: 5234, image: 'https://picsum.photos/seed/watch/400/400' },
+    { id: 23, name: '韩式双层电饭煲', price: 329, original: 599, badge: '', badgeType: '', category: 'home', rating: 4.7, reviews: 2341, image: 'https://picsum.photos/seed/cooker/400/400' },
+    { id: 24, name: '进口巧克力礼盒', price: 128, original: 228, badge: '新品', badgeType: 'new', category: 'food', rating: 4.8, reviews: 3567, image: 'https://picsum.photos/seed/chocolate/400/400' },
+  ];
+
+  // 分页配置
+  const pageSize = 8;
+  let currentPage = 1;
+  let currentCategory = 'all';
+
+  // 筛选商品
+  function filterProducts() {
+    if (currentCategory === 'all') return mockProducts;
+    return mockProducts.filter(p => p.category === currentCategory);
+  }
+
+  // 生成星级
+  function renderStars(rating) {
+    const full = Math.floor(rating);
+    const half = rating % 1 >= 0.5 ? 1 : 0;
+    return '★'.repeat(full) + (half ? '½' : '') + '☆'.repeat(5 - full - half);
+  }
+
+  // 渲染商品卡片
+  function renderProductCard(product) {
+    const discount = Math.round((1 - product.price / product.original) * 100);
+    return `
+      <div class="sf-product-card" data-id="${product.id}">
+        ${product.badge ? `<span class="sf-product-badge ${product.badgeType}">${product.badge}</span>` : ''}
+        <div class="sf-product-image">
+          <img src="${product.image}" alt="${product.name}" loading="lazy">
+          <div class="sf-product-actions">
+            <button class="sf-action-btn" onclick="addToCart(${product.id})">加入购物车</button>
+            <button class="sf-action-btn secondary">❤️</button>
+          </div>
+        </div>
+        <div class="sf-product-info">
+          <h3 class="sf-product-name">${product.name}</h3>
+          <div class="sf-product-price">
+            <span class="sf-price-current">¥${product.price}</span>
+            <span class="sf-price-original">¥${product.original}</span>
+            <span class="sf-price-discount">-${discount}%</span>
+          </div>
+          <div class="sf-product-rating">
+            <span class="sf-rating-stars">${renderStars(product.rating)}</span>
+            <span class="sf-rating-count">(${product.reviews.toLocaleString()})</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // 渲染商品列表
+  function renderProducts() {
+    const filtered = filterProducts();
+    const totalPages = Math.ceil(filtered.length / pageSize);
+    const start = (currentPage - 1) * pageSize;
+    const pageProducts = filtered.slice(start, start + pageSize);
+
+    document.getElementById('sf-products-grid').innerHTML = pageProducts.map(renderProductCard).join('');
+    renderPagination(totalPages, filtered.length);
+  }
+
+  // 渲染分页
+  function renderPagination(totalPages, total) {
+    if (totalPages <= 1) {
+      document.getElementById('sf-pagination').innerHTML = '';
+      return;
+    }
+
+    let html = `<button class="sf-page-btn nav" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹ 上一页</button>`;
+
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 1) {
+        html += `<button class="sf-page-btn ${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+      } else if (Math.abs(i - currentPage) === 2) {
+        html += `<span class="sf-page-btn" style="cursor:default">...</span>`;
+      }
+    }
+
+    html += `<span class="sf-page-info">共 ${total} 件</span>`;
+    html += `<button class="sf-page-btn nav" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>下一页 ›</button>`;
+
+    document.getElementById('sf-pagination').innerHTML = html;
+  }
+
+  // 翻页
+  function goToPage(page) {
+    const filtered = filterProducts();
+    const totalPages = Math.ceil(filtered.length / pageSize);
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderProducts();
+    document.getElementById('sf-products').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // 分类切换
+  document.querySelectorAll('.sf-category-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.sf-category-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      currentCategory = this.dataset.category;
+      currentPage = 1;
+      renderProducts();
+    });
+  });
+
+  // 加入购物车
+  function addToCart(id) {
+    const btn = event.target;
+    btn.textContent = '已添加 ✓';
+    btn.style.background = '#32CD32';
+    setTimeout(() => {
+      btn.textContent = '加入购物车';
+      btn.style.background = '';
+    }, 1500);
+  }
+
+  // 初始渲染
+  renderProducts();
+</script>
+
+{% schema %}
+{
+  "name": "page_detail",
+  "templates": ["page"],
+  "limit": 1,
+  "settings": [],
+  "presets": [
+    {
+      "name": "page_detail",
+      "cname": {
+        "zh-CN": "春节大促",
+        "en-US": "Spring Festival Sale"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": true,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

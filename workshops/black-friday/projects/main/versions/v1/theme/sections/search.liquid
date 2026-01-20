@@ -1,0 +1,363 @@
+{% assign count = search.results_count %}
+{% assign sort_size = search.sorts | size %}
+{% assign filter_size = search.filters | size %}
+{% assign row_product = section.settings.row_product | default: 4 %}
+{% assign page_row = section.settings.page_row | default: 4 %}
+{% assign mobile_layout = section.settings.mobile_layout | default: 2 %}
+{% assign limit = row_product | times: page_row %}
+{% assign page_count = count | divided_by: limit | ceil %}
+{% assign pagination_type = section.settings.pagination_type %}
+
+{% include 'collection_params' %}
+{% assign url_terms = search.terms | escape | url_encode %}
+{% assign searchSrc = '/api/search?keyword=' | append: url_terms | append: query | add_root_url %}
+
+{% assign showPagination = false %}
+{% if page_count > 1 or urlHasFilterParams == true or search.terms != nil %}
+  {% assign showPagination = true %}
+{% endif %}
+
+{% assign show_filter = false %}
+{% if filter_size > 0 %}
+  {% for filter_item in search.filters %}
+    {% if filter_item.param_name == "filter.v.price" and count > 0 %}
+      {% assign show_filter = true %}
+      {% break %}
+    {% endif %}
+    {% if filter_item.param_name != "filter.v.price" %}
+      {% assign filter_item_size = filter_item.values | size %}
+      {% if filter_item_size != 0  %}
+        {% assign show_filter = true %}
+        {% break %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+
+{% assign default_sort_val = 'manual' %}
+{% assign sort_by_val = default_sort_val %}
+
+{% assign defaultSortBy = nil %}
+{% assign selectedSortBy = nil %}
+
+{% for item in search.sorts %}
+  {% if item.name == sortByUrlValue %}
+    {% assign selectedSortBy = item %}
+    {% break %}
+  {% elsif item.name == 'manual' %}
+    {% assign defaultSortBy = item %}
+  {% endif %}
+{% endfor %}
+
+{% if selectedSortBy == nil %}
+  {% assign selectedSortBy = defaultSortBy %}
+{% endif %}
+
+{% assign sort_by_val = selectedSortBy.name %}
+{% assign sort_sel_label = selectedSortBy.label %}
+
+{% assign inline_start = 'left' %}
+{% assign inline_end = 'right' %}
+{% if shop.locale == 'ar-SA' %}
+  {% assign inline_start = 'right' %}
+  {% assign inline_end = 'left' %}
+{% endif %}
+
+{% include 'search_css' %}
+
+<div
+  class="page-container search-container"
+  id="search-container"
+  {% if show_filter == false %}
+    empty
+  {% endif %}
+  impr
+  data-aid
+>
+  <h1 class="md:hidden m-0 type-heading-font-family title-font text-center">
+    {{ 'i18n.search.search_products' | t }}
+  </h1>
+  <form class="search-form md:w-full flex items-center mt-3" id="search-form" action="{{ routes.search_url }}" method="get">
+    <input
+      id="search-form-input"
+      class="search-form-input clear flex-1 h-full lg:body-plus-2 md:hidden"
+      placeholder="{{ 'i18n.search.title' | t }}"
+      type="text"
+      name="q"
+      value="{{ search.terms }}"
+      maxlength="1024"
+      @input-debounced="search-filter.clearAll(refresh=false, keyword=event.value);search-input-refresh-list.refresh(keyword=event.value);SPZ.replaceUrlState(q=event.value, reload=false);search-script.execute(func='updateSearchTerms');search-filter-header-render.rerender(data=0);"
+    >
+    <input
+      id="search-form-input-mobile"
+      class="search-form-input clear flex-1 h-full lg:body-plus-2 lg:hidden"
+      placeholder="{{ 'i18n.search.title' | t }}"
+      type="text"
+      name="q"
+      value="{{ search.terms }}"
+      maxlength="1024"
+      @input-debounced="search-filter-mobile.clearAll(refresh=false, keyword=event.value);search-input-refresh-list.refresh(keyword=event.value);SPZ.replaceUrlState(q=event.value, reload=false);search-script.execute(func='updateSearchTerms');search-filter-header-render.rerender(data=0);"
+    >
+    <button class="search-form-submit-btn flex-shrink-0 h-full md:rounded-l-none body-plus-2 lg:rounded-l-none lg:body-plus-4" type="submit">
+      {{ 'i18n.search.search_button' | t }}
+    </button>
+  </form>
+
+  <template id="search-list-template">
+    {% include 'product_snippet', source_id: 'search-list', product_id: '${data.id}' %}
+  </template>
+
+    {% include 'search_filter_sort_mobile', show_filter: show_filter %}
+
+  <div class="flex mt-4 lg:mt-10">
+    {% include 'search_filter', show_filter: show_filter %}
+
+    <div class="search-result-content">
+      <div class="search-result-content-header">
+        <spz-render id="search-result-summary" layout="container" manual>
+          <div class="search_total">
+            {% if count > 0 %}
+              <span>{{ 'i18n.search.items' | t: count: count }}</span>
+            {% endif %}
+          </div>
+          <template>
+            <div class="search_total">
+              <span spz-if="${data.total > 0}">${({{ 'i18n.search.items' | t | json }}).replace(/\{\{\s*count\s*\}\}/, data.total)}</span>
+            </div>
+          </template>
+        </spz-render>
+
+        {% if sort_size > 0 %}
+          {% include 'search_sort' %}
+        {% endif %}
+      </div>
+      <spz-list
+        class="search-list"
+        id="search-list"
+        @dom-update="search-result-summary.rerender(data=event);search-result-summary-empty.rerender(data=event,redo=true);search-filter.rerender(data=event.requestData.data.filters);search-filter-mobile.rerender(data=event.requestData.data.filters);filter-result-count.rerender(data=event.total);search-script.execute(func='updateEmptyStatus', params=event);"
+        layout="container"
+        page-size="{{limit}}"
+        total="data.total"
+        initial-page="0"
+        src="{{ searchSrc }}"
+        list="data.products"
+        track-event-name="search_list_change"
+        {% if pagination_type == 'number' and showPagination %}
+          inherit-url-search="filter,sort_by,page"
+        {% else %}
+          inherit-url-search="filter,sort_by"
+        {% endif %}
+        {% if pagination_type == 'scroll' and showPagination %}
+          infinite-scroll
+        {% endif %}
+        manual
+        initial-total="{{count}}"
+        template="search-list-template"
+        record-params-page-plus-one
+      >
+        {% paginate search.results.products by limit %}
+          {% for product in search.results.products %}
+            {% include 'product', card_product: product %}
+          {% endfor %}
+        {% endpaginate %}
+
+        {% if pagination_type == 'click' and showPagination %}
+          <div
+            class="pt-10 flex justify-center items-center search_click_btn"
+            role="loadmore"
+            {% if count <= limit %}
+              hidden
+            {% endif %}
+          >
+            <button class="search_load_more button-secondary" type="button">
+              {{ 'i18n.general.general.load_more' | t }}
+            </button>
+          </div>
+        {% endif %}
+      </spz-list>
+
+      <spz-render
+        id="search-result-summary-empty"
+        class="search-result-summary-empty"
+        layout="container"
+        manual
+      >
+        <div class="search_total">
+          {% if count == 0 and search.terms %}
+            <span>{{ 'i18n.search.no_results' | t: name: search.terms }}</span>
+          {% endif %}
+          {% if count == 0 and search.terms == "" %}
+            {{ 'i18n.search.no_find' | t: event: '@tap="search-filter-mobile.clearAll;search-filter.clearAll;search-result-summary-empty.hide;"' }}
+          {% endif %}
+        </div>
+        <template>
+          <div class="search_total" spz-if="${data.total == 0}">
+            <span spz-if="${data.requestData.data.keyword != ''}">${({{ 'i18n.search.no_results' | t | json }}).replace(/\{\{\s*name\s*\}\}/, data.requestData.data.keyword)}</span>
+            <span spz-if="${data.requestData.data.keyword == ''}">
+            {{ 'i18n.search.no_find' | t: event: '@tap="search-filter-mobile.clearAll;search-filter.clearAll;search-result-summary-empty.hide;"' }}
+            </span>
+          </div>
+        </template>
+      </spz-render>
+
+      {% if pagination_type == 'number' and showPagination %}
+        {% include 'pagination_css' %}
+        <spz-pagination class="search-list-pagination w-full" list-id="search-list" layout="container" num-display-active="1">
+          {% include 'icon_chevron_up', attr: 'role="arrow"' %}
+        </spz-pagination>
+      {% endif %}
+
+      {% include 'loading', display: false, has_full_mask: true %}
+    </div>
+  </div>
+</div>
+
+{% include 'search_js' %}
+<spz-custom-search-one-click
+  layout="logic"
+  id="search-filter-view-more-handler"
+  container="search-filter"
+></spz-custom-search-one-click>
+<spz-custom-search-one-click
+  layout="logic"
+  id="search-filter-view-more-handler-mobile"
+  container="search-filter-sidebar"
+></spz-custom-search-one-click>
+
+<spz-custom-search-input-refresh-list
+  layout="logic"
+  list-id="search-list"
+  id="search-input-refresh-list"
+></spz-custom-search-input-refresh-list>
+
+{% schema %}
+{
+  "name": "search",
+  "templates": ["search"],
+  "limit": 1,
+  "settings": [
+    {
+      "type": "select",
+      "id": "mobile_layout",
+      "label": {
+        "en-US": "Mobile product layout",
+        "zh-CN": "移动端商品布局"
+      },
+      "default": 2,
+      "options": [
+        {
+          "value": 1,
+          "label": {
+            "en-US": "Large grid",
+            "zh-CN": "一栏"
+          }
+        },
+        {
+          "value": 2,
+          "label": {
+            "en-US": "Small grid",
+            "zh-CN": "两栏"
+          }
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "row_product",
+      "step": 1,
+      "max": 6,
+      "min": 2,
+      "label": {
+        "en-US": "Desktop products per row",
+        "zh-CN": "PC端每行商品数量"
+      },
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "page_row",
+      "step": 1,
+      "max": 20,
+      "min": 3,
+      "label": {
+        "en-US": "Rows per page",
+        "zh-CN": "每页商品行数"
+      },
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "pagination_type",
+      "label": {
+        "en-US": "Pagination",
+        "zh-CN": "分页"
+      },
+      "default": "number",
+      "options": [
+        {
+          "value": "number",
+          "label": {
+            "en-US": "Number",
+            "zh-CN": "数字分页"
+          }
+        },
+        {
+          "value": "scroll",
+          "label": {
+            "en-US": "Scroll loading",
+            "zh-CN": "滚动加载"
+          }
+        },
+        {
+          "value": "click",
+          "label": {
+            "en-US": "Click loading",
+            "zh-CN": "点击加载"
+          }
+        }
+      ]
+    },
+    {
+      "type": "app_link",
+      "app_name": "product-search",
+      "bg_color": "#F2F7FE",
+      "icon": "b246dee21917798bb3b9120f66d2eeea.svg",
+      "title": {
+        "en-US": "Smart Product Search",
+        "zh-CN": "智能商品搜索"
+      },
+      "subtitle": {
+        "en-US": "Customize filtering and sorting",
+        "zh-CN": "自定义搜索筛选与排序"
+      },
+      "actionText": {
+        "en-US": "Go setting",
+        "zh-CN": "去配置"
+      },
+      "appId": {
+        "develop": 8146850,
+        "staging": 8227899,
+        "production": 141443
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "search",
+      "cname": {
+        "en-US": "Search results",
+        "zh-CN": "搜索结果"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "ccategory": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": true
+    }
+  ]
+}
+{% endschema %}

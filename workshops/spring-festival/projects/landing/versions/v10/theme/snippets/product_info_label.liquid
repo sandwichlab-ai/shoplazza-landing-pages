@@ -1,0 +1,14 @@
+{% if label %}
+  {% capture label_dom %}
+    <div class="text-xs leading-1.3 color-custom-label-text product-info-custom-label bg-custom-label rounded-sm">{{label}}</div>
+  {% endcapture %}
+  {% if ids.size > 0 %}
+    {% for id in ids %}
+      {% if id == product.id %}
+        {{label_dom}}
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    {{label_dom}}
+  {% endif %}
+{% endif %}

@@ -1,0 +1,45 @@
+{% assign custom_text = item.settings.custom_text %}
+{% assign bgColor = block.settings.progress_bg %}
+{% assign barBgColor = block.settings.progress_bar_bg %}
+{% assign progress_bar_1_bg_color = item.settings.progress_bar_1_bg_color %}
+{% assign progress_bar_2_bg_color = item.settings.progress_bar_2_bg_color %}
+
+<style>
+  .product-info-free__shipping-progress-bar {
+    background: linear-gradient(to right, {{ progress_bar_1_bg_color }}, {{ progress_bar_2_bg_color }});
+    transition: width 1.2s ease;
+  }
+  .product-info-shipping-container{
+    background: {{ bgColor }};
+  }
+  .product-info-free__shipping {
+    background-color: {{ barBgColor }};
+  }
+</style>
+
+<spz-event target-id="product-info-free-shipping-render" target-api="render" event-name="dj.addToCart" layout="logic"></spz-event>
+
+<spz-render class="mt-2" id="product-info-free-shipping-render" src="{{ '/api/cart' | add_root_url }}" items="cart" layout="container">
+  <template>
+    <div>
+      ${function() {
+        const postageFreeAmount = {{ postage_free_amount | minus: 0 }};
+        const custom_text = {{ custom_text | json }};
+        const totalPrice = +data.total_price;
+        const diffPrice = postageFreeAmount - totalPrice;
+        const percentDiff = (diffPrice > 0 ? (totalPrice / postageFreeAmount * 100) : 100) + '%';
+        let tipText = {{ 'i18n.product.product_detail.free_delivery' | t | json }};
+        if (diffPrice > 0) {
+          tipText = custom_text.replace('{amount}', `<spz-currency class="inline-block" value="${diffPrice}" layout="container"></spz-currency>`);
+        }
+
+        return `
+          <div class="product-info-free__shipping relative rounded-sm overflow-hidden">
+            <div class="product-info-free__shipping-progress-bar absolute top-0 left-0 h-full w-0" style="width: ${percentDiff};"></div>
+            <div class="px-2 py-1 relative z-10 body-minus-2 leading-1.2 font-medium">${tipText}</div>
+          </div>
+        `;
+      }()}
+    </div>
+  </template>
+</spz-render>

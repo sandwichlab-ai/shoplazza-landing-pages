@@ -1,0 +1,16 @@
+<div class="flex items-start flex-wrap {% unless type contains 'cart' %} justify-end mt-2 md:text-xs break-words color-text-default {% endunless %} {{discount_class}}" spz-for="discount_item in {{discount_applications}}">
+  <div class="flex">
+    <spz-img
+      spz-if="${!!discount_item.icon}"
+      class="flex-shrink-0 mr-1 {{image_class}}"
+      src="${discount_item.icon}"
+      layout="fixed"
+      width="{{ imageWidth | default: 16 }}"
+      height="{{ imageHeight | default: 16 }}"
+      alt="{{alt}}"
+      object-fit="contain"
+    ></spz-img>
+    <span>${discount_item.title}</span>
+  </div>
+  <span spz-if="${discount_item.discount_amount > 0 || discount_item.amount > 0}" class="flex-shrink-0">(-<spz-currency style="display: inline-block;" layout="container" value="${discount_item.discount_amount || discount_item.amount}"></spz-currency>)</span>
+</div>

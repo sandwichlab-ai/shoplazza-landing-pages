@@ -1,0 +1,33 @@
+{% assign estimated_delivery_custom_text = item.settings.estimated_delivery_custom_text %}
+{% if estimated_delivery_custom_text == nil %}
+  {% assign estimated_delivery_custom_text = 'Estimated Delivery：{min_date} - {max_date}' %}
+{% endif %}
+
+{% assign bgColor = block.settings.progress_bg %}
+
+<style>
+  .product-info-shipping-container {
+    background-color: {{ bgColor }};
+  }
+</style>
+
+<spz-render class="mt-2" id="product-info-delivery-time-render" layout="container">
+  <template>
+    ${function() {
+      const minDays = parseInt('{{ minimum_days | default: 0 }}');
+      const maxDays = parseInt('{{ maximum_days | default: 0 }}');
+      const customText = {{ estimated_delivery_custom_text | json }};
+      const minDate = new Date(Date.now() + (minDays * 86400000));
+      const maxDate = new Date(Date.now() + (maxDays * 86400000));
+      const formatDate = (minDate.getFullYear() == maxDate.getFullYear() && minDate.getFullYear() == new Date().getFullYear())
+      ? new Intl.DateTimeFormat('en', { month: 'short', day: '2-digit' })
+      : new Intl.DateTimeFormat('en', { month: 'short', day: '2-digit', year: 'numeric' });
+      const tipText = customText.replace(/\{min_date\}/g, '<b>' + formatDate.format(minDate) + '</b>')
+        .replace(/\{max_date\}/g, '<b>' + formatDate.format(maxDate) + '</b>');
+
+      return `
+        <div class="break-all body-minus-2 leading-1.2">${tipText}</div>
+      `;
+    }()}
+  </template>
+</spz-render>

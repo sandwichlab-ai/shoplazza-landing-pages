@@ -1,0 +1,24 @@
+{% assign label_type = label_type | default: "save" %}
+{% assign has_save_label = false %}
+{% unless shop.wholesale_enabled %}
+  {% if settings.product_label_discount_on and card_product.compare_at_price > card_product.price %}
+    {% assign has_save_label = true %}
+  {% endif %}
+{% endunless %}
+  {% if label_type == 'price' or card_product.available == false or has_save_label %}
+    <a
+      class="product_snippet__label {{label_class}}"
+      label-type="{% if card_product.available %}{{label_type}}{% else %}sold_out{% endif %}"
+      {{min_price_variant_href}}
+    >
+      {% if card_product.available %}
+        {% if label_type == 'price' %}
+          <span class="money">{{ card_product.price | money_with_symbol }}</span>
+        {% else %}
+          {% include 'product_discount_label_content', product_or_variant: card_product %}
+        {% endif %}
+      {% else %}
+        {{'i18n.products.product.sold_out' | t}}
+      {% endif %}
+    </a>
+  {% endif %}

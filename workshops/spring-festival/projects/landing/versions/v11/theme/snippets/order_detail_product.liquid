@@ -1,0 +1,38 @@
+<div class="shipment-product-container flex items-start">
+  {% include 'order_detail_product_image' %}
+  <div class="shipment-product-info flex flex-col items-start">
+    <div class="shipment-product-non-shipping-tag px-2 py-1 mb-1 text-center leading-none rounded-sm" spz-if="${!product.requires_shipping}">
+      {{ generalLang.requires_shipping }}
+    </div>
+    <div class="text-base leading-1.25 break-words">${product.product_title}</div>
+    {%- comment -%} options {%- endcomment -%}
+    <div spz-for="option in product.optionsJoinInColon" class="mt-0.5 text-base leading-1.25 color-text-default break-words">${option}</div>
+    {%- comment -%} properties for product customizer plugin {%- endcomment -%}
+    <div spz-for="option in product.parsedProperties" class="mt-0.5 flex items-center text-base leading-1.25 color-text-default">
+      <span>${option.name}:&nbsp;</span>
+      <spz-img
+        class="{% if settings.edges == 'round' %}rounded-sm{% endif %}"
+        layout="fixed"
+        width="20"
+        height="20"
+        src="${option.value}"
+        alt="${option.name}"
+        object-fit="cover"
+        auto-fit
+        spz-if="${!!option.isImage}"
+      ></spz-img>
+      <span spz-else>${option.value}</span>
+    </div>
+    {%- comment -%} price {%- endcomment -%}
+    <spz-currency class="lg:hidden mt-2 text-base leading-none text-base leading-none" value="${product.price}" code="{{CURRENCY_CODE}}" layout="container"></spz-currency>
+    {%- comment -%} sku {%- endcomment -%}
+    <div class="mt-5 text-xs leading-none break-words" spz-if="${!!product.sku}">
+      {{ generalLang.sku }} ${product.sku}
+    </div>
+    {% include 'discount_gift_tag', gift_class: 'mt-2', gift_show: '${!!product.is_free_gift}' %}
+    {% include 'discount_applications', discount_class:'color-text-default', discount_applications: 'product.discount_details', alt: 'product.image.alt || product.product_title' %}
+    <div class="lg:hidden order-product-list-subitem-status mt-4 rounded-global-fixed" spz-if="${showStatus}">
+      ${product.shippingStatus}
+    </div>
+  </div>
+</div>

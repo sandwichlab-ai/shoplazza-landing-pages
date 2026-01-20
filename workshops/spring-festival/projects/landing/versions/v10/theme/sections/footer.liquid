@@ -1,0 +1,392 @@
+<style>
+  [data-section-id="{{section.id}}"] {
+    color: var(--color-footer-text);
+    background-color: var(--color-footer-bg);
+  }
+  .footer__newsletter,
+  .footer_blocks,
+  .footer__additional {
+    border-top: 1px solid var(--color-footer-border);
+  }
+</style>
+{% include 'footer_newsletter' %}
+{% include 'footer_blocks' %}
+{% include 'footer_additional' %}
+{% schema %}
+{
+  "name": "footer",
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "cart_page_display_footer_widgets",
+      "label": {
+        "zh-CN": "开启购物车页页尾小组件",
+        "en-US": "Enable footer widgets in cart page"
+      },
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Newsletter",
+        "zh-CN": "邮件订阅"
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "show_newsletter",
+      "label": {
+        "zh-CN": "开启邮件订阅",
+        "en-US": "Show newsletter signup"
+      },
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "text",
+      "label": {
+        "zh-CN": "自定义文案",
+        "en-US": "Text"
+      },
+      "default": "Subscribe today to hear first about our sales"
+    },
+    {
+      "type": "header",
+      "content": {
+        "zh-CN": "底部附加内容",
+        "en-US": "Additional footer content"
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "show_copyright",
+      "label": {
+        "zh-CN": "开启版权",
+        "en-US": "Show copyright"
+      },
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "additional_copyright_text",
+      "label": {
+        "zh-CN": "附加版权文案",
+        "en-US": "Additional copyright text"
+      },
+      "default": ""
+    },
+    {
+      "type": "link_list",
+      "id": "policies_menu",
+      "label": {
+        "zh-CN": "隐私条款菜单",
+        "en-US": "Policy menu"
+      }
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": {
+        "en-US": "Style",
+        "zh-CN": "风格"
+      },
+      "default": "expand",
+      "options": [
+        {
+          "value": "expand",
+          "label": {
+            "en-US": "Expandable",
+            "zh-CN": "可展开"
+          }
+        },
+        {
+          "value": "visible",
+          "label": {
+            "en-US": "Always visible",
+            "zh-CN": "一直可见"
+          }
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "navigation",
+      "name": {
+        "zh-CN": "导航菜单",
+        "en-US": "Navigation"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "zh-CN": "标题",
+            "en-US": "Title"
+          },
+          "default": "",
+          "info": {
+            "zh-CN": "默认值为菜单标题",
+            "en-US": "Defaults to menu title"
+          }
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": {
+            "zh-CN": "选择菜单",
+            "en-US": "Choose a menu"
+          },
+          "default": {
+            "id": "footer",
+            "type": "menu",
+            "title": {
+              "en-US": "Footer menu",
+              "zh-CN": "\u9875\u5c3e\u83dc\u5355"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "contact_social",
+      "name": {
+        "zh-CN": "联系和社交媒体",
+        "en-US": "Contact and social"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "zh-CN": "标题",
+            "en-US": "Title"
+          },
+          "default": "Get in touch"
+        },
+        {
+          "type": "text",
+          "id": "phone",
+          "label": {
+            "zh-CN": "电话号码",
+            "en-US": "Phone number"
+          },
+          "default": ""
+        },
+        {
+          "type": "text",
+          "id": "contact_text",
+          "label": {
+            "en-US": "Contact text",
+            "zh-CN": "联系文字"
+          },
+          "default": "Email us"
+        },
+        {
+          "type": "page",
+          "id": "contact_page",
+          "label": {
+            "en-US": "Contact page",
+            "zh-CN": "联系页面"
+          }
+        },
+        {
+          "type": "text",
+          "id": "chat_text",
+          "label": {
+            "en-US": "Chat text",
+            "zh-CN": "聊天文字"
+          },
+          "default": "Live chat"
+        },
+        {
+          "type": "url",
+          "id": "chat_link",
+          "label": {
+            "en-US": "Chat link",
+            "zh-CN": "聊天链接"
+          }
+        },
+        {
+          "type": "richtext",
+          "id": "custom_text",
+          "label": {
+            "zh-CN": "自定义文字",
+            "en-US": "Custom text"
+          }
+        },
+        {
+          "type": "text",
+          "id": "facebook",
+          "label": {
+            "zh-CN": "Facebook",
+            "en-US": "Facebook"
+          }
+        },
+        {
+          "type": "text",
+          "id": "twitter",
+          "label": {
+            "zh-CN": "Twitter",
+            "en-US": "Twitter"
+          }
+        },
+        {
+          "type": "text",
+          "id": "pinterest",
+          "label": {
+            "zh-CN": "Pinterest",
+            "en-US": "Pinterest"
+          }
+        },
+        {
+          "type": "text",
+          "id": "instagram",
+          "label": {
+            "zh-CN": "Instagram",
+            "en-US": "Instagram"
+          }
+        },
+        {
+          "type": "text",
+          "id": "snapchat",
+          "label": {
+            "zh-CN": "Snapchat",
+            "en-US": "Snapchat"
+          }
+        },
+        {
+          "type": "text",
+          "id": "tiktok",
+          "label": {
+            "zh-CN": "TikTok",
+            "en-US": "TikTok"
+          }
+        },
+        {
+          "type": "text",
+          "id": "tumblr",
+          "label": {
+            "zh-CN": "Tumblr",
+            "en-US": "Tumblr"
+          }
+        },
+        {
+          "type": "text",
+          "id": "linkedin",
+          "label": {
+            "zh-CN": "LinkedIn",
+            "en-US": "LinkedIn"
+          }
+        },
+        {
+          "type": "text",
+          "id": "youtube",
+          "label": {
+            "zh-CN": "YouTube",
+            "en-US": "YouTube"
+          }
+        },
+        {
+          "type": "text",
+          "id": "vimeo",
+          "label": {
+            "zh-CN": "Vimeo",
+            "en-US": "Vimeo"
+          }
+        }
+      ]
+    },
+    {
+      "type": "payment",
+      "name": {
+        "zh-CN": "支付信息",
+        "en-US": "Payments"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "zh-CN": "标题",
+            "en-US": "Title"
+          },
+          "default": "We accept"
+        },
+        {
+          "type": "checkbox",
+          "default": true,
+          "id": "customized_icon",
+          "label": {
+            "en-US": "Display payment provider logo",
+            "zh-CN": "自定义展示支付图标"
+          }
+        },
+        {
+          "type": "paragraph",
+          "content": {
+            "en-US": "If the configured payment channel type is local payment, you need to switch the ip address to the corresponding country/region to be able to display the view",
+            "zh-CN": "若配置的支付渠道类型为本地支付，则需要将ip地址切换到相应国家/地区才能够显示查看"
+          }
+        },
+        {
+          "type": "tags",
+          "id": "icons",
+          "label": {
+            "zh-CN": "图标",
+            "en-US": "Icons"
+          },
+          "default": ["american_express", "apple_pay", "master", "paypal", "visa"],
+          "visibleOn": "customized_icon",
+          "info": {
+            "zh-CN": "按 “Enter” 添加多个标签，可使用以下图标名：american_express, apple_pay, bitcoin, dankort, diners_club, discover, dogecoin, dwolla, forbrugsforeningen, google_pay, jcb, klarna, klarna_pay_later, litecoin, maestro, master, paypal, sofort, visa, unionpay",
+            "en-US": "Click “Enter” to add more tags, the below icons can be used: american_express, apple_pay, bitcoin, dankort, diners_club, discover, dogecoin, dwolla, forbrugsforeningen, google_pay, jcb, klarna, klarna_pay_later, litecoin, maestro, master, paypal, sofort, visa, unionpay"
+          }
+        }
+      ]
+    },
+    {
+      "type": "languages",
+      "name": {
+        "zh-CN": "语言",
+        "en-US": "Languages"
+      },
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "zh-CN": "标题",
+            "en-US": "Title"
+          },
+          "default": "Languages"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "footer",
+      "cname": {
+        "en-US": "Footer",
+        "zh-CN": "页尾"
+      },
+      "category": {
+        "en-US": "Navigation",
+        "zh-CN": "导航"
+      },
+      "ccategory": {
+        "en-US": "Navigation",
+        "zh-CN": "导航"
+      },
+      "display": false,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,293 @@
+{% assign blocks_size = section.blocks.size %}
+{% assign mobile_row = section.settings.mobile_row | default: 3 %}
+{% assign pc_row = section.settings.pc_row %}
+{% assign show_arrows = section.settings.show_arrows %}
+{% assign enable_carousel = section.settings.enable_carousel %}
+{% assign full_page = section.settings.full_page %}
+
+{% include 'card_spacing_css' %}
+{% include 'settings' %}
+<style>
+  .gallery__title {
+    font-size: var(--type-heading-font-size);
+  }
+  .gallery_grid {
+    display: grid;
+  }
+
+  @media(min-width: 960px) {
+    .gallery_grid {
+      grid-row-gap: 20px;
+      column-gap: 20px;
+    }
+    .lg\:w-1\/3 .gallery_img {
+      width: calc(100% / 3);
+    }
+    .lg\:w-1\/4 .gallery_img {
+      width: calc(100% / 4);
+    }
+    .lg\:w-1\/5 .gallery_img {
+      width: calc(100% / 5);
+    }
+    .lg\:w-1\/6 .gallery_img {
+      width: calc(100% / 6);
+    }
+    .lg\:gallery_grid .i-spzhtml-slide-item {
+      display: grid;
+      column-gap: 16px;
+    }
+  }
+</style>
+<div class="{% unless full_page %} page-container {% endunless %} gallery_container_{{section.id}}">
+  <div class="gallery-container lazyload">
+    {% if section.settings.heading %}
+      <h4 class="page-container gallery__title m-0 title-font leading-1.2 type-heading-font-family">{{ section.settings.heading }}</h4>
+    {% endif %}
+  </div>
+  <div class="overflow-hidden mt-5 lg:mt-7">
+    <div class='ins_content overflow-hidden mt-5 lg:mt-7'>
+      {% if enable_carousel %}
+        {% comment %} pc-carousel {% endcomment %}
+        <spz-carousel
+          ssr
+          class="gallery_grid gallery_grid-carousel md:hidden lg:gallery_grid lg:w-1/{{ pc_row }}"
+          loop
+          autoplay
+          advance-count="{{pc_row}}"
+          layout="container"
+          initial-slide="0"
+          id="gallery-roll-carousel-{{ section.id }}"
+          @mounted="gallery-roll-arrows-{{ section.id }}.rerender(data=event);"
+          @slideChange="gallery-roll-arrows-{{ section.id }}.rerender(data=event);">
+          {% for item in section.blocks %}
+            {% include 'gallery_img', suffix_id: '-gallery_img', s_columns: pc_row, s_breakpoint: 3, s_common_columns: 4 %}
+          {% endfor %}
+        </spz-carousel>
+        {% comment %} mobile-carousel {% endcomment %}
+        <spz-carousel
+          ssr
+          class="gallery_grid gallery_grid-carousel md:gallery_grid lg:hidden"
+          layout="container"
+          loop
+          autoplay
+          initial-slide="0"
+          advance-count="1"
+          id="gallery-roll-carousel-{{ section.id }}-md"
+          @mounted="gallery-roll-arrows-{{ section.id }}-md.rerender(data=event);"
+          @slideChange="gallery-roll-arrows-{{ section.id }}-md.rerender(data=event);">
+          {% for item in section.blocks %}
+            {% assign mobile_row_plus_one = mobile_row | plus: 1 %}
+            {% include 'gallery_img', suffix_id: '-gallery_img', s_columns: mobile_row_plus_one, s_breakpoint: 2, s_common_columns: 3 %}
+          {% endfor %}
+        </spz-carousel>
+      {% else %}
+        <div class='gallery_grid gap-4 lg:gap-6 grid-cols-{{ mobile_row }} lg:grid-cols-{{ pc_row }}'>
+          {% for item in section.blocks %}
+            {% include 'gallery_img', suffix_id: '-gallery_img', s_columns: pc_row, s_breakpoint: 3, s_common_columns: 4, sm_columns: mobile_row, sm_breakpoint: 2, sm_common_columns: 2 %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+    </div>
+    {% if show_arrows %}
+      {% comment %} pc-arrows {% endcomment %}
+      {% capture arrow_id %}gallery-roll-carousel-{{ section.id }}{% endcapture %}
+      {% capture render_id %}gallery-roll-arrows-{{ section.id }}{% endcapture %}
+      {% include 'carousel_arrow', container_class: 'md:hidden', arrow_id: arrow_id, render_id: render_id, isPc: true, has_total: true  %}
+
+      {% comment %} mobile-arrows {% endcomment %}
+      {% capture arrow_id %}gallery-roll-carousel-{{ section.id }}-md{% endcapture %}
+      {% capture render_id %}gallery-roll-arrows-{{ section.id }}-md{% endcapture %}
+      {% include 'carousel_arrow', container_class: 'lg:hidden', arrow_id: arrow_id, render_id: render_id, isPc: false, has_total: true %}
+    {% endif %}
+  </div>
+</div>
+
+  {% schema %}
+{
+  "name": "gallery",
+  "max_blocks": 18,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "default": "Our brands"
+    },
+    {
+      "type": "checkbox",
+      "id": "full_page",
+      "label": {
+        "en-US": "Full page width",
+        "zh-CN": "全屏宽度"
+      },
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "mobile_row",
+      "step": 1,
+      "max": 3,
+      "min": 1,
+      "unit": "",
+      "label": {
+        "en-US": "Mobile images per row",
+        "zh-CN": "移动端每行图片数量"
+      },
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "pc_row",
+      "step": 1,
+      "max": 6,
+      "min": 1,
+      "unit": "",
+      "label": {
+        "en-US": "Desktop images per row",
+        "zh-CN": "PC端每行图片数量"
+      },
+      "default": 3
+    }, {
+      "type": "checkbox",
+      "id": "enable_carousel",
+      "label": {
+        "en-US": "Enable carousel",
+        "zh-CN": "开启轮播"
+      },
+      "default": false
+    }, {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "visibleOn": "enable_carousel",
+      "label": {
+        "en-US": "Show navigation arrows",
+        "zh-CN": "显示导航箭头"
+      },
+      "default": true
+    }, {
+      "type": "spacing",
+      "id": "spacing",
+      "label": {
+        "en-US": "Spacing",
+        "zh-CN": "间距留白"
+      },
+      "pc": {
+        "top": "40",
+        "right": "",
+        "bottom": "40",
+        "left": ""
+      },
+      "mobile": {
+        "top": "20",
+        "right": "",
+        "bottom": "20",
+        "left": ""
+      },
+      "default": {
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        }
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "gallery_img",
+      "name": {
+        "en-US": "Image",
+        "zh-CN": "图片"
+      },
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": {
+            "en-US": "Image",
+            "zh-CN": "图片"
+          }
+        }, {
+          "type": "url",
+          "id": "link",
+          "label": {
+            "en-US": "Link",
+            "zh-CN": "链接"
+          }
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "gallery",
+      "cname": {
+        "en-US": "Gallery",
+        "zh-CN": "图集"
+      },
+      "category": {
+        "en-US": "Image with text",
+        "zh-CN": "图文"
+      },
+      "ccategory": {
+        "en-US": "Image with text",
+        "zh-CN": "图文"
+      },
+      "blocks": [
+        {
+          "type": "gallery_img",
+          "settings": {
+            "image": "",
+            "link": ""
+          }
+        },
+        {
+          "type": "gallery_img",
+          "settings": {
+            "image": "",
+            "link": ""
+          }
+        },
+        {
+          "type": "gallery_img",
+          "settings": {
+            "image": "",
+            "link": ""
+          }
+        },
+        {
+          "type": "gallery_img",
+          "settings": {
+            "image": "",
+            "link": ""
+          }
+        }, {
+          "type": "gallery_img",
+          "settings": {
+            "image": "",
+            "link": ""
+          }
+        }, {
+          "type": "gallery_img",
+          "settings": {
+            "image": "",
+            "link": ""
+          }
+        }
+      ],
+      "display": true
+    }
+  ]
+}
+{% endschema %}

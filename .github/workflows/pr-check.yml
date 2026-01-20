@@ -1,0 +1,73 @@
+name: PR Check
+
+on:
+  pull_request:
+    paths:
+      - 'workshops/**'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect changed files
+        id: changed
+        run: |
+          echo "Checking changed files..."
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} > changed_files.txt
+          cat changed_files.txt
+
+          # 提取 workshop/project/version 信息
+          CHANGED_PATH=$(head -1 changed_files.txt | grep -oP 'workshops/[^/]+/[^/]+/[^/]+' || echo "")
+          echo "changed_path=$CHANGED_PATH" >> $GITHUB_OUTPUT
+
+      - name: Validate Liquid syntax
+        run: |
+          echo "Validating Liquid templates..."
+          # 检查文件是否存在 schema 闭合标签
+          for file in $(find workshops -name "*.liquid" 2>/dev/null || echo ""); do
+            if [ -f "$file" ]; then
+              if grep -q "{% schema %}" "$file"; then
+                if ! grep -q "{% endschema %}" "$file"; then
+                  echo "Error: Missing {% endschema %} in $file"
+                  exit 1
+                fi
+              fi
+              echo "✓ $file"
+            fi
+          done
+          echo "All Liquid files validated"
+
+      - name: Generate PR summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let changedFiles = [];
+            try {
+              changedFiles = fs.readFileSync('changed_files.txt', 'utf8').trim().split('\n');
+            } catch (e) {
+              changedFiles = ['(无法读取变更文件)'];
+            }
+
+            const liquidFiles = changedFiles.filter(f => f.endsWith('.liquid'));
+            const otherFiles = changedFiles.filter(f => !f.endsWith('.liquid'));
+
+            let body = `## 变更摘要\n\n`;
+            body += `### Liquid 模板 (${liquidFiles.length} 个)\n`;
+            liquidFiles.forEach(f => body += `- \`${f}\`\n`);
+
+            if (otherFiles.length > 0) {
+              body += `\n### 其他文件 (${otherFiles.length} 个)\n`;
+              otherFiles.forEach(f => body += `- \`${f}\`\n`);
+            }
+
+            body += `\n---\n*由 GitHub Actions 自动生成*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });

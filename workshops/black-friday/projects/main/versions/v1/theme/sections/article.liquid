@@ -1,0 +1,124 @@
+{% include 'article_css' %}
+{% assign articleProduct = all_products[settings.blog_product.id] %}
+{% assign default_image = 'image' | placeholder_svg %}
+
+<div class="article__container page-container">
+  <section class="article__section">
+    <h1 class="article-heading color-heading break-words">
+      {{ article.title | escape }}</h1>
+    {% if article.published_at or article.author %}
+      <div class="article__info color-text-default">
+        {% if article.published_at %}
+          {{ article.published_at | date: "%b %d, %Y" }}
+        {% endif %}
+        {% if article.author %}
+          {% if article.published_at %}
+            <span class="article__info-author-dot"></span>
+          {% endif %}
+          {{ "i18n.general.blog.by" | t }} {{ article.author | escape }}
+        {% endif %}
+      </div>
+    {% endif %}
+    
+    {% if article.content %}
+      <div class="mce-content article-content">{{ article.content | spz_img }}</div>
+    {% endif %}
+    {% if blog %}
+      <a class="article-button_to_blog button-primary no-underline" href="{{ blog.url }}">
+        {% include 'icon_back'
+          , icon_class: 'article__back-icon' %}
+        {{ "i18n.general.blog.back_to_blog" | t: collection_name: blog.title }}
+      </a>
+    {% endif %}
+  </section>
+
+  {% if settings.blog_collection.id and settings.blog_collection.id != 0 or product.id %}
+    {% assign blogUrl = settings.blog_collection.url | delete_root_url %}
+    {% assign handle = blogUrl | remove: '/blogs/' %}
+    <section class="article__blog-slide">
+      {% if settings.blog_collection.id and settings.blog_collection.id != 0 %}
+        <h4 class="article__slide_title text-lg lg:text-xl">
+          {{ settings.blog_slide_heading | default: settings.blog_collection.title }}</h4>
+        <spz-render src="{{ routes.root_url }}api/front{{ blogUrl }}/articles?per_page={{ settings.blog_collection_number | plus: 1 }}&page=1" layout="container">
+          <template>
+            ${function(){
+              {% comment %} Get one more article, filter this chapter not to show {% endcomment %}
+              const blogNum = {{ settings.blog_collection_number }};
+              const articles = data && data.articles.filter(function (item,index) {
+                return item.id != "{{ article.id }}"
+              }).slice(0, blogNum);
+              return `
+            <div class="blog-slide-latest_post">
+              <div
+                class="article_blog__item"
+                spz-for="item in articles"
+                key="item.id">
+                <a class="article_blog__item-image" spz-href="${item.url}">
+                  <spz-img
+                    src="${(item.image && item.image.src) || '{{ 'image' | placeholder_svg | img_url }}'}"
+                    layout="fixed-height"
+                    width="auto"
+                    height="84"
+                    alt="${(item.image && item.image.alt) || item.title}"
+                    object-fit="cover"
+                    auto-fit></spz-img>
+                </a>
+                <div class="article_blog__item-detail">
+                  <a class="article_blog__item-heading text-sm lg:text-base color-body no-underline" spz-href="${item.url}">${item.title}</a>
+                  <a
+                    class="article_blog__item-desc color-text-default no-underline"
+                    spz-if="${!!item.published_at || !!item.author}"
+                    spz-href="${item.url}">
+                    <spz-timeago
+                      spz-if="${!!item.published_at}"
+                      layout="container"
+                      datetime="${item.published_at}"></spz-timeago>
+                    <span class="${!!item.author && 'article__info-author-dot'}" spz-if="${!!item.author}">
+                      {{ "i18n.general.blog.by" | t }} ${item.author}</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+            `
+            }()}
+          </template>
+        </spz-render>
+      {% endif %}
+      {% if articleProduct.id and articleProduct.available %}
+        <h4 class="article__slide_title text-lg lg:text-xl">{{ 'i18n.general.blog.featured_product' | t }}</h4>
+        <div class="blog-slide-featured_product">
+          {% include 'product'
+            , card_product: articleProduct %}
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+
+</div>
+{% schema %}
+  {
+    "name": "article",
+    "templates": ["article"],
+    "limit": 1,
+    "settings": [],
+    "presets": [
+      {
+        "name": "article",
+        "cname": {
+          "zh-CN": "博客文章",
+          "en-US": "Blog posts"
+        },
+        "category": {
+          "en-US": "Page",
+          "zh-CN": "页面"
+        },
+        "ccategory": {
+          "en-US": "Page",
+          "zh-CN": "页面"
+        },
+        "display": true,
+        "blocks": []
+      }
+    ]
+  }
+{% endschema %}

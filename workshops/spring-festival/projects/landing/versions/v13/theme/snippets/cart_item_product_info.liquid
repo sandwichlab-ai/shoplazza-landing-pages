@@ -1,0 +1,24 @@
+<div class="{{class}}">
+  <a
+    class="product-title-color no-underline leading-1.25 {{title_class}}"
+    spz-href="${item.product_url}"
+    data-track="click"
+    data-track-content="product_link"
+    data-track-product-id="${item.product_id}"
+    data-track-position="cart"
+  >
+    ${item.product_title}
+  </a>
+  <ul class="clear break-words color-body-70 leading-1.25 {{variant_class}}">
+    <li>${item.options.map(option => option.value).join('/')}</li>
+    <li class="{{variant_item_class}}" spz-for="propertie in item.parsedProperties">
+      ${propertie.name}/${propertie.isImage ? `<a class="no-underline text-inherit" spz-href="${propertie.value}" target="_blank" >{{ 'i18n.bag.custom_metafield.view_image' | t }}</a>` : propertie.value}
+    </li>
+  </ul>
+  {% include 'discount_gift_tag', gift_class: 'mt-1 lg:mt-2', gift_show: '${!!item.is_free_gift}' %}
+
+  <div spz-if="${item.mixed_wholesale && {{shop.wholesale_enabled}}}">
+    {% capture mixedWholesaleLabelKey %}${item.id}{% endcapture %}
+    {% include 'mixed_wholesale_label', class: mixedWholesaleLabelClass, key: mixedWholesaleLabelKey %}
+  </div>
+</div>

@@ -1,0 +1,118 @@
+{% assign price = product.price %}
+{% assign price_min = product.price_min %}
+{% assign price_max = product.price_max %}
+
+{% assign display_fake_sales = product.display_fake_sales %}
+
+{% assign product_label_discount_on = settings.product_label_discount_on %}
+{% assign product_label_discount_format = settings.product_label_discount_format %}
+{% assign selectedCompareAtPrice = productSelectedVariant.compare_at_price %}
+{% assign selectedPriceShow = false %}
+{% if productSelectedVariant and enable_selected_variants %}
+  {% assign selectedPriceShow = true %}
+{% endif %}
+{% assign selectedPriceShow = product.has_only_default_variant %}
+
+{% capture price_min_to_max %}
+  <span class="money product-info__header_price">{{ price_min | money_with_symbol }}</span>
+  {% if price_min < price_max %} <span class="flex">&nbsp;-&nbsp;<span class="money product-info__header_price">{{ price_max | money_with_symbol }}</span></span>{% endif %}
+{% endcapture %}
+
+<spz-render
+  class="mt-4 lg:mt-5"
+  id="product-info-prices"
+  layout="container"
+  manual
+  {{ block.shoplaza_attributes }}
+>
+  <div class="flex items-center">
+    {% if selectedPriceShow %}
+      {% assign selectedPrice = productSelectedVariant.price %}
+
+      <div class="flex items-center flex-wrap">
+        <div class="mr-2">
+          <span class="money product-info__header_price">{{ selectedPrice | money_with_symbol }}</span>
+        </div>
+        {% if productSelectedVariant.off_ratio > 0 %}
+          <span class="leading-1.2 color-compare-price line-through mr-2 lg:body-plus-2 product-info__header_compare-at-price money flex">{{ selectedCompareAtPrice | money_with_symbol }}</span>
+        {% endif %}
+        {% if product_label_discount_on and productSelectedVariant.off_ratio > 0 %}
+          <div class="product-info-saved-label inline-block color-save-price whitespace-nowrap font-semibold">
+            {% include 'product_discount_label_content',
+              product_or_variant: productSelectedVariant,
+              use_minus_symbol: true
+            %}
+          </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="mr-2 text-2xl leading-1.2 font-semibold color-price flex">
+        {{ price_min_to_max }}
+      </div>
+    {% endif %}
+    {% include 'tax_included', class: 'ml-1 color-compare-price text-xs' %}
+  </div>
+
+  <template>
+    ${function() {
+      const variantData = data.variant || {{productSelectedVariant | json}};
+      const saveType = {{ product_label_discount_format | json }};
+      const productLabelDiscountOn = {{ product_label_discount_on }};
+
+      return `
+        <div class="flex items-center justify-between leading-1.2">
+          <div
+            spz-if="${!variantData.price}"
+            class="mr-2 text-2xl font-semibold color-price flex items-center"
+          >
+            <spz-currency
+              class="mr-2"
+              container-class="product-info__header_price"
+              value="${data.product.price_min}"
+              layout="container"
+            ></spz-currency>
+            <span
+              class="flex"
+              spz-if="${!variantData.price && data.product.price_min < data.product.price_max}"
+            >
+              -
+              <spz-currency
+                class="ml-2"
+                container-class="product-info__header_price"
+                value="${data.product.price_max}"
+                layout="container"
+              ></spz-currency
+            ></span>
+            {% include 'tax_included', class: 'ml-1 color-compare-price text-xs' %}
+          </div>
+
+          <div spz-else class="flex items-center flex-wrap">
+            <spz-currency
+              class="mr-2"
+              container-class="product-info__header_price"
+              value="${variantData.price}"
+              layout="container"
+            ></spz-currency>
+            <spz-currency
+              class="color-compare-price line-through mr-2 lg:body-plus-2"
+              container-class="product-info__header_compare-at-price"
+              layout="container"
+              value="${variantData.compare_at_price}"
+              spz-if="${+variantData.price < +variantData.compare_at_price}"
+            ></spz-currency>
+            <div
+              spz-if="${productLabelDiscountOn && variantData.off_ratio > 0}"
+              class="product-info-saved-label inline-block color-save-price whitespace-nowrap font-semibold"
+            >
+              ${saveType == 'percentage'
+                ? `<span>-${variantData.off_ratio}%</span>`
+                : `<span>-</span><spz-currency class="inline-block" value="${variantData.compare_at_price - variantData.price}" layout="container"></spz-currency>`
+              }
+            </div>
+            {% include 'tax_included', class: 'ml-1 color-compare-price text-xs' %}
+          </div>
+        </div>
+      `;
+    }()}
+  </template>
+</spz-render>

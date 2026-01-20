@@ -1,0 +1,77 @@
+<spz-render class="cart-drawer-summary-sticky-render" id="cart-drawer-summary-sticky-render" layout="container" manual>
+  <template>
+    <div class="cart-drawer-summary-sticky ${(data.line_items && data.line_items.length) == 0 ? 'hidden' : ''}">
+      {% include 'cart_free_shipping', class: 'mb-4' %}
+
+      <div class="cart-drawer-invalid-msg lg:hidden mb-4" spz-if="${!!data.invalid_msg}">${data.invalid_msg}</div>
+
+      <div>
+        <div class="md:flex md:items-center md:justify-between">
+          <div class="md:flex md:flex-col md:items-start">
+            <div class="md:flex md:items-center md:flex-wrap">
+              <div class="flex font-medium body-plus-2 leading-1.25 lg:items-center lg:justify-between">
+                <span class="md:color-body-70">{{ 'i18n.bag.general.total' | t }}:&nbsp;</span>
+                <div class="flex items-center">
+                  <spz-currency container-class="plugin__bundle__cart__total-price" layout="container" value="${data.total_price}"></spz-currency>
+                  {% include 'tax_included', class: "ml-1 color-body-70 body-minus-2 md:hidden" %}
+                </div>
+              </div>
+              {% include 'tax_included', class: "ml-1 color-body-70 body-minus-2 lg:hidden" %}
+            </div>
+
+            <div class="cart-drawer-summary-discount-list flex flex-col items-end" id="cart-drawer-summary-sticky-discount-list" spz-if="${data.total_discount > 0}">
+              {%- comment -%} PC discount items list {%- endcomment -%}
+              <div class="cart-drawer-summary-discount-btn" spz-if="${!!(data.discount_applications && data.discount_applications.length <= 0)}">
+                <span class="leading-1.2 body-minus-2">
+                  {% include 'cart_item_discount_price' %}
+                </span>
+              </div>
+              <div spz-else>
+                <div class="cart-drawer-summary-discount-btn md:hidden" @tap="cart-drawer-summary-sticky-discount-list.toggleClass(class='open');cart-drawer-summary-discount-list.toggleClass(class='open');" >
+                  <span class="leading-1.2 body-minus-2">
+                    {% include 'cart_item_discount_price' %}
+                  </span>
+                  {% include 'icon_arrow_down', icon_class: 'flex-shrink-0' %}
+                </div>
+                <div class="cart-drawer-summary-discount-btn lg:hidden" @tap="cart-drawer-summary-sticky-modal.open;">
+                  <span class="leading-1.2 body-minus-2">
+                    {% include 'cart_item_discount_price' %}
+                  </span>
+                  {% include 'icon_arrow_down', icon_class: 'flex-shrink-0' %}
+                </div>
+              </div>
+
+              <ul class="md:hidden clear w-full mt-1 leading-1.25 color-body-70" spz-if="${!!(data.discount_applications && data.discount_applications.length > 0)}">
+                <li class="flex items-center justify-between ${index > 0 ? 'mt-2' : ''}" spz-for="(discount_application,index) in data.discount_applications">
+                  <span>${discount_application.title}:</span>
+                  <span class="notranslate ml-2 whitespace-nowrap">
+                    -<spz-currency class="inline-block" layout="container" value="${discount_application.discount_amount}"></spz-currency>
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          {%- comment -%} checkout button {%- endcomment -%}
+          {% include 'cart_summary_checkout', actionId: 'cart-drawer', class: 'cart-drawer-checkout-btn cart-drawer-checkout-btn-mobile ml-2 lg:hidden' %}
+        </div>
+
+        <div class="cart-drawer-invalid-msg md:hidden mt-4" spz-if="${!!data.invalid_msg}">${data.invalid_msg}</div>
+
+        {%- comment -%} checkout button {%- endcomment -%}
+        {% include 'cart_summary_checkout', actionId: 'cart-drawer', class: 'cart-drawer-checkout-btn md:hidden' %}
+
+        <div class="mt-2 color-body-70 text-right lg:text-center">{{ 'i18n.bag.general.tax_shipping_info' | t }}</div>
+      </div>
+
+      {%- comment -%} Mobile discount list modal {%- endcomment -%}
+      {% include 'cart_summary_sticky_modal', prefix_class: 'cart-drawer', class: 'lg:hidden', actionId: 'cart-drawer' %}
+
+      <spz-script layout="logic" scope="cart-drawer-modal" type="application/javascript" hidden>
+        const summaryStickyRender = document.querySelector('#cart-drawer-summary-sticky-render');
+        if (summaryStickyRender) {
+          document.body.style.setProperty('--cart-drawer-summary-sticky-height', summaryStickyRender.clientHeight + 'px');
+        }
+      </spz-script>
+    </div>
+  </template>
+</spz-render>

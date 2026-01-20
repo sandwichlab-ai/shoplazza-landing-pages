@@ -1,0 +1,493 @@
+{% include 'card_spacing_slide_css' %}
+{% assign block_size = section.blocks.size %}
+
+<style>
+  {% assign first_img = section.blocks[0].settings.img %}
+  {% assign first_img_mb = section.blocks[0].settings.mobile_img | default: first_img %}
+
+  [data-section-id="{{ section.id }}"] .slide_content {
+    cursor: -webkit-grab;
+  }
+  [data-section-id="{{ section.id }}"] .slideshow-bar-item {
+    position: relative;
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin: 0 5px;
+    background-color: var(--color-body-bg);
+    opacity: 0.4;
+    cursor: pointer;
+    transition: background-color 300ms cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  }
+  [data-section-id="{{ section.id }}"] .slideshow-bar-item[data-active="true"] {
+    width: 9px;
+    height: 9px;
+    opacity: 1;
+  }
+  [data-section-id="{{ section.id }}"] .slideshow_carousel_arrow .roll-arrows-item {
+    box-shadow: 0 6px 6px 0 rgba(0, 0, 0, 0.10);
+  }
+  [data-section-id="{{ section.id }}"] .slick_title,
+  [data-section-id="{{ section.id }}"] .slick_text {
+    color: #fff
+  }
+
+  @media(min-width: 960px) {
+    [data-section-id="{{ section.id }}"] .lg\:right-\[72px\] {
+      {% if shop.locale == "ar-SA" %}
+        left: 72px;
+      {% else %}
+        right: 72px;
+      {% endif %}
+    }
+  }
+</style>
+<div class="{% unless section.settings.full_page %} page-container {% endunless %}">
+  <div class="slide_content relative">
+    <spz-carousel
+      layout="container"
+      ssr
+      effect="fade"
+      {% if section.settings.auto_change %}
+      autoplay
+      {% endif %}
+      initial-slide="0"
+      animate-time="1000"
+      class="slideshow-carousel"
+      delay="{{section.settings.second | times: 1000}}"
+      id="slideshow-carousel-{{ section.id }}"
+      @mounted="slideshow-{{ section.id }}-bar-render.rerender(data=event);slideshow-roll-arrows-{{ section.id }}-render.rerender(data=event);"
+      @slideChange="slideshow-{{ section.id }}-bar-render.rerender(data=event);slideshow-roll-arrows-{{ section.id }}-render.rerender(data=event);">
+      {% for item in section.blocks %}
+        {% assign default_img = 'lifestyle-1' | placeholder_svg %}
+        {% assign img = images[item.settings.img] | default: default_img %}
+        {% assign mobile_img = images[item.settings.mobile_img] | default: img %}
+        {% assign text_align = "center" %}
+        {% assign align_items = "center" %}
+        {% assign justify_content = "center" %}
+        {% case item.settings.text_align %}
+          {% when 'center left' %}
+          {% assign text_align = "left" %}
+          {% assign justify_content = "flex-start" %}
+          {% when 'center right' %}
+          {% assign text_align = "right" %}
+          {% assign justify_content = "flex-end" %}
+          {% when 'bottom left' %}
+          {% assign text_align = "left" %}
+          {% assign align_items = "flex-end" %}
+          {% assign justify_content = "flex-start" %}
+          {% when 'bottom' %}
+          {% assign align_items = "flex-end" %}
+          {% when 'bottom right' %}
+          {% assign text_align = "right" %}
+          {% assign align_items = "flex-end" %}
+          {% assign justify_content = "flex-end" %}
+        {% endcase %}
+
+        <div class="slick_item relative box-border w-full flex-shrink-0 overflow-hidden">
+          {% include 'slideshow_img', container_class: 'z-1' %}
+          {% include 'slideshow_text', container_class: 'z-10 direction_ltr_self absolute h-full lg:px-[98px]', slideshow_btn_class: 'direction_ltr_self' %}
+        </div>
+      {% endfor %}
+    </spz-carousel>
+    {%- comment -%} bar {%- endcomment -%}
+    {% if block_size > 1 %}
+      <spz-render
+        class="slideshow-bar-container items-center justify-center absolute -translate-x-1/2 left-1/2 bottom-3 lg:bottom-5 z-10"
+        id="slideshow-{{ section.id }}-bar-render"
+        layout="container"
+        manual>
+        <template>
+          <ul class="flex justify-center items-center z-10 clear">
+            ${Array(data.total || 0).fill().map((val, idx) => idx).map((val, idx) => `
+            <li
+              class="slideshow-bar-item z-10"
+              data-active="${data.index == idx}"
+              @tap="slideshow-carousel-{{ section.id }}.goToSlide(index=${idx});"></li>
+            `).join('')}
+          </ul>
+        </template>
+      </spz-render>
+    {% endif %}
+
+    {% comment %} arrows {% endcomment %}
+    {% capture arrow_id %}slideshow-carousel-{{ section.id }}{% endcapture %}
+    {% capture render_id %}slideshow-roll-arrows-{{ section.id }}-render{% endcapture %}
+    {% include 'carousel_arrow', container_class: 'slideshow_carousel_arrow absolute z-10 -bottom-5 right-4 lg:right-[72px]', arrow_id: arrow_id, render_id: render_id %}
+  </div>
+
+</div>
+{% schema %}
+  {
+    "name": "hero_slideshow",
+    "class": "card-split-spacing",
+    "max_blocks": 5,
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "full_page",
+        "label": {
+          "en-US": "Full page width",
+          "zh-CN": "全屏宽度"
+        },
+        "default": true
+      },
+      {
+        "type": "range",
+        "id": "pc_height",
+        "step": 10,
+        "max": 100,
+        "min": -100,
+        "label": {
+          "en-US": "Desktop height adjustment",
+          "zh-CN": "PC端高度调整"
+        },
+        "unit": "%",
+        "default": 0
+      },
+      {
+        "type": "range",
+        "id": "mobile_height",
+        "step": 10,
+        "max": 100,
+        "min": -100,
+        "label": {
+          "en-US": "Mobile height adjustment",
+          "zh-CN": "移动端高度调整"
+        },
+        "unit": "%",
+        "default": 0
+      },
+      {
+        "type": "checkbox",
+        "id": "auto_change",
+        "label": {
+          "en-US": "Auto-change slides",
+          "zh-CN": "自动切换幻灯"
+        },
+        "default": true
+      }, {
+        "type": "range",
+        "id": "second",
+        "step": 1,
+        "max": 10,
+        "min": 5,
+        "label": {
+          "en-US": "Change images every",
+          "zh-CN": "幻灯切换时间"
+        },
+        "unit": "s",
+        "default": 7
+      }
+    ],
+    "blocks": [
+      {
+        "type": "slide",
+        "name": {
+          "zh-CN": "图文幻灯",
+          "en-US": "Hero slideshow"
+        },
+        "settings": [
+          {
+            "type": "richtext",
+            "id": "heading",
+            "label": {
+              "en-US": "Heading",
+              "zh-CN": "标题"
+            },
+            "default": "Two line title slide."
+          },
+          {
+            "type": "range",
+            "id": "heading_size",
+            "step": 1,
+            "max": 100,
+            "min": 40,
+            "label": {
+              "en-US": "Heading text size",
+              "zh-CN": "标题字号"
+            },
+            "unit": "px",
+            "default": 80
+          },
+          {
+            "type": "textarea",
+            "id": "text",
+            "label": {
+              "en-US": "Text",
+              "zh-CN": "文字"
+            },
+            "default": "And big, beautiful imagery"
+          },
+          {
+            "type": "url",
+            "id": "url1",
+            "label": {
+              "zh-CN": "幻灯链接 #1",
+              "en-US": "Link 1"
+            },
+            "default": ""
+          }, {
+            "type": "text",
+            "id": "link_text1",
+            "label": {
+              "zh-CN": "幻灯链接文本 #1",
+              "en-US": "Slide text 1"
+            },
+            "default": "Optional button"
+          }, {
+            "type": "url",
+            "id": "url2",
+            "label": {
+              "zh-CN": "幻灯链接 #2",
+              "en-US": "Link 2"
+            },
+            "default": ""
+          }, {
+            "type": "text",
+            "id": "link_text2",
+            "label": {
+              "zh-CN": "幻灯链接文本 #2",
+              "en-US": "Slide text 2"
+            },
+            "default": "Optional button"
+          }, {
+            "type": "color",
+            "id": "btn_bg_color",
+            "label": {
+              "en-US": "Button background",
+              "zh-CN": "按钮背景"
+            },
+            "default": "#ffffff"
+          }, {
+            "type": "color",
+            "id": "btn_color",
+            "label": {
+              "en-US": "Button text",
+              "zh-CN": "按钮文字"
+            },
+            "default": "#000"
+          }, {
+            "type": "select",
+            "id": "text_align",
+            "default": "center",
+            "label": {
+              "en-US": "Text alignment",
+              "zh-CN": "文字对齐"
+            },
+            "options": [
+              {
+                "label": {
+                  "en-US": "Center left",
+                  "zh-CN": "中间靠左"
+                },
+                "value": "center left"
+              },
+              {
+                "label": {
+                  "en-US": "Center",
+                  "zh-CN": "中间"
+                },
+                "value": "center"
+              },
+              {
+                "label": {
+                  "en-US": "Center right",
+                  "zh-CN": "中间靠右"
+                },
+                "value": "center right"
+              },
+              {
+                "label": {
+                  "en-US": "Bottom left",
+                  "zh-CN": "底部靠左"
+                },
+                "value": "bottom left"
+              }, {
+                "label": {
+                  "en-US": "Bottom",
+                  "zh-CN": "底部"
+                },
+                "value": "bottom"
+              }, {
+                "label": {
+                  "en-US": "Bottom right",
+                  "zh-CN": "底部靠右"
+                },
+                "value": "bottom right"
+              }
+            ]
+          }, {
+            "type": "image_picker",
+            "resource_type": {
+              "design": {
+                "type": "Banner"
+              }
+            },
+            "id": "img",
+            "label": {
+              "en-US": "Image",
+              "zh-CN": "图片"
+            }
+          }, {
+            "type": "image_picker",
+            "resource_type": {
+              "design": {
+                "type": "Banner"
+              }
+            },
+            "id": "mobile_img",
+            "label": {
+              "en-US": "Mobile image",
+              "zh-CN": "移动端图片"
+            }
+          }, {
+            "type": "range",
+            "id": "mask",
+            "step": 2,
+            "max": 100,
+            "min": 0,
+            "label": {
+              "en-US": "Text protection",
+              "zh-CN": "图片蒙层"
+            },
+            "unit": "%",
+            "default": 0
+          }, {
+            "type": "paragraph",
+            "content": {
+              "zh-CN": "图片蒙层让文字具备可读性",
+              "en-US": "Darkens your image to ensure your text is readable."
+            }
+          }, {
+            "type": "select",
+            "id": "img_position",
+            "default": "center",
+            "label": {
+              "zh-CN": "图片焦点",
+              "en-US": "Image focal point"
+            },
+            "options": [
+              {
+                "label": {
+                  "en-US": "Top left",
+                  "zh-CN": "左上"
+                },
+                "value": "top left"
+              },
+              {
+                "label": {
+                  "en-US": "Top",
+                  "zh-CN": "上"
+                },
+                "value": "top"
+              },
+              {
+                "label": {
+                  "en-US": "Top right",
+                  "zh-CN": "右上"
+                },
+                "value": "top right"
+              },
+              {
+                "label": {
+                  "en-US": "Left",
+                  "zh-CN": "左"
+                },
+                "value": "left"
+              }, {
+                "label": {
+                  "en-US": "Center",
+                  "zh-CN": "中"
+                },
+                "value": "center"
+              }, {
+                "label": {
+                  "en-US": "Right",
+                  "zh-CN": "右"
+                },
+                "value": "right"
+              }, {
+                "label": {
+                  "en-US": "Bottom left",
+                  "zh-CN": "左下"
+                },
+                "value": "bottom left"
+              }, {
+                "label": {
+                  "en-US": "Bottom",
+                  "zh-CN": "下"
+                },
+                "value": "bottom"
+              }, {
+                "label": {
+                  "zh-CN": "右下",
+                  "en-US": "Bottom right"
+                },
+                "value": "bottom right"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "hero_slideshow",
+        "cname": {
+          "en-US": "Hero slideshow",
+          "zh-CN": "图文幻灯"
+        },
+        "category": {
+          "zh-CN": "幻灯",
+          "en-US": "Slideshow"
+        },
+        "ccategory": {
+          "zh-CN": "幻灯",
+          "en-US": "Slideshow"
+        },
+        "display": true,
+        "blocks": [
+          {
+            "type": "slide",
+            "settings": {
+              "heading": "Two line title slide.",
+              "heading_size": 80,
+              "text": "And big, beautiful imagery",
+              "url1": "",
+              "link_text1": "Optional button",
+              "url2": "",
+              "link_text2": "Optional button",
+              "btn_bg_color": "#ffffff",
+              "btn_color": "#000000",
+              "text_align": "center",
+              "img": "",
+              "mobile_img": "",
+              "mask": 0,
+              "img_position": "center"
+            }
+          }, {
+            "type": "slide",
+            "settings": {
+              "heading": "Two line title slide.",
+              "heading_size": 80,
+              "text": "And big, beautiful imagery",
+              "url1": "",
+              "link_text1": "Optional button",
+              "url2": "",
+              "link_text2": "Optional button",
+              "btn_bg_color": "#ffffff",
+              "btn_color": "#000000",
+              "text_align": "center",
+              "img": "",
+              "mobile_img": "",
+              "mask": 0,
+              "img_position": "center"
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

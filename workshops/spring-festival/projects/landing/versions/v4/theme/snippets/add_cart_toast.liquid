@@ -1,0 +1,40 @@
+{% stylesheet %}
+  .add_cart-toast-wrap{
+    position: fixed;
+    z-index: var(--z-index-tooltip);
+    top: 64px;
+    right: 0;
+    left: 0;
+    pointer-events: none;
+  }
+  .add_cart-toast{
+    width: 100%;
+    background: rgba(41, 41, 41, 0.95);
+    color: #fff;
+    pointer-events: auto;
+    border-radius: 0px;
+    position: unset !important;
+    transform: unset !important;
+    text-align: left !important;
+  }
+  .toast_view_cart {
+    color: #F3D07D;
+  }
+  @media (min-width: 960px) {
+    .add_cart-toast-wrap {
+      top: 60px;
+    }
+    .add_cart-toast{
+      width: 400px;
+      border-radius: 2px;
+    }
+  }
+{% endstylesheet %}
+<div class="add_cart-toast-wrap lg:page-container flex justify-end">
+  <spz-toast class="add_cart-toast p-4 lg:py-8 lg:px-5 leading-1.2 flex items-center" id="add-card-toast-success" layout="nodisplay" hidden>
+    <span class="flex justify-between items-center w-full">
+      <span role="content"></span>
+      <a class="toast_view_cart inline-block font-bold text-base leading-1.1 cursor-pointer no-underline" href="{{ routes.root_url }}cart">{{ 'i18n.product.product_detail.view_cart' | t }}</a>
+    </span>
+  </spz-toast>
+</div>

@@ -1,0 +1,72 @@
+{% include 'cart_css' %}
+{% include 'cart_countdown_template' %}
+<div id="cart-payment-breakdown" class="hidden">
+  {% if section.blocks.size == 0 %}
+  {%- comment -%} Keep the original logic when no block is added. {%- endcomment -%}
+  {% include 'cart_subtotal', isBock: false %}
+  {% include 'cart_summary_sticky' %}
+  {% else %}
+  {% include 'cart_subtotal', isBock: true %}
+  {% include 'cart_summary_sticky' %}
+  {% endif %}
+</div>
+{% schema %}
+{
+  "name": "cart_payment_breakdown",
+  "templates": ["cart"],
+  "limit": 1,
+  "settings": [],
+  "updateNeedRefresh": true,
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "payment_detail",
+      "limit": 1,
+      "name": {
+        "en-US": "Payment detail",
+        "zh-CN": "金额详情"
+      },
+      "settings": []
+    },
+    {
+      "type": "checkout_button",
+      "limit": 1,
+      "name": {
+        "en-US": "Checkout button",
+        "zh-CN": "结算按钮"
+      },
+      "settings": []
+    }
+  ],
+  "presets": [
+    {
+      "name":"cart_payment_breakdown",
+      "cname": {
+        "zh-CN": "总计",
+        "en-US": "Payment breakdown"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "ccategory": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": true,
+      "blocks": [
+        {
+          "type": "payment_detail",
+          "settings": {}
+        },
+        {
+          "type": "checkout_button",
+          "settings": {}
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

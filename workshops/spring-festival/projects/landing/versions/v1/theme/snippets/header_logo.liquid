@@ -1,0 +1,10 @@
+{% capture headerLogo %}
+  {% include 'header_logo_content', logo: logo, logo_width: logo_width, class: "md:hidden" %}
+  {% include 'header_logo_content', logo: mobile_logo, logo_width: mobile_logo_width, class: "lg:hidden" %}
+{% endcapture %}
+
+{% if template.name == 'index' %}
+  <h1 class="header__logo flex-shrink-0 type-heading-font-family">{{ headerLogo }}</h1>
+{% else %}
+  <h2 class="header__logo flex-shrink-0 type-heading-font-family">{{ headerLogo }}</h2>
+{% endif %}

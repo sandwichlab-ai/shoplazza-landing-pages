@@ -1,0 +1,131 @@
+{% render 'quick_shop_css' %}
+{% assign enableVariantPriceOnAddToCart = settings.enable_btn_price %}
+{% if enableVariantPriceOnAddToCart == nil %}
+  {% assign enableVariantPriceOnAddToCart = true %}
+{% endif %}
+
+{% if settings.product_quick_view_on %}
+  <spz-lightbox class="quick-shop" id="quick-shop" layout="nodisplay" hidden unclose-in-focus>
+    <div class="quick-shop-container">
+      <div class="relative">
+        <spz-render class="quick-shop-render pointer-events-auto w-full" id="quick-shop-render" items="data" layout="container" @finish="quick-shop-variants.variantsRender(product=event.data.product);quick-shop-body.setProduct(data=event.data.product);{% if enableVariantPriceOnAddToCart %}quick-shop-btn-price.rerender(data=event.data);{% endif %}{% if shop.wholesale_enabled %}quick-shop-prices-wholesale.rerender(data=event.data);quick-shop-quantity.update(value=event.data.product.quantity,max=event.data.product.max,min=event.data.product.min);quick-shop-retail-price.rerender(data=event.data.product);{% endif %}" manual>
+          <template>
+            ${function(){
+              console.log('quick-shop-render',data);
+              {% comment %} 多变体商品-当前选择变体 {% endcomment %}
+              const productData = data.product;
+              let product_change_event = '',
+                  mouse_over_event = ' ';
+                  mouse_out_event = '';
+              const product_options = productData.options.filter(Boolean) || [];
+              const selectedVariant = productData.variants.find(v => v.available) || productData.variants[0];
+              const statusLan = ((selectedVariant && !selectedVariant.available) || (!selectedVariant && !productData.available)) ?
+                {{ 'i18n.product.product_detail.sold_out' | t | json }} :
+                {{ 'i18n.product.product_detail.add_to_cart' | t | json }};
+
+              return `
+                <div>
+                  <spz-product-form
+                    id="quick-shop-body"
+                    class="quick-shop-body"
+                    layout="container"
+                    show-toast
+                    product-id="${productData.id}"
+                    variant-id="${selectedVariant.id}"
+                    @atcSuccess="quick-shop.close;"
+                    @atcError="theme-toast.showToast(content=event.message);"
+                    @productChange="{% if enableVariantPriceOnAddToCart %}quick-shop-btn-price.rerender(data=event);{% endif %}{% if shop.wholesale_enabled %}quick-shop-prices-wholesale.rerender(data=event);quick-shop-quantity.update(value=event.quantity,max=event.max,min=event.min);quick-shop-retail-price.rerender(data=event);{% endif %}${product_change_event}"
+                  >
+                    <form>
+                      <div class="quick-shop-content rounded-global-small">
+                        <div class="quick-shop-inner-content">
+                          <spz-variants
+                            name="quick-shop-variant"
+                            id="quick-shop-variants"
+                            class="pointer-events-none"
+                            layout="container"
+                            template="quick-shop-variant-template"
+                            spz-if="${product_options && product_options.length > 0}"
+                            product-swatches="{{ settings.product_swatches_name | join: ',' }}"
+                            interact="hover"
+                            interference
+                            select-soldout-suffix=" - {{ 'i18n.product.product_detail.sold_out' | t }}"
+                            select-no-exists-suffix=" - {{ 'i18n.products.product.unavailable' | t }}"
+                          ></spz-variants>
+                          {% if shop.wholesale_enabled %}
+                            <div class="mt-5 lg:mt-6 lg:body-plus-2 leading-1.3">{{ 'i18n.product.product_detail.qty' | t }}</div>
+                            <spz-quantity
+                              class="quick-shop-qty mt-3"
+                              id="quick-shop-quantity"
+                              name="quantity"
+                              value="1"
+                              min="1"
+                              max="${(productData.variants.find(v => v.available) || productData.variants[0]).available_quantity || productData.inventory_quantity}"
+                              icon-class="quick-shop-qty-btn clear flex items-center justify-center flex-shrink-0"
+                              input-class="quick-shop-qty-input clear flex-shrink-0 body-plus-2 text-center"
+                              height="40"
+                              layout="fixed-height"
+                            >
+                              {% include 'icon_decrease', attr: 'role="decrease"' %}
+                              {% include 'icon_increase', attr: 'role="increase"' %}
+                            </spz-quantity>
+                            <spz-render class="flex mt-3" id="quick-shop-prices-wholesale" template="quick-shop-prices-wholesale-template" layout="container" manual></spz-render>
+                            <spz-render id="quick-shop-retail-price" template="quick-shop-retail-price-template" layout="container" manual></spz-render>
+                            <div spz-if="${productData.mixed_wholesale}">
+                              {% capture wrap_id %}${productData.id}{% endcapture %}
+                              {% include 'mixed_wholesale_label', class: "mt-2 lg:mt-3", key: wrap_id %}
+                            </div>
+                          {% endif %}
+                          <button
+                            class="relative mt-5 lg:mt-6 button-primary flex items-center justify-center body-plus-2  type-text-font-family rounded-btn quick-shop_atc_btn"
+                            type="button"
+                            role="addToCart"
+                            data-track="click"
+                            data-track-content="add_to_cart"
+                            data-track-source="add_to_cart"
+                          >
+                            <span role="content">${statusLan}</span>
+                            {% if settings.enable_btn_price %}
+                              <spz-render id="quick-shop-btn-price" layout="container" template="quick-shop-button-price-template" manual></spz-render>
+                            {% endif %}
+                            {% include 'loading', class: 'absolute inset-0', display: true %}
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  </spz-product-form>
+                </div>
+              `
+            }()}
+          </template>
+        </spz-render>
+        <spz-loading class="quick-shop-loading" layout="container" role="mask" hidden></spz-loading>
+        <div class="quick-shop-close-btn absolute right-0 top-0 text-current flex items-center justify-center no-underline text-2xl" @tap="quick-shop.close;">{% include 'icon_modal_close' %}</div>
+      </div>
+
+      <template id="quick-shop-retail-price-template">
+          ${function(){
+            {% comment %} 多变体商品-当前选择变体 {% endcomment %}
+            const currentSelectVariant = data.variant;
+            {% comment %} 无变体商品异步-默认变体数据 {% endcomment %}
+            const defaultVariant = (data.product && data.product.variants && data.product.variants[0]);
+
+            const variantData = currentSelectVariant || defaultVariant || data;
+            const retail_price = variantData.retail_price || 0;
+            return `
+              <div>
+                <div class="flex color-compare-price mt-3" spz-if="${retail_price>0}">
+                  <span class="mr-1">{{ 'i18n.products.general.retail' | t }}</span> <spz-currency value="${retail_price}" layout="container"></spz-currency>
+                </div>
+              </div>
+            `
+          }()}
+      </template>
+      {% include 'button_price', button_price_id: 'quick-shop-button-price-template' %}
+      {% if shop.wholesale_enabled %}
+        {% include 'price_wholesale_template', template_id: 'quick-shop-prices-wholesale-template'%}
+      {% endif %}
+    </div>
+  </spz-lightbox>
+  {% include 'quick_shop_variant_template' %}
+{% endif %}

@@ -1,0 +1,231 @@
+  <style>
+    .search-filter{
+      position: sticky;
+      top: 80px;
+      width: 220px;
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .search-filter::-webkit-scrollbar,.search-filter-accordion::-webkit-scrollbar{
+      display: none;
+    }
+
+    .search-filter-clear-all-btn {
+      color: #307ACB;
+    }
+
+    .search-filter-item {
+      display: flex;
+      align-items: flex-start;
+      flex-direction: column-reverse;
+      padding-top: 20px;
+      text-align: center;
+      font-size: calc(var(--type-text-font-size));
+    }
+
+    .search-filter-view-more-btn {
+      align-self: center;
+      border-bottom: 1px solid var(--color-body-text);
+    }
+
+    .search-filter-view-more-btn:not([hidden]) ~ spz-selector .search-category-sel-option:nth-child(n + 7) {
+      display: none;
+    }
+
+    .search-filter-accordion {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .search-filter-accordion > section + section {
+      margin-top: 30px;
+      height: auto !important;
+    }
+
+    .search-filter-accordion > section[expanded] > :last-child {
+      overflow: unset;
+    }
+
+    .search-category-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+    }
+
+    .icon_search_decrease {
+      display: none;
+    }
+    .icon_search_increase {
+      display: block;
+    }
+    .search-filter-accordion [expanded] .icon_search_decrease {
+      display: block;
+    }
+    .search-filter-accordion [expanded] .icon_search_increase {
+      display: none;
+    }
+
+    .search-category-sel-option {
+      display: flex;
+      align-items: center;
+      padding-bottom: 10px;
+      text-align: left;
+      word-break: break-all;
+    }
+    .search-category-sel-checkbox {
+      align-self: flex-start;
+      width: 12px;
+      height: 12px;
+      margin-top: 5px;
+      margin-{{inline_end}}: 8px;
+      border: 1px solid var(--color-border, --color-general-text);
+    }
+    .search-category-sel-num {
+      white-space: nowrap;
+    }
+    .search-category-sel-option .icon-search-checkbox-selected {
+      opacity: 0;
+    }
+    [selected].search-category-sel-option .icon-search-checkbox-selected {
+      position: relative;
+      top: -3px;
+      {{ inline_start }}: -3px;
+      transform: scale(0.75);
+      opacity: 1;
+    }
+
+    .search-filter-price .search-category-title{
+      padding-bottom: 8px;
+    }
+    .search-filter-price-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .search-filter-price-input {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 76px;
+      padding: 12px;
+      border-radius: 2px;
+      border: 1px solid var(--color-border, --color-general-text);
+      color: var(--color-general-text);
+    }
+    .search-filter-price-input, .search-filter-price-input input {
+      background: var(--color-general-bg);
+    }
+    .search-filter-price-input input {
+      width: 100%;
+      border: none;
+    }
+    .search-filter-price-split {
+      font-size: calc(var(--type-text-font-size) - 2px);
+      font-weight: 400;
+    }
+
+    .search-list[nomore] div[role='loadmore'] {
+      display: none;
+    }
+  </style>
+
+{% if show_filter %}
+  <spz-filter
+    id="search-filter"
+    class="md:hidden search-filter flex-shrink-0 lg:pr-10"
+    layout="container"
+    src="{{ searchSrc }}"
+    items="data.filters"
+    list-id="search-list"
+    result-id="search-filter-result"
+    content-id="filter-desktop-content"
+    {% unless pagination_type == 'number' %}
+      scroll-top-before-refresh-list
+    {% endunless %}
+    @resultFinish="search-filter-header-render.rerender(data=event.count);"
+    @contentFinish="search-filter-view-more-handler.resetStatus();"
+  >
+    <spz-render id="search-filter-header-render" layout="container" manual>
+      <template>
+        <div class="flex items-center justify-between flex-wrap">
+          <div class="font-semibold body-plus-2">{{ 'i18n.search.filter' | t }}${data > 0 ? `(${data})` : ''}</div>
+          <button class="search-filter-clear-all-btn clear ml-2 body-minus-2" @tap="search-filter.clearAll;" spz-if="${data > 0}">
+            {{ 'i18n.search.clear_all' | t }}
+          </button>
+        </div>
+      </template>
+    </spz-render>
+
+    {% include 'search_filter_result', result_id: 'search-filter-result' %}
+
+    <spz-accordion id="filter-desktop-content" class="search-filter-accordion" layout="container" animate role="content">
+      <section as="default" expanded>
+        <spz-render layout="container" manual accordion-header>
+          <template>
+            <div class="search-category-title">
+              <span>${ data.title }</span>
+              {% include 'icon_increase', icon_class: 'icon_search_increase' %}
+              {% include 'icon_decrease', icon_class: 'icon_search_decrease' %}
+            </div>
+          </template>
+        </spz-render>
+        <spz-render layout="container" manual>
+          <template>
+            <div class="search-filter-item">
+              <button
+                class="search-filter-view-more-btn clear body-minus-2 cursor-pointer"
+                spz-if="${(data.values && data.values.length) > 6}"
+                data-one-click-name="${data.param_name}"
+                type="button"
+              >
+                {{ 'i18n.search.view_more' | t }}
+              </button>
+              <spz-selector
+                layout="container"
+                multiple
+                role="items"
+                @select="search-filter.apply(data=event.selectedOptions)"
+              >
+                <div class="search-category-sel-option" spz-for="item in data.values" option="${item.value}" value="${item.value}" key="item.value">
+                  <span class="search-category-sel-checkbox">
+                    {% include 'icon_collection_checkbox', icon_class: 'icon-search-checkbox-selected' %}
+                  </span>
+                  <span>${item.label}</span>
+                  <span class="search-category-sel-num">(${item.count})</span>
+                </div>
+              </spz-selector>
+            </div>
+          </template>
+        </spz-render>
+      </section>
+
+      <section class="search-filter-price" as="price" expanded>
+        <spz-render layout="container" manual disabled>
+          <template>
+            <div class="search-category-title">${data.title}</div>
+          </template>
+        </spz-render>
+        <spz-render layout="container" manual>
+          <template>
+            <div class="temp-search-filter-price">
+              <div class="search-filter-price-content">
+                <div class="search-filter-price-input">
+                  <span>{{ shop.finance_symbol }}</span>
+                  <input type="number" role="price-min" @change="search-filter.apply;">
+                </div>
+                <span class="search-filter-price-split">{{ 'i18n.search.to' | t }}</span>
+                <div class="search-filter-price-input">
+                  <span>{{ shop.finance_symbol }}</span>
+                  <input type="number" role="price-max" @change="search-filter.apply;">
+                </div>
+              </div>
+            </div>
+          </template>
+        </spz-render>
+      </section>
+    </spz-accordion>
+  </spz-filter>
+{% endif %}

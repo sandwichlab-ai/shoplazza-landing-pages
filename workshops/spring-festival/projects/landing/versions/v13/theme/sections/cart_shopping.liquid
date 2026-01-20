@@ -1,0 +1,101 @@
+{% include 'cart_css' %}
+{% include 'cart_countdown_template' %}
+<spz-event target-id="cart-render" target-api="render" event-name="dj.addToCart" layout="logic"></spz-event>
+
+<div id="cart">
+  <spz-cart
+    id="cart-render"
+    layout="container"
+    empty-item="cart.line_items"
+    @mounted="cart-items-render.rerender(data=event.cart);cart-subtotal-render.rerender(data=event.cart);cart-subtotal-free-shipping.rerender(data=event.cart);cart-summary-sticky-render.rerender(data=event.cart);"
+    @cartIncrease="theme-toast-success.showToast(content='{{ "i18n.bag.general.increased_success" | t }}')"
+    @cartDecrease="theme-toast-success.showToast(content='{{ "i18n.bag.general.decreased_success" | t }}')"
+    @cartChange="cart-items-render.rerender(data=event.cart);cart-subtotal-render.rerender(data=event.cart);cart-subtotal-free-shipping.rerender(data=event.cart);cart-summary-sticky-render.rerender(data=event.cart);"
+    @cartEmpty="cart-payment-breakdown.toggleClass(class='hidden', force=true);"
+    @cartItemExists="cart-payment-breakdown.toggleClass(class='hidden', force=false);"
+  >
+    <template><div></div></template>
+  </spz-cart>
+
+  {% include 'loading', class: 'cart-loading', display: false, has_full_mask: true %}
+
+  <article class="cart-content" id="cart-content">
+
+    {% if section.blocks.size == 0 %}
+      {%- comment -%} Keep the original logic when no block is added. {%- endcomment -%}
+      {% include 'cart_topbar', isBlock: false %}
+      {% include 'cart_items', isBock: false %}
+    {% else %}
+      {% for item in section.blocks %}
+        {% if item.type == 'items' %}
+          {% include 'cart_items', isBock: true %}
+        {% elsif item.type == 'topbar' %}
+          {% include 'cart_topbar', isBock: true %}
+        {% elsif item.type contains '//apps' %}
+          <div class="page-container" {{ item.shoplaza_attributes }}>
+            {% render item %}
+          </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  </article>
+</div>
+{% schema %}
+{
+  "name": "cart_shopping",
+  "templates": ["cart"],
+  "limit": 1,
+  "settings": [],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "topbar",
+      "limit": 1,
+      "name": {
+        "en-US": "Top bar",
+        "zh-CN": "顶部栏"
+      },
+      "settings": []
+    },
+    {
+      "type": "items",
+      "limit": 1,
+      "name": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "settings": []
+    }
+  ],
+  "presets": [
+    {
+      "name":"cart_shopping",
+      "cname": {
+        "zh-CN": "购物栏",
+        "en-US": "Shopping cart"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "ccategory": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": true,
+      "blocks": [
+        {
+          "type": "topbar",
+          "settings": {}
+        },
+        {
+          "type": "items",
+          "settings": {}
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

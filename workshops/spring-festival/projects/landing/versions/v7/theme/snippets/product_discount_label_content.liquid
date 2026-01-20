@@ -1,0 +1,21 @@
+{% comment %}
+  Renders a product discount label content
+
+  Accepts:
+  - product_or_variant: {Object} Product Liquid object or Variant Liquid object
+
+  Usage:
+  {% include 'product_discount_label_content', product_or_variant %}
+{% endcomment %}
+{% if settings.product_label_discount_on and product_or_variant.compare_at_price > product_or_variant.price %}
+  {% if settings.product_label_discount_format == 'percentage' %}
+    {% capture saved_amount %}{{product_or_variant.off_ratio}}%{% endcapture %}
+  {% elsif settings.product_label_discount_format == 'amount' %}
+    {% capture saved_amount %}<span class='money'>{{ product_or_variant.compare_at_price | minus: product_or_variant.price | money_with_symbol }}</span>{% endcapture %}
+  {% endif %}
+  {% if use_minus_symbol %}
+    {{saved_amount | prepend: '<span>-</span>' }}
+  {% else %}
+    {{'i18n.products.general.save' | t: save_amount: saved_amount }}
+  {% endif %}
+{% endif %}

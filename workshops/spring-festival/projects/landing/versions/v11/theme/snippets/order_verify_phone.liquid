@@ -1,0 +1,64 @@
+<div class='page-container text-center order_verify_container body-plus-2'>
+    <div class='order_verify_title mt-6 title-color text-left order_verify_title_sub_email'>{{ 'i18n.customer.order_verify.view_info' | t }}</div>
+    <spz-render id='order_verify_phone' layout='container' manual>
+      <template>
+        <div class='form-tips-text'>
+          ${data.error == 'order number' ? '{{ invalid_order_id }}' : '{{ invalid_email_or_phone }}'}
+        </div>
+      </template>
+    </spz-render>
+    <form
+      class='form flex-col'
+      method="POST"
+      action-xhr="{{ '/api/order_verify' | add_root_url }}"
+      custom-validation="change-interact-and-submit"
+      @submitError="order_verify_phone.rerender(data=event);order_verify_phone.toggleClass(class='hidden', force=false);"
+      @submitSuccess="SPZ.navigateTo(url=event.value);"
+    >
+      <div class="form_item_group_phone">
+        <div class="form_item">
+          <input
+            class="form_input"
+            id="code"
+            name="code"
+            type="text"
+            tabindex="1"
+            required
+            @input-debounced="order_verify_phone.toggleClass(class='hidden', force=true);"
+          >
+            <label class='form_label' for='code'>{{ 'i18n.customer.order_verify.area_code' | t }}</label>
+            <div class='form_item form-tips-error' validation-for='code' visible-when-invalid='valueMissing' hidden>{% include 'icon_warning' %}{{ 'i18n.customer.order_verify.phone_invalid' | t }}</div>
+        </div>
+        <div class="form_item">
+          <input
+            class="form_input"
+            id="phone"
+            name="phone"
+            type="text"
+            tabindex="1"
+            required
+            pattern="[\+0-9\(\).\s\-]+"
+            @input-debounced="order_verify_phone.toggleClass(class='hidden', force=true);"
+          >
+            <label class='form_label' for='phone'>{{ 'i18n.customer.order_verify.phone' | t }}</label>
+            <div class='form_item form-tips-error' validation-for='phone' visible-when-invalid='valueMissing' hidden>{% include 'icon_warning' %}{{ 'i18n.customer.order_verify.phone_invalid' | t }}</div>
+            <div class='form_item form-tips-error' validation-for='phone' visible-when-invalid='patternMismatch' hidden>{% include 'icon_warning' %}{{ 'i18n.customer.order_verify.phone_invalid' | t }}</div>
+        </div>
+      </div>
+      <div class='form_item'>
+        <input
+          class='form_input'
+          type='text'
+          id='order_number'
+          name='order_number'
+          tabindex='2'
+          autofocus
+          required
+          @input-debounced="order_verify_phone.toggleClass(class='hidden', force=true);"
+        >
+        <label class='form_label' for='order_number'>{{ 'i18n.customer.order_verify.order_number' | t }}</label>
+        <div class='form_item form-tips-error' validation-for='order_number' visible-when-invalid='valueMissing' hidden>{% include 'icon_warning' %}{{ 'i18n.customer.order_verify.order_number_invalid' | t }}</div>
+      </div>
+      <button class='form_submit button-primary mb-3 block w-full' type='submit' tabindex='4'>{{ 'i18n.customer.order_verify.log_in' | t }}</button>
+    </form>
+  </div>

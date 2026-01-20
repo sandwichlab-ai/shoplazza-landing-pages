@@ -1,0 +1,54 @@
+{% assign collection = collections[block.settings.collection.id] %}
+{% assign image = block.settings.image %}
+{% assign alt = '' %}
+{% if image %}
+  {% assign alt = images[image].alt %}
+{% else %}
+  {% if collection.image %}
+    {% assign image = collection.image %}
+  {% else %}
+    {% assign product0 = collection.products[0] %}
+    {% assign image = product0.image %}
+  {% endif %}
+  {% assign alt = image.alt %}
+{% endif %}
+{% assign title = block.settings.title | default: collection.title %}
+<a
+  {{ block.shoplaza_attributes }}
+  class="collection_list_item block {% if {{layout}} == 'grid' %} px-2 {% else %} {% if forloop.index > {{desktop_per_row}} %} {% endif %} {% if block_size > 1 %} md:w-full {% endif %} md:pr-4 {% endif %} pt-4 overflow-hidden text-inherit no-underline lg:px-3 lg:pt-6"
+  {% include 'link', link: collection %}>
+  <div class="pb-2">
+    <div class="{% if tile_style == 'circle' %} p-6 rounded-full overflow-hidden {% else %} p-[15px] {% endif %} lg:p-8 lg:transition-shadow lg:duration-[250ms] lg:hover:shadow-image" style="background-color: {{ image_bg }};padding: {{ collection_grid_image_margin }}%;">
+      <div class="relative" style="{% unless image %} padding-bottom: {{ image_ratio }}; {% endunless %}">
+        {% if image %}
+          {% assign sizeRatio = 4 %}
+          {% if desktop_per_row <= 3 %}
+            {% assign sizeRatio = desktop_per_row %}
+          {% endif %}
+          {% if mobile_per_row == 1 and sizeRatio > 2 and layout != 'carousel' %}
+            {% assign sizeRatio = 2 %}
+          {% endif %}
+
+          <spz-img
+            class="{% if tile_style == 'circle' %}rounded-full{% endif %}"
+            src='{{ image | img_url }}'
+            alt='{{ alt | default: title | escape }}'
+            layout="responsive"
+            object-fit="contain"
+            auto-fit
+            {% if forloop.index0 == 0 %}
+              ssr
+              size-ratio="{{ sizeRatio }}"
+            {% endif %}
+            {{ image_size | strip }}
+          ></spz-img>
+        {% else %}
+          {{ 'product-1' | placeholder_svg_tag: 'absolute inset-0 w-full h-full fill-svg bg-svg' }}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% if title %}
+    <p class="collection_list_item_title m-0 body-minus-1 lg:body-plus-1 {% if mobile_show_title == false %} md:hidden {% endif %}">{{ title | escape }}</p>
+  {% endif %}
+</a>

@@ -1,0 +1,321 @@
+{% assign heading = section.settings.heading %}
+{% assign text_alignment = section.settings.text_alignment %}
+{% assign size = section.blocks.size %}
+{% include 'card_spacing_css' %}
+
+<style>
+  .text_columns_with_images_wrapper {
+    padding: 0 0 20px;
+    display: grid;
+    gap: 28px 0px;
+  }
+  .text_columns_with_images_heading {
+    font-size: calc(var(--type-heading-font-size) - 6px);
+    color: var(--color-general-heading-text);
+    line-height: 1.2;
+    margin: 0;
+  }
+  .text_columns_with_images_desc {
+    font-size: calc(var(--type-text-font-size) + 2px);
+    overflow-wrap: break-word;
+    margin-top: 8px;
+  }
+  .text_columns_with_images_btn {
+    margin-top: 16px;
+    display: inline-block;
+    font-size: calc(var(--type-text-font-size) + 2px);
+    cursor: pointer;
+    text-align: center;
+    /* padding: 8px 24px; */
+    text-decoration: none;
+  }
+  .text_columns_with_images_span_3 {
+    grid-column-start: span 3;
+  }
+  .text_columns_with_images_span_2 {
+    grid-column-start: span 2;
+  }
+  .text_columns_with_images_title {
+    font-size: var(--type-heading-font-size);
+    margin-bottom: 20px;
+  }
+  .text_columns_with_images_content {
+    margin-top: 12px;
+    text-align: {% if text_alignment == 'center' %}center{% elsif text_alignment == 'right' %}right{% else %}left{% endif %};
+  }
+  .text_columns_with_images_desc p {
+    margin: 0;
+  }
+  @media (min-width: {{ settings.breakpoint }}px) {
+    {% for block in section.blocks %}
+      [data-section-id="{{ section.id }}"] .text__columns-image-{{ forloop.index0 }} {
+        max-width: {{ block.settings.image_width }}px;
+        margin: 0 auto;
+      }
+    {% endfor %}
+    [data-section-id="{{ section.id }}"] .text_columns_with_images_wrapper {
+      padding: 0 0 40px;
+      display: grid;
+      gap: 36px 20px;
+      grid-template-columns: {% if size == 1 or size == 2 or size == 4 %}repeat(2, minmax(0, 1fr)){% else %}repeat(6, minmax(0, 1fr)){% endif %};
+    }
+  }
+</style>
+
+<div class='page-container'>
+  {% if heading %}
+    <h4 class='text_columns_with_images_title title-color'>{{ heading | escape }}</h4>
+  {% endif %}
+  <div class='text_columns_with_images_wrapper'>
+    {% for block in section.blocks %}
+      {% assign show_image = block.settings.show_image %}
+      {% assign image = block.settings.image %}
+      {% assign heading = block.settings.heading %}
+      {% assign text = block.settings.text %}
+      {% assign button_text = block.settings.button_text %}
+      {% assign button_link = block.settings.button_link %}
+      <div class='{% if size == 1 or size == 2 or size == 4 %}{% elsif size == 5 and forloop.index0 < 2 %}text_columns_with_images_span_3{% else %}text_columns_with_images_span_2{% endif %}'>
+        {% if show_image %}
+          <div class="text__columns-image-{{ forloop.index0 }}">
+            {% include 'global_img', image: image, ssrIndex: 0 %}
+          </div>
+        {% endif %}
+        <div class="text_columns_with_images_content">
+          {% if heading %}
+            <h5 class='text_columns_with_images_heading'>{{ heading | escape }}</h5>
+          {% endif %}
+          {% if text %}
+            <div class='text_columns_with_images_desc'>{{ text }}</div>
+          {% endif %}
+          {% if button_text %}
+            <a class='text_columns_with_images_btn {% if block.settings.button_style == 'primary' %} button-primary {% else %} button-secondary {% endif %}' {% include 'link', link: button_link %}>
+              {{ button_text | escape }}
+            </a>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "text_columns_with_images",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "default": ""
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": {
+        "en-US": "Text alignment",
+        "zh-CN": "文字对齐"
+      },
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": { "en-US": "Text left", "zh-CN": "居左" }
+        },
+        {
+          "value": "center",
+          "label": { "en-US": "Text centered", "zh-CN": "居中" }
+        },
+        {
+          "value": "right",
+          "label": { "en-US": "Text right", "zh-CN": "居右" }
+        }
+      ]
+    },
+    {
+      "type": "spacing",
+      "id": "spacing",
+      "label": {
+        "en-US": "Spacing",
+        "zh-CN": "间距留白"
+      },
+      "pc": {
+        "top": "40",
+        "right": "",
+        "bottom": "40",
+        "left": ""
+      },
+      "mobile": {
+        "top": "20",
+        "right": "",
+        "bottom": "20",
+        "left": ""
+      },
+      "default": {
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        }
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "column",
+      "name": {
+        "en-US": "Column",
+        "zh-CN": "分栏"
+      },
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_image",
+          "label": {
+            "en-US": "Show image",
+            "zh-CN": "显示图片"
+          },
+          "default": true
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": {
+            "en-US": "Image",
+            "zh-CN": "图片"
+          }
+        },
+        {
+          "type": "range",
+          "id": "image_width",
+          "label": {
+            "en-US": "Image width",
+            "zh-CN": "pc端图片宽度"
+          },
+          "unit": "px",
+          "step": 10,
+          "min": 60,
+          "max": 650,
+          "default": 650
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": {
+            "en-US": "Heading",
+            "zh-CN": "标题"
+          },
+          "default": "Example title"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": {
+            "en-US": "Text",
+            "zh-CN": "文字"
+          },
+          "default": "Use this section to explain a set of product features, to link to a series of pages, or to answer common questions about your products. Add images for emphasis."
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": {
+            "en-US": "Button text",
+            "zh-CN": "按钮文字"
+          },
+          "default": "Optional button"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": {
+            "en-US": "Button link",
+            "zh-CN": "按钮链接"
+          }
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": {
+            "en-US": "Button style",
+            "zh-CN": "按钮样式"
+          },
+          "default": "secondary",
+          "options": [
+            {
+              "value": "primary",
+              "label": { "en-US": "Primary button", "zh-CN": "主要按钮" }
+            },
+            {
+              "value": "secondary",
+              "label": { "en-US": "Secondary button", "zh-CN": "次要按钮" }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "text_columns_with_images",
+      "cname": {
+        "en-US": "Text columns with images",
+        "zh-CN": "图文分栏"
+      },
+      "category": {
+        "en-US": "Image with text",
+        "zh-CN": "图文"
+      },
+      "ccategory": {
+        "en-US": "Image with text",
+        "zh-CN": "图文"
+      },
+      "display": true,
+      "blocks": [
+        {
+          "type": "column",
+          "settings": {
+            "show_image": true,
+            "image_width": 650,
+            "heading": "Example title",
+            "text": "Use this section to explain a set of product features, to link to a series of pages, or to answer common questions about your products. Add images for emphasis.",
+            "button_text": "Optional button",
+            "button_style": "secondary"
+          }
+        },
+        {
+          "type": "column",
+          "settings": {
+            "show_image": true,
+            "image_width": 650,
+            "heading": "Example title",
+            "text": "Use this section to explain a set of product features, to link to a series of pages, or to answer common questions about your products. Add images for emphasis.",
+            "button_text": "Optional button",
+            "button_style": "secondary"
+          }
+        },
+        {
+          "type": "column",
+          "settings": {
+            "show_image": true,
+            "image_width": 650,
+            "heading": "Example title",
+            "text": "Use this section to explain a set of product features, to link to a series of pages, or to answer common questions about your products. Add images for emphasis.",
+            "button_text": "Optional button",
+            "button_style": "secondary"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

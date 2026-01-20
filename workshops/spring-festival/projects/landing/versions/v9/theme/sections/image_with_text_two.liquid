@@ -1,0 +1,336 @@
+{% assign main_image = section.settings.main_image %}
+{% assign main_image_width = section.settings.main_image_width | default: 465 %}
+{% assign image = section.settings.image %}
+{% assign image_width = section.settings.image_width | default: 285 %}
+{% assign layout = section.settings.layout %}
+{% include 'card_spacing_css' %}
+
+<style>
+  .image_with_text_img_container {
+    display: flex;
+    position: relative;
+    justify-content: flex-end;
+  }
+  .image_with_text_img_outer {
+    position: absolute;
+    bottom: 56px;
+  }
+  .image_with_text_desc {
+    justify-content: flex-start;
+    margin-top: 20px;
+  }
+  .image_with_text_img {
+    width: 148px;
+  }
+  {% if shop.locale == "ar-SA" %}
+    .image_with_text_two_desc_text {
+      text-align: right !important;
+    }
+  {% else %}
+    .image_with_text_two_desc_text {
+      text-align: left !important;
+    }
+  {% endif %}
+
+  {% comment %} layout: left {% endcomment %}
+  [data-section-id="{{ section.id }}"] .left .image_with_text_img_outer {
+    left: 0;
+  }
+  [data-section-id="{{ section.id }}"] .left .image_with_text_img_container {
+    justify-content: flex-end;
+  }
+
+  {% comment %} layout: right {% endcomment %}
+  [data-section-id="{{ section.id }}"] .right .image_with_text_img_outer {
+    right: 0;
+  }
+  [data-section-id="{{ section.id }}"] .right .image_with_text_img_container {
+    justify-content: flex-start;
+  }
+
+  @media (max-width: {{ settings.breakpoint }}px) {
+    .image_with_text_main_img_outer {
+      width: 70.84%;
+    }
+    .image_with_text_img_outer {
+      bottom: 29px;
+    }
+  }
+
+  @media (min-width: {{ settings.breakpoint }}px) {
+    [data-section-id="{{ section.id }}"] .image_with_text_main_img {
+      width: {{ main_image_width }}px;
+    }
+    [data-section-id="{{ section.id }}"] .image_with_text_img {
+      width: {{ image_width }}px;
+    }
+    .image_with_text_desc {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      justify-content: center;
+      margin-top: 0;
+    }
+
+    {% comment %} layout: left {% endcomment %}
+    [data-section-id="{{ section.id }}"] .left .image_with_text_img_container {
+      padding-right: 43.05%;
+    }
+    [data-section-id="{{ section.id }}"] .left .image_with_text_desc {
+      padding-left: 50%;
+    }
+    [data-section-id="{{ section.id }}"] .left .image_with_text_two_desc_text {
+      padding-left: 26.4%;
+    }
+
+    {% comment %} layout: right {% endcomment %}
+    [data-section-id="{{ section.id }}"] .right .image_with_text_img_container {
+      padding-left: 43.05%;
+    }
+    [data-section-id="{{ section.id }}"] .right .image_with_text_desc {
+      padding-right: 50%;
+    }
+    [data-section-id="{{ section.id }}"] .right .image_with_text_two_desc_text {
+      padding-right: 26.4%;
+    }
+  }
+</style>
+
+<div class='relative page-container {{layout}}'>
+  <div class='image_with_text_img_container direction_ltr_self'>
+    {% include 'global_img', image: main_image, image_outer: 'image_with_text_main_img_outer', image_class: 'image_with_text_main_img', ssrIndex: 0 %}
+    {% include 'global_img', image: image, image_outer: 'image_with_text_img_outer', image_class: 'image_with_text_img' %}
+  </div>
+  {% include 'global_text', container_class: 'image_with_text_desc', text_class: 'image_with_text_two_desc_text', btn_class: 'image_with_text_two_desc_text' %}
+</div>
+
+{% schema %}
+{
+  "name": "image_with_text_two",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "main_image",
+      "label": {
+        "en-US": "Main image",
+        "zh-CN": "主图片"
+      }
+    },
+    {
+      "type": "range",
+      "id": "main_image_width",
+      "label": {
+        "en-US": "Main image width",
+        "zh-CN": "PC端主图片宽度"
+      },
+      "unit": "px",
+      "min": 100,
+      "max": 500,
+      "step": 5,
+      "default": 465
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": {
+        "en-US": "Image",
+        "zh-CN": "图片"
+      }
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "label": {
+        "en-US": "Image width",
+        "zh-CN": "PC图片宽度"
+      },
+      "unit": "px",
+      "min": 50,
+      "max": 300,
+      "step": 5,
+      "default": 285
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": {
+        "en-US": "Layout",
+        "zh-CN": "布局"
+      },
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": { "en-US": "Image on left", "zh-CN": "图片在左" }
+        },
+        {
+          "value": "right",
+          "label": { "en-US": "Image on right", "zh-CN": "图片在右" }
+        }
+      ]
+    },
+    {
+      "type": "spacing",
+      "id": "spacing",
+      "label": {
+        "en-US": "Spacing",
+        "zh-CN": "间距留白"
+      },
+      "pc": {
+        "top": "40",
+        "right": "",
+        "bottom": "40",
+        "left": ""
+      },
+      "mobile": {
+        "top": "20",
+        "right": "",
+        "bottom": "20",
+        "left": ""
+      },
+      "default": {
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        }
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "limit": 1,
+      "name": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": {
+            "en-US": "Heading",
+            "zh-CN": "标题"
+          },
+          "default": "Image with text"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "limit": 1,
+      "name": {
+        "en-US": "Text",
+        "zh-CN": "文字"
+      },
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": {
+            "en-US": "Text",
+            "zh-CN": "文字"
+          },
+          "default": "Pair large text with an image to tell a story, explain a detail about your product, or describe a new promotion."
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "limit": 1,
+      "name": {
+        "en-US": "Button",
+        "zh-CN": "按钮"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": {
+            "en-US": "Button text",
+            "zh-CN": "按钮文字"
+          },
+          "default": "Optional button"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": {
+            "en-US": "Button link",
+            "zh-CN": "按钮链接"
+          }
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": {
+            "en-US": "Button style",
+            "zh-CN": "按钮样式"
+          },
+          "default": "secondary",
+          "options": [
+            {
+              "value": "primary",
+              "label": { "en-US": "Primary button", "zh-CN": "主要按钮" }
+            },
+            {
+              "value": "secondary",
+              "label": { "en-US": "Secondary button", "zh-CN": "次要按钮" }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "image_with_text_two",
+      "cname": {
+        "en-US": "Image with text 2",
+        "zh-CN": "图文2"
+      },
+      "category": {
+        "en-US": "Image with text",
+        "zh-CN": "图文"
+      },
+      "ccategory": {
+        "en-US": "Image with text",
+        "zh-CN": "图文"
+      },
+      "display": true,
+      "blocks": [
+        {
+          "type": "heading",
+          "settings": {
+            "heading": "Image with text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "Pair large text with an image to tell a story, explain a detail about your product, or describe a new promotion."
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "button_text": "Optional button",
+            "button_style": "secondary"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

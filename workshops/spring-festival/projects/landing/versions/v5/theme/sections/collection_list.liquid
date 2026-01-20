@@ -1,0 +1,478 @@
+{% include 'card_spacing_css' %}
+{% assign heading = section.settings.heading %}
+{% assign layout = section.settings.layout %}
+{% assign desktop_per_row = section.settings.desktop_per_row %}
+{% assign mobile_per_row = section.settings.mobile_per_row %}
+{% assign image_bg = section.settings.image_bg %}
+{% assign tile_style = section.settings.tile_style %}
+{% assign block_size = section.blocks.size %}
+{% assign collection_grid_image_margin = section.settings.collection_grid_image_margin %}
+{% assign text_align = section.settings.text_align | default: 'center' %}
+{% assign mobile_show_title = section.settings.mobile_show_title %}
+{% if mobile_show_title == nil %}
+  {% assign mobile_show_title = true %}
+{% endif %}
+
+{% assign image_ratio = '100%' %}
+{% unless tile_style == 'circle' or tile_style == 'square' %}
+  {% assign image_ratio = tile_style %}
+{% endunless %}
+
+{% capture image_size %}
+  {% if image_ratio == '100%' %}
+    width="1" height="1" data-size="100%"
+  {% elsif image_ratio == '75%' %}
+    width="4" height="3" data-size="75%"
+  {% elsif image_ratio == '150%' %}
+    width="2" height="3" data-size="150%"
+  {% endif %}
+{% endcapture %}
+
+{% assign show_count =  mobile_per_row | plus: 0.5 %}
+{% assign calc_counts = block_size %} 
+{% assign padding_item_size = block_size | minus: 1  %} 
+
+{% if block_size > mobile_per_row %}
+  {% assign calc_counts = show_count %}
+  {% assign padding_item_size = mobile_per_row %}
+{% endif %} 
+
+{% assign content_padding = 16 | times: padding_item_size  %} 
+
+<style>
+  .-mx-2 {
+    margin-left: -8px;
+    margin-right: -8px;
+  }
+  .collection__list-title,
+  .collection_list_item_title {
+    text-align: {{ text_align }};
+  }
+
+  @media (max-width: 959.98px) {
+    .collection-carousel .i-spzhtml-slide-item {
+      width:calc((100% - {{content_padding}}px) / {{calc_counts}});
+      box-sizing: content-box;
+      padding-right: 16px;
+    }
+    .collection-carousel .i-spzhtml-slide-item .collection_list_item {
+      padding-right: 0;
+    }
+  }
+  @media (min-width: 960px) {
+    .lg\:-mx-3 {
+      margin-left: -12px;
+      margin-right: -12px;
+    }
+    .lg\:duration-\[250ms\] {
+      transition-duration: 250ms;
+    }
+    .lg\:transition-shadow {
+      transition-property: box-shadow;
+      transition-timing-function: cubic-bezier(.4,0,.2,1);
+      transition-duration: 150ms;
+    }
+    .lg\:carousel-{{ desktop_per_row }} .collection_list_item {
+      width: calc(100%/{{desktop_per_row}});
+    }
+  }
+</style>
+{%- comment -%} 阿拉伯语言支持 {%- endcomment -%}
+{% if shop.locale == "ar-SA" %}
+  <style>
+    @media (max-width: {{ settings.breakpoint | minus: 0.02 }}px) {
+      html[dir="rtl"] [data-section-id="{{ section.id }}"] .collection__list-container {
+        padding-left: 0;
+        padding-right: 16px;
+      }
+    }
+
+    html[dir="rtl"] [data-section-id="{{ section.id }}"] .carousel__arrows[data-direction="prev"] > svg {
+      transform: rotate(180deg);
+    }
+
+    html[dir="rtl"] [data-section-id="{{ section.id }}"] .carousel__arrows[data-direction="next"] > svg {
+      transform: rotate(0deg);
+    }
+  </style>
+{% endif %}
+<div class="page-container {% if layout == 'carousel' %} collection__list-container md:pl-4 {% else %} container {% endif %} lg:container">
+<div class="collection__list">
+  {% if heading %}
+    <h4 class="collection__list-title m-0 title-font type-heading-font-family font-normal leading-1.2 overflow-hidden">{{ heading }}</h4>
+  {% endif %}
+  {% if block_size > 0 %}
+    <div class="collection__list-wrap pt-2 lg:pt-1">
+      {% if layout != 'carousel' %}
+        <div class="collection-slick grid {% if layout == 'grid' %} grid-cols-{{ mobile_per_row }} -mx-2 {% endif %} lg:grid-cols-{{ desktop_per_row }} lg:-mx-3">
+          {% for block in section.blocks %}
+            {% include 'collection_list_item' %}
+          {% endfor %}
+        </div>
+      {% endif %}
+      {%- comment -%} carousel {%- endcomment -%}
+      {% if layout == 'carousel' %}
+
+        {% comment %}pc{% endcomment %}
+        <spz-carousel
+          ssr
+          class="lg:carousel-{{ desktop_per_row }} md:hidden"
+          loop
+          advance-count="{{ desktop_per_row }}"
+          layout="container"
+          initial-slide="0"
+          id="collection-roll-carousel-{{ section.id }}"
+          @mounted="collection-roll-arrows-{{ section.id }}.rerender(data=event);"
+          @slideChange="collection-roll-arrows-{{ section.id }}.rerender(data=event);">
+          {% for block in section.blocks %}
+            {% include 'collection_list_item' %}
+          {% endfor %}
+        </spz-carousel>
+
+        {% comment %} pc-arrow {% endcomment %}
+        {% capture arrow_id %}collection-roll-carousel-{{ section.id }}{% endcapture %}
+        {% capture render_id %}collection-roll-arrows-{{ section.id }}{% endcapture %}
+        {% capture on_prev %}{{arrow_id}}.goToSlide(index=${data.index > 0 ? (data.index - 1) : (data.total - 1)},animate=true,direct=-1);{% endcapture %}
+        {% capture on_next %}{{arrow_id}}.goToSlide(index=${data.index < (data.total - 1) ? (data.index + 1) : 0},animate=true,direct=1);{% endcapture %}
+        {% 
+          include 'carousel_arrow',
+          container_class: 'md:hidden', 
+          arrow_id: arrow_id, 
+          render_id: render_id, 
+          has_total: true ,
+          on_prev: on_prev,
+          on_next: on_next
+        %}
+        
+        {% comment %} mobile-carousel {% endcomment %}
+        <spz-carousel
+          ssr
+          class="collection-carousel lg:hidden"
+          loop
+          visible-count="{{ mobile_per_row | plus: 0.5 }}"
+          layout="container"
+          initial-slide="0"
+          id="collection-roll-carousel-{{ section.id }}-md"
+          @mounted="collection-roll-arrows-{{ section.id }}-md.rerender(data=event);"
+          @slideChange="collection-roll-arrows-{{ section.id }}-md.rerender(data=event);">
+          {% for block in section.blocks %}
+            {% include 'collection_list_item' %}
+          {% endfor %}
+        </spz-carousel>
+
+        {% comment %} mobile-arrows {% endcomment %}
+        {% capture arrow_id %}collection-roll-carousel-{{ section.id }}-md{% endcapture %}
+        {% capture render_id %}collection-roll-arrows-{{ section.id }}-md{% endcapture %}
+        {% capture on_prev %}{{arrow_id}}.goPrev();{% endcapture %}
+        {% capture on_next %}{{arrow_id}}.goNext();{% endcapture %}
+        {% 
+          include 'carousel_arrow', 
+          container_class: 'lg:hidden', 
+          arrow_id: arrow_id, 
+          render_id: render_id, 
+          has_total: true , 
+          on_prev: on_prev,
+          on_next: on_next
+        %}
+
+      {% endif %}
+    </div>
+  {% else %}
+    <p class="container m-0 mt-6 lg:mt-7">{{ 'i18n.home_page.collection_list.no_content' | t }}</p>
+  {% endif %}
+</div>
+</div>
+
+{% schema %}
+{
+  "name": "collection_list",
+  "max_blocks": 15,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "default": "Collection list"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": {
+        "en-US": "Layout",
+        "zh-CN": "布局"
+      },
+      "options": [
+        {
+          "value": "grid",
+          "label": {
+            "en-US": "Grid",
+            "zh-CN": "网格"
+          }
+        },
+        {
+          "value": "carousel",
+          "label": {
+            "en-US": "Carousel",
+            "zh-CN": "轮播"
+          }
+        }
+      ],
+      "default": "grid"
+    },
+    {
+      "type": "range",
+      "id": "desktop_per_row",
+      "label": {
+        "en-US": "Desktop Collections per row",
+        "zh-CN": "PC端每行专辑数"
+      },
+      "unit": "",
+      "step": 1,
+      "min": 2,
+      "max": 8,
+      "default": 5
+    },
+    {
+      "type": "range",
+      "id": "mobile_per_row",
+      "label": {
+        "en-US": "Mobile Collections per row",
+        "zh-CN": "移动端每行专辑数"
+      },
+      "unit": "",
+      "step": 1,
+      "min": 1,
+      "max": 4,
+      "default": 2
+    },
+    {
+      "type": "color",
+      "id": "image_bg",
+      "label": {
+        "en-US": "Image background",
+        "zh-CN": "图片背景"
+      },
+      "default": "#F5F5F5"
+    },
+    {
+      "type": "select",
+      "id": "tile_style",
+      "label": {
+        "en-US": "Collection tile style",
+        "zh-CN": "专辑细节风格"
+      },
+      "options": [
+        {
+          "value": "circle",
+          "label": {
+            "en-US": "Circle (1:1)",
+            "zh-CN": "圆形 (1:1)"
+          }
+        },
+        {
+          "value": "square",
+          "label": {
+            "en-US": "Square (1:1)",
+            "zh-CN": "方形 (1:1)"
+          }
+        },
+        {
+          "value": "75%",
+          "label": {
+            "en-US": "Landscape (4:3)",
+            "zh-CN": "景观画(4:3)"
+          }
+        },
+        {
+          "value": "150%",
+          "label": {
+            "en-US": "Portrait (2:3)",
+            "zh-CN": "肖像画(2:3)"
+          }
+        }
+      ],
+      "default": "circle"
+    },
+    {
+      "type": "range",
+      "default": 20,
+      "id": "collection_grid_image_margin",
+      "label": {
+        "en-US": "Image breathing room",
+        "zh-CN": "图片缩进"
+      },
+      "step": 1,
+      "unit": "%",
+      "min": 0,
+      "max": 20
+    },
+    {
+      "type": "select",
+      "id": "text_align",
+      "label": {
+        "en-US": "Text alignment",
+        "zh-CN": "文字对齐"
+      },
+      "options": [
+        {
+          "value": "left",
+          "label": {
+            "en-US": "Left",
+            "zh-CN": "居左"
+          }
+        },
+        {
+          "value": "center",
+          "label": {
+            "en-US": "Center",
+            "zh-CN": "居中"
+          }
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "checkbox",
+      "id": "mobile_show_title",
+      "label": {
+        "en-US": "Show collection title on mobile",
+        "zh-CN": "移动端显示专辑标题"
+      },
+      "default": true
+    },
+    {
+      "type": "spacing",
+      "id": "spacing",
+      "label": {
+        "en-US": "Spacing",
+        "zh-CN": "间距留白"
+      },
+      "pc": {
+        "top": "40",
+        "right": "",
+        "bottom": "40",
+        "left": ""
+      },
+      "mobile": {
+        "top": "20",
+        "right": "",
+        "bottom": "20",
+        "left": ""
+      },
+      "default": {
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        }
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": {
+        "en-US": "Collection",
+        "zh-CN": "专辑"
+      },
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": {
+            "en-US": "Collection",
+            "zh-CN": "专辑"
+          }
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": {
+            "en-US": "Image",
+            "zh-CN": "图片"
+          }
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "en-US": "Title",
+            "zh-CN": "标题"
+          },
+          "default": "",
+          "info": {
+            "en-US": "Defaults to collection title",
+            "zh-CN": "默认为专辑标题"
+          }
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "collection_list",
+      "icon": "oss/operation/8b688b3547789ac110e0c0e36c893100.svg",
+      "cname": {
+        "en-US": "Collection list",
+        "zh-CN": "专辑列表"
+      },
+      "category": {
+        "en-US": "Collection",
+        "zh-CN": "专辑"
+      },
+      "ccategory": {
+        "en-US": "Collection",
+        "zh-CN": "专辑"
+      },
+      "display": true,
+      "blocks": [
+        {
+          "type": "collection",
+          "settings": {
+            "collection": {},
+            "title": ""
+          }
+        },
+        {
+          "type": "collection",
+          "settings": {
+            "collection": {},
+            "title": ""
+          }
+        },
+        {
+          "type": "collection",
+          "settings": {
+            "collection": {},
+            "title": ""
+          }
+        },
+        {
+          "type": "collection",
+          "settings": {
+            "collection": {},
+            "title": ""
+          }
+        },
+        {
+          "type": "collection",
+          "settings": {
+            "collection": {},
+            "title": ""
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

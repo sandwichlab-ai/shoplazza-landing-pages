@@ -1,0 +1,67 @@
+{% comment %} settings.cart_style {% endcomment %}
+{% comment %} page（跳转购物车页面）{% endcomment %}
+{% comment %} to_toast（提示加购成功）{% endcomment %}
+{% comment %} drawer（打开抽屉购物车）{% endcomment %}
+
+{% assign isNotCartPage = false  %}
+{% if template.name != 'cart' %}
+  {% assign isNotCartPage = true  %}
+{% endif %}
+
+{% capture drawer_event %}
+  {% if isNotCartPage %}
+    ;cart-drawer-modal.open;
+  {% endif %}
+{% endcapture %}
+
+{% capture toast_event %}
+  ;add-card-toast-success.showToast(content='{{ "i18n.product.product_detail.added_to_bag_successfully" | t }}');
+{% endcapture %}
+
+{% capture page_event %}
+  {% if isNotCartPage %}
+    ;SPZ.navigateTo(url='{{ routes.cart_url }}');
+  {% endif %}
+{% endcapture %}
+
+{% capture default_event %}
+  {% if isNotCartPage %}
+    ;cart-drawer-modal.close;
+  {% endif %}
+{% endcapture %}
+
+{% capture proxy_event %}
+  {% if settings.cart_style == 'drawer' %}
+    {{ drawer_event }}
+  {% elsif settings.cart_style == 'to_toast' %}
+    {{ toast_event }}
+  {% elsif settings.cart_style == 'page' %}
+    {{ page_event }}
+  {% else %}
+    {{ default_event }}
+  {% endif %}
+{% endcapture %}
+
+
+{% if isNotCartPage %}
+  <spz-render
+    id="add-cart-event-proxy"
+    layout="container"
+    manual
+    @finish="{{ proxy_event | strip }}"
+    hidden
+    class="hidden"
+  >
+    <template>
+      <div></div>
+    </template>
+  </spz-render>
+  <spz-event
+    target-id="add-cart-event-proxy"
+    target-api="render"
+    event-pattern="source!=buy_now"
+    event-name="dj.addToCart;"
+    layout="logic"
+    class="hidden"
+  ></spz-event>
+{% endif %}

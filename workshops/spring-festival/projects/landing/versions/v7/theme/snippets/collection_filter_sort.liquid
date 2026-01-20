@@ -1,0 +1,17 @@
+{% if show_sort %}
+  <div class="flex md:items-center collection_sort_container lg:shrink-0 {{class}}">
+    <div class="collection_filter_title body-plus-2">{{ 'i18n.collection.collection_detail.sort_by' | t }}</div>
+    <div class="filter-item filter_sort_select relative">
+      <select class="body-plus-2 clear" name="sort_by" role="sortBy" {% if isChange %} @change="collection-list.refresh(sort_by=event.value, redo=true);" {% endif %}>
+        <option value="manual" {% if sort_by == 'manual' %} selected {% endif %}>{{ 'i18n.collection.collection_detail.recommend' | t }}</option>
+        <option value="price-ascending" {% if sort_by == 'price-ascending' %} selected {% endif %}>{{ 'i18n.collection.collection_detail.low_to_high' | t }}</option>
+        <option value="price-descending" {% if sort_by == 'price-descending' %} selected {% endif %}>{{ 'i18n.collection.collection_detail.high_to_low' | t }}</option>
+        <option value="published-descending" {% if sort_by == 'published-descending' %} selected {% endif %}>{{ 'i18n.collection.collection_detail.newest' | t }}</option>
+        <option value="best-selling" {% if sort_by == 'best-selling' %} selected {% endif %}>{{ 'i18n.collection.collection_detail.sales_descending' | t }}</option>
+        <option value="add_to_cart_count" {% if sort_by == 'add_to_cart_count' %} selected {% endif %}>{{ 'i18n.collection.collection_detail.add_to_cart_count_descending' | t }}</option>
+        <option value="views" {% if sort_by == 'views' %} selected {% endif %}>{{ 'i18n.collection.collection_detail.views_descending' | t }}</option>
+      </select>
+      {% include 'icon_arrow_down', icon_class: 'filter-sort-selector-icon absolute' %}
+    </div>
+  </div>
+{% endif %}

@@ -1,0 +1,28 @@
+{% comment %}
+  product template
+
+  Liquid Accepts:
+  - source_id: source dom id;
+  - product_id: product id;
+  - finish_event: extended event;
+
+  Template Accepts:
+  - data: {Object} Product Liquid object
+
+  Usage:
+  {% include 'product_snippet', source_id, product_id %}
+{% endcomment %}
+
+<spz-product-snippet
+  {% if source_id %}
+    data-source-id="{{source_id}}"
+  {% endif %}
+  product-id="{{product_id}}"
+  layout="container"
+  template="product-snippet-template"
+  variant-thumb-names="{{settings.product_swatches_name | join: ','}}"
+  thumb-max-num="3"
+  {% if finish_event %}
+    @finish="{{finish_event | default: '' }}"
+  {% endif %}
+></spz-product-snippet>

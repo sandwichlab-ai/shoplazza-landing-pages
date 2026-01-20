@@ -1,0 +1,75 @@
+{% include 'card_spacing_css', is_update_page_container: false %}
+{{ section.settings.html }}
+{% schema %}
+{
+  "name": "html",
+  "settings": [
+    {
+      "type": "header",
+      "content": "HTML"
+    },
+    {
+      "type": "html",
+      "id": "html",
+      "placeholder": {
+        "zh-CN": "请输入代码",
+        "en-US": "Enter code"
+      }
+    },
+    {
+      "type": "spacing",
+      "id": "spacing",
+      "label": {
+        "en-US": "Spacing",
+        "zh-CN": "间距留白"
+      },
+      "pc": {
+        "top": "40",
+        "right": "",
+        "bottom": "40",
+        "left": ""
+      },
+      "mobile": {
+        "top": "20",
+        "right": "",
+        "bottom": "20",
+        "left": ""
+      },
+      "default": {
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        }
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "html",
+      "cname": {
+        "en-US": "HTML",
+        "zh-CN": "HTML"
+      },
+      "category": {
+        "en-US": "Advanced layout",
+        "zh-CN": "高级布局"
+      },
+      "ccategory": {
+        "en-US": "Advanced layout",
+        "zh-CN": "高级布局"
+      },
+      "icon": "oss/operation/6969a3d9d60d3819f861dd7c390325c1.svg",
+      "display": true,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,191 @@
+{% include 'order_css' %}
+{% include 'pagination_css' %}
+
+<div class='page-container'>
+  <div class='text-center text-6 title-color order_title'>{{ 'i18n.customers.order.my_order' | t }}</div>
+  <div class='flex md:flex-col'>
+    <spz-selector 
+      class="order_menu"
+      record-state 
+      id="order-tabs" 
+      layout="container" 
+      @select="order-list.refresh(status=event.targetOptionAsJson.status,fulfillment_status=event.targetOptionAsJson.fulfillment_status,financial_status=event.targetOptionAsJson.financial_status,post_sale_status=event.targetOptionAsJson.post_sale_status);"
+    >
+      <ul class="md:flex order_selector_ul">
+        <li 
+          class='order_menu_li order_border flex justify-between items-center whitespace-nowrap cursor-pointer body-plus-2'
+          option='{"status":"","fulfillment_status":"","financial_status":"","post_sale_status":""}'
+          name="all"
+          selected
+        >
+          {{ 'i18n.customers.order.all_order' | t -}}
+          {% include 'icon_right', icon_class: 'md:hidden' %}
+        </li>
+        <li 
+          class='order_menu_li order_border flex justify-between items-center whitespace-nowrap cursor-pointer body-plus-2'
+          option='{"status":"opened","fulfillment_status":"","financial_status":"","post_sale_status":""}'
+          name="awaiting_payment"
+        >
+          {{ 'i18n.customers.order.awaiting_payment' | t -}}
+          {% include 'icon_right', icon_class: 'md:hidden' %}
+        </li>
+        <li 
+          class='order_menu_li order_border flex justify-between items-center whitespace-nowrap cursor-pointer body-plus-2'
+          option='{"status":"","fulfillment_status":"waiting","financial_status":"","post_sale_status":""}'
+          name="awaiting_shipment"
+        >
+          {{ 'i18n.customers.order.awaiting_shipment' | t -}}
+          {% include 'icon_right', icon_class: 'md:hidden' %}
+        </li>
+        <li 
+          class='order_menu_li order_border flex justify-between items-center whitespace-nowrap cursor-pointer body-plus-2'
+          option='{"status":"","fulfillment_status":["partially_shipped","shipped","partially_finished"],"financial_status":"","post_sale_status":""}'
+          name="shipping"
+        >
+          {{ 'i18n.customers.order.shipping' | t -}}
+          {% include 'icon_right', icon_class: 'md:hidden' %}
+        </li>
+        <li 
+          class='order_menu_li order_border flex justify-between items-center whitespace-nowrap cursor-pointer body-plus-2'
+          option='{"status":"","fulfillment_status":"","financial_status":"paying","post_sale_status":""}'
+          name="payment_pending"
+        >
+          {{ 'i18n.customers.order.payment_pending' | t -}}
+          {% include 'icon_right', icon_class: 'md:hidden' %}
+        </li>
+        <li 
+          class='order_menu_li order_border flex justify-between items-center whitespace-nowrap cursor-pointer body-plus-2'
+          option='{"status":"finished","fulfillment_status":"","financial_status":"","post_sale_status":""}'
+          name="completed"
+        >
+          {{ 'i18n.customers.order.completed' | t -}}
+          {% include 'icon_right', icon_class: 'md:hidden' %}
+        </li>
+        <li 
+          class='order_menu_li order_border flex justify-between items-center whitespace-nowrap cursor-pointer body-plus-2'
+          option='{"status":"","fulfillment_status":"","financial_status":"","post_sale_status":["pending","processing","finished"]}'
+          name="post_sale"
+        >
+          {{ 'i18n.customers.order.post_sale' | t -}}
+          {% include 'icon_right', icon_class: 'md:hidden' %}
+        </li>
+      </ul>
+    </spz-selector>
+    <div class="lg:flex-1">
+      <spz-list
+        id="order-list"
+        layout="container"
+        size="per_page"
+        page-size="10"
+        initial-page="1"
+        total="order_list.count"
+        list="order_list.orders"
+        src="{{ '/api/orders.json' | add_root_url }}"
+        class="order_list_container"
+        inherit-url-search="status,fulfillment_status,financial_status,post_sale_status"
+      >
+        <template>
+          ${function(){
+            const statusLangs = {
+              opened: {{ 'i18n.customers.order_status.pending' | t | json }},
+              placed: {{ 'i18n.customers.order_status.active' | t | json }},
+              finished: {{ 'i18n.customers.order_status.completed' | t | json }},
+              cancelled: {{ 'i18n.customers.order_status.status_cancelled' | t | json }},
+              post_sale: {{ 'i18n.customers.order_status.post_sale' | t | json }}
+            };
+            const statusLocale = data.post_sale_status && data.post_sale_status !== 'none'
+                ? statusLangs.post_sale
+                : (statusLangs[data.status] || data.status);
+            const actualTotal = data.allowed_actions['pay_order'] ? data.payment_due : data.total;
+            return `
+              <div class="order_item">
+                <div class="order_item_header flex justify-between md:body-minus-2 md:items-center">
+                  <div class="md:flex md:flex-col">
+                    <spz-date class="order_item_time inline-block" layout="container" datetime="${data.create_at}"></spz-date>
+                    <span class="md:pt-2">Order ID: ${data.number}</span>
+                  </div>
+                  <div class="order_item_status">${statusLocale}</div>
+                </div>
+                <div class="order_item_product order_border relative flex flex-wrap">
+                  <a class="relative order_item_image_container block" spz-for="(item,index) in data.line_items" spz-href="${item.product_url}" key="index">
+                    <spz-img
+                      layout="fixed"
+                      width="80"
+                      height="80"
+                      src="${item.image.src}"
+                      object-fit="cover"
+                      auto-fit
+                    ></spz-img>
+                    ${item.quantity > 1 ? `<div class="absolute order_item_img_number">x${item.quantity}</div>` : ''}
+                </a>
+                </div>
+                <div class="order_item_total order_border flex items-center justify-end order_border">
+                  <span class="body-plus-2">{{ 'i18n.customers.order.total' | t }}:</span>
+                  <spz-currency layout="container" value="${actualTotal}" code="${data.currency_code}" class="body-plus-6"></spz-currency>
+                </div>
+                <spz-order-actions layout="container" order-id="${data.id}" data-source-id="order-list" template="order-actions-template"></spz-order-actions>
+              </div>
+            `
+          }()}
+        </template>
+      </spz-list>
+
+      <spz-pagination class="w-full" list-id="order-list" layout="container" num-display-active="1">
+        {% include 'icon_chevron_up', attr: 'role="arrow"' %}
+      </spz-pagination>
+
+      <div class="order_list_empty flex flex-col justify-center items-center hidden lg:h-full">
+        <div class="mt-8 mb-8 body-plus-4">{{ 'i18n.customers.order.no_order' | t }}</div>
+        <a href="{{ routes.root_url }}" class="button-primary flex justify-center items-center go_ship">{{ 'i18n.customers.order.go_shopping' | t }}</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<template id="order-actions-template">
+  <div class="order_item_btn flex justify-end items-center">
+    <span class="underline cursor-pointer order_item_cancel body-plus-2 flex-grow" role="delete_order" type="button" hidden>
+      {{ 'i18n.customers.order.delete_button' | t }}
+    </span>
+    <span class="underline cursor-pointer order_item_cancel body-plus-2 ml-6 flex-grow" role="cancel_order" type="button" hidden>
+      {{ 'i18n.customers.order.cancel_button' | t }}
+    </span>
+    <span class="button-primary ml-6 block order_item_button" type="button" role="repay_order" hidden>
+      {{ 'i18n.customers.order.pay_again' | t }}
+    </span>
+    <span class="button-primary ml-6 block order_item_button" type="button" role="pay_order" hidden>
+      {{ 'i18n.customers.order.pay_now' | t }}
+    </span>
+    <span class="button-secondary ml-6 block order_item_button" type="button" role="add_to_cart" hidden>
+      {{ 'i18n.customers.order.add_to_cart' | t }}
+    </span>
+    <a class="button-secondary ml-6 block order_item_button" href="{{ routes.root_url }}order/${data.id}">
+      {{ 'i18n.customers.order.detail_button' | t }}
+    </a>
+  </div>
+</template>
+
+{% schema %}
+{
+  "name": "order",
+  "settings": [],
+  "presets": [
+    {
+      "name": "order",
+      "cname": {
+        "en-US": "Order",
+        "zh-CN": "订单"
+      },
+      "category": {
+        "en-US": "Order",
+        "zh-CN": "订单"
+      },
+      "ccategory": {
+        "en-US": "Order",
+        "zh-CN": "订单"
+      },
+      "display": false
+    }
+  ]
+}
+{% endschema %}

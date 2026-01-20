@@ -1,0 +1,1178 @@
+{% include 'product_detail_css' %}
+{% assign productSelectedVariant = product.selected_or_first_available_variant %}
+{% assign enable_selected_variants = settings.enable_selected_variants %}
+
+{% if product.selected_variant %}
+  {% assign enable_selected_variants = true %}
+  {% assign productSelectedVariant = product.selected_variant %}
+{% endif %}
+
+{% assign enableVariantPriceOnAddToCart = settings.enable_btn_price %}
+{% if enableVariantPriceOnAddToCart == nil %}
+  {% assign enableVariantPriceOnAddToCart = true %}
+{% endif %}
+
+<spz-sticky
+  class="md:hidden"
+  layout="logic"
+  position="top"
+  target="product-detail-gallery-inner"
+></spz-sticky>
+
+<div class="product-details lg:page-container lg:flex lg:justify-between">
+  {% include 'product_images' %}
+  {% include 'product_info_body' %}
+</div>
+<div
+  class="page-container pt-6 lg:pt-8 empty-hidden plugin__bundle-combination"
+  data-type="normal"
+></div>
+
+{% schema %}
+{
+  "name": "product_detail",
+  "class": "mt-2 lg:mt-10",
+  "max_blocks": 18,
+  "templates": ["product"],
+  "limit": 1,
+  "settings": [
+    {
+      "type": "header",
+      "content": {
+        "en-US": "Gallery",
+        "zh-CN": "图集"
+      }
+    },
+    {
+      "type": "select",
+      "label": {
+        "en-US": "Mobile layout",
+        "zh-CN": "移动端布局"
+      },
+      "id": "mobile_gallery_layout",
+      "options": [
+        {
+          "value": "full_slide_show",
+          "label": {
+            "zh-CN": "全屏宽",
+            "en-US": "Full width slideshow"
+          }
+        },
+        {
+          "value": "slide_show",
+          "label": {
+            "zh-CN": "⅔+⅓ 宽",
+            "en-US": "⅔+⅓ width"
+          }
+        }
+      ],
+      "default": "slide_show"
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "开启移动端缩略图",
+        "en-US": "Enable mobile thumbnails"
+      },
+      "id": "show_thumb_mb",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "label": {
+        "zh-CN": "悬停放大图片",
+        "en-US": "Hover to zoom image"
+      },
+      "id": "zoom_on",
+      "info": {
+        "zh-CN": "仅在桌面端悬停图片时有效",
+        "en-US": "Only works when hovering images on desktop"
+      },
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "md_arrows_on",
+      "label": {
+        "en-US": "Enable image gallery switch bar on mobile",
+        "zh-CN": "开启移动端图集切换条"
+      },
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "size",
+      "default": "medium",
+      "label": {
+        "en-US": "Size",
+        "zh-CN": "尺寸"
+      },
+      "options": [
+        {
+          "label": {
+            "en-US": "Medium",
+            "zh-CN": "中等"
+          },
+          "value": "medium"
+        },
+        {
+          "label": {
+            "en-US": "Large",
+            "zh-CN": "大"
+          },
+          "value": "large"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "img_size",
+      "default": "natural",
+      "label": {
+        "en-US": "Force image size",
+        "zh-CN": "强制图片尺寸"
+      },
+      "options": [
+        {
+          "value": "natural",
+          "label": {
+            "en-US": "Natural",
+            "zh-CN": "原始"
+          }
+        },
+        {
+          "value": "100%",
+          "label": {
+            "en-US": "Square (1:1)",
+            "zh-CN": "方形(1:1)"
+          }
+        },
+        {
+          "value": "75%",
+          "label": {
+            "en-US": "Landscape (4:3)",
+            "zh-CN": "景观画(4:3)"
+          }
+        },
+        {
+          "value": "150%",
+          "label": {
+            "en-US": "Portrait (2:3)",
+            "zh-CN": "肖像画(2:3)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "thumbnail_position",
+      "label": {
+        "en-US": "Thumbnail position",
+        "zh-CN": "略缩图位置"
+      },
+      "default": "left",
+      "options": [
+        {
+          "value": "below",
+          "label": {
+            "en-US": "Below gallery",
+            "zh-CN": "在图集下方"
+          }
+        },
+        {
+          "value": "left",
+          "label": {
+            "en-US": "On left side of gallery",
+            "zh-CN": "在图集侧方"
+          }
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "title",
+      "limit": 1,
+      "name": {
+        "en-US": "Title",
+        "zh-CN": "标题"
+      },
+      "settings": [
+        {
+          "type": "select",
+          "id": "mobile_product_title_style",
+          "label": {
+            "zh-CN": "移动端商品标题样式",
+            "en-US": "Product title style on mobile"
+          },
+          "default": "full",
+          "options": [
+            {
+              "value": "full",
+              "label": {
+                "en-US": "Full display",
+                "zh-CN": "完全显示"
+              }
+            },
+            {
+              "value": "one_line",
+              "label": {
+                "en-US": "Hide more than one line",
+                "zh-CN": "超过一行隐藏"
+              }
+            },
+            {
+              "value": "hide",
+              "label": {
+                "en-US": "Hide",
+                "zh-CN": "隐藏"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "subtitle",
+      "limit": 1,
+      "name": {
+        "en-US": "Subtitle",
+        "zh-CN": "副标题"
+      },
+      "settings": []
+    },
+    {
+      "type": "price",
+      "limit": 1,
+      "name": {
+        "en-US": "Price",
+        "zh-CN": "价格"
+      },
+      "settings": []
+    },
+    {
+      "type": "sales",
+      "limit": 1,
+      "name": {
+        "en-US": "Sales",
+        "zh-CN": "销量"
+      },
+      "settings": []
+    },
+    {
+      "type": "label",
+      "limit": 1,
+      "name": {
+        "en-US": "Label",
+        "zh-CN": "标签"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "label1",
+          "label": {
+            "en-US": "Customize label 1",
+            "zh-CN": "自定义标签1"
+          },
+          "default": ""
+        },
+        {
+          "type": "tags",
+          "id": "ids1",
+          "label": {
+            "en-US": "Product id",
+            "zh-CN": "商品ID"
+          },
+          "info": {
+            "en-US": "If no product id is entered, your customize label will appear on all products",
+            "zh-CN": "如果未输入任何商品ID，您的自定义标签将出现在所有商品页中"
+          },
+          "default": []
+        },
+        {
+          "type": "text",
+          "id": "label2",
+          "label": {
+            "en-US": "Customize label 2",
+            "zh-CN": "自定义标签2"
+          },
+          "default": ""
+        },
+        {
+          "type": "tags",
+          "id": "ids2",
+          "label": {
+            "en-US": "Product id",
+            "zh-CN": "商品ID"
+          },
+          "info": {
+            "en-US": "If no product id is entered, your customize label will appear on all products",
+            "zh-CN": "如果未输入任何商品ID，您的自定义标签将出现在所有商品页中"
+          },
+          "default": []
+        }
+      ]
+    },
+    {
+      "type": "variant",
+      "limit": 1,
+      "name": {
+        "en-US": "Variant",
+        "zh-CN": "变体"
+      },
+      "settings": []
+    },
+    {
+      "type": "info",
+      "limit": 1,
+      "name": {
+        "en-US": "Product information",
+        "zh-CN": "商品信息"
+      },
+      "settings": [
+        {
+          "type": "checkbox",
+          "label": {
+            "zh-CN": "开启SKU",
+            "en-US": "Show SKU"
+          },
+          "id": "show_sku",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "label": {
+            "zh-CN": "开启重量",
+            "en-US": "Show weight"
+          },
+          "id": "show_weight",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "label": {
+            "zh-CN": "开启条形码",
+            "en-US": "Show barcode"
+          },
+          "id": "show_barcode",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_inventory",
+          "label": {
+            "en-US": "Show Inventory",
+            "zh-CN": "显示库存"
+          },
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "free_shipping",
+      "limit": 1,
+      "name": {
+        "en-US": "Shipping",
+        "zh-CN": "配送信息"
+      },
+      "settings": [
+        {
+          "type": "header",
+          "content": {
+            "en-US": "Estimated delivery time",
+            "zh-CN": "预计投递时间"
+          }
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_estimated_delivery_time",
+          "label": {
+            "en-US": "Show estimated delivery time",
+            "zh-CN": "开启预计投递时间"
+          },
+          "default": false
+        },
+        {
+          "type": "text",
+          "id": "minimum_days",
+          "label": {
+            "en-US": "Minimum days",
+            "zh-CN": "最小天数"
+          },
+          "default": 3,
+          "props": {
+            "type": "number",
+            "min": 0
+          },
+          "info": {
+            "en-US": "Set a value less than the maximum number of days",
+            "zh-CN": "请设置一个比最大天数小的值"
+          }
+        },
+        {
+          "type": "text",
+          "id": "maximum_days",
+          "label": {
+            "en-US": "Maximum days",
+            "zh-CN": "最大天数"
+          },
+          "default": 7,
+          "props": {
+            "type": "number",
+            "min": 0
+          },
+          "info": {
+            "en-US": "Set a value greater than the minimum number of days",
+            "zh-CN": "请设置一个比最小天数大的值"
+          }
+        },
+        {
+          "type": "textarea",
+          "id": "estimated_delivery_custom_text",
+          "label": {
+            "en-US": "Custom text",
+            "zh-CN": "自定义文字"
+          },
+          "default": "Estimated Delivery：{min_date} - {max_date}",
+          "info": {
+            "en-US": "Text format : {min_date} = Minimum days，{max_date}=Maximum days",
+            "zh-CN": "文本格式：{min_date}=最小天数，{max_date}=最大天数"
+          }
+        },
+        {
+          "type": "header",
+          "content": {
+            "en-US": "Free shipping tip",
+            "zh-CN": "免邮提示"
+          }
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_free_shipping_tip",
+          "label": {
+            "en-US": "Show free shipping tip",
+            "zh-CN": "开启免邮提示"
+          },
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "postage_free_amount",
+          "label": {
+            "en-US": "Postage free amount",
+            "zh-CN": "免邮金额"
+          },
+          "props": {
+            "type": "number",
+            "min": 0
+          }
+        },
+        {
+          "type": "textarea",
+          "id": "custom_text",
+          "label": {
+            "en-US": "Custom text",
+            "zh-CN": "自定义文字"
+          },
+          "default": "Buy {amount} more to enjoy FREE Shipping",
+          "info": {
+            "en-US": "Text format : {amount} = Amount still to be purchased",
+            "zh-CN": "文本格式：{amount}=达到免邮金额仍需购买的金额"
+          }
+        },
+        {
+          "type": "color",
+          "id": "progress_bg",
+          "label": {
+            "en-US": "Background",
+            "zh-CN": "背景"
+          },
+          "default": "#FFFFFF"
+        },
+        {
+          "type": "color",
+          "id": "progress_bar_bg",
+          "label": {
+            "en-US": "Progress bar background color",
+            "zh-CN": "进度条背景色"
+          },
+          "default": "#FFF4E8"
+        },
+        {
+          "type": "color",
+          "id": "progress_bar_1_bg_color",
+          "label": {
+            "en-US": "Progress bar background color 1",
+            "zh-CN": "进度条背景色1"
+          },
+          "default": "#FFE3A4"
+        },
+        {
+          "type": "color",
+          "id": "progress_bar_2_bg_color",
+          "label": {
+            "en-US": "Progress bar background color 2",
+            "zh-CN": "进度条背景色2"
+          },
+          "default": "#FFE3A4",
+          "info": {
+            "en-US": "When configuring two different colors, the progress bar will show a gradient effect",
+            "zh-CN": "当配置两个不同颜色时，进度条会展示渐变效果"
+          }
+        }
+      ]
+    },
+    {
+      "type": "current_inventory",
+      "limit": 1,
+      "name": {
+        "en-US": "Current inventory",
+        "zh-CN": "当前库存量"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "minimum_inventory",
+          "label": {
+            "en-US": "Minimum inventory",
+            "zh-CN": "最低库存量"
+          },
+          "default": 10,
+          "props": {
+            "type": "number",
+            "min": 0
+          },
+          "info": {
+            "en-US": "Set a value less than the maximum number of inventory",
+            "zh-CN": "请设置一个比最大库存量小的值"
+          }
+        },
+        {
+          "type": "text",
+          "id": "maximum_inventory",
+          "label": {
+            "en-US": "Maximum inventory",
+            "zh-CN": "最高库存量"
+          },
+          "default": 50,
+          "props": {
+            "type": "number",
+            "min": 0
+          },
+          "info": {
+            "en-US": "Set a value greater than the minimum number of inventory",
+            "zh-CN": "请设置一个比最小库存量大的值"
+          }
+        },
+        {
+          "type": "textarea",
+          "id": "custom_text",
+          "label": {
+            "en-US": "Custom text",
+            "zh-CN": "自定义文字"
+          },
+          "default": "Only {stock} item(s) left in stock!",
+          "info": {
+            "en-US": "Text format : {stock} = Random value in configured inventory interval",
+            "zh-CN": "文本格式：{stock}=配置的库存区间中的随机值"
+          }
+        }
+      ]
+    },
+    {
+      "type": "current_viewers",
+      "limit": 1,
+      "name": {
+        "en-US": "Current number of viewers",
+        "zh-CN": "当前浏览人数"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "minimum_viewers",
+          "label": {
+            "en-US": "Minimum number of viewers",
+            "zh-CN": "最低浏览人数"
+          },
+          "default": 20,
+          "props": {
+            "type": "number",
+            "min": 0
+          },
+          "info": {
+            "en-US": "Set a value less than the maximum number of viewers",
+            "zh-CN": "请设置一个比最高浏览人数小的值"
+          }
+        },
+        {
+          "type": "text",
+          "id": "highest_viewers",
+          "label": {
+            "en-US": "Highest number of viewers",
+            "zh-CN": "最高浏览人数"
+          },
+          "default": 100,
+          "props": {
+            "type": "number",
+            "min": 0
+          },
+          "info": {
+            "en-US": "Set a value greater than the minimum number of viewers",
+            "zh-CN": "请设置一个比最低浏览人数大的值"
+          }
+        },
+        {
+          "type": "text",
+          "id": "maximum_change",
+          "label": {
+            "en-US": "Maximum number of changes",
+            "zh-CN": "最大变更数量"
+          },
+          "default": 6,
+          "props": {
+            "type": "number",
+            "min": 0
+          }
+        },
+        {
+          "type": "textarea",
+          "id": "custom_text",
+          "label": {
+            "en-US": "Custom text",
+            "zh-CN": "自定义文字"
+          },
+          "default": "{count} people are viewing this right now",
+          "info": {
+            "en-US": "Text format : {count} = A random value in the configured current viewership range",
+            "zh-CN": "文本格式：{count}=配置的当前浏览人数区间中的随机值"
+          }
+        }
+      ]
+    },
+    {
+      "type": "qty",
+      "limit": 1,
+      "name": {
+        "en-US": "Quantity field",
+        "zh-CN": "数量选择器"
+      },
+      "settings": []
+    },
+    {
+      "type": "sales_points",
+      "limit": 1,
+      "name": {
+        "en-US": "Sales points",
+        "zh-CN": "售卖特点"
+      },
+      "settings": [
+        {
+          "type": "select",
+          "default": "globe",
+          "id": "sales_point_1_icon",
+          "label": {
+            "zh-CN": "卖点图标 #1",
+            "en-US": "Sales point #1 icon"
+          },
+          "options": [
+            {
+              "value": "checkmark",
+              "label": {
+                "en-US": "Checkmark",
+                "zh-CN": "标记"
+              }
+            },
+            {
+              "value": "globe",
+              "label": {
+                "en-US": "Globe",
+                "zh-CN": "全球化"
+              }
+            },
+            {
+              "value": "leaf",
+              "label": {
+                "en-US": "Leaf",
+                "zh-CN": "树叶"
+              }
+            },
+            {
+              "value": "package",
+              "label": {
+                "en-US": "Package",
+                "zh-CN": "包裹"
+              }
+            },
+            {
+              "value": "lock",
+              "label": {
+                "en-US": "Lock",
+                "zh-CN": "锁"
+              }
+            },
+            {
+              "value": "truck",
+              "label": {
+                "en-US": "Truck",
+                "zh-CN": "货车"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "default": "Free worldwide shipping",
+          "id": "sales_point_1",
+          "label": {
+            "zh-CN": "卖点 #1",
+            "en-US": "Sales point # 1"
+          }
+        },
+        {
+          "type": "select",
+          "default": "truck",
+          "id": "sales_point_2_icon",
+          "label": {
+            "en-US": "Sales point #2 icon",
+            "zh-CN": "卖点 #2 图标"
+          },
+          "options": [
+            {
+              "value": "checkmark",
+              "label": {
+                "en-US": "Checkmark",
+                "zh-CN": "标记"
+              }
+            },
+            {
+              "value": "globe",
+              "label": {
+                "en-US": "Globe",
+                "zh-CN": "全球化"
+              }
+            },
+            {
+              "value": "leaf",
+              "label": {
+                "en-US": "Leaf",
+                "zh-CN": "树叶"
+              }
+            },
+            {
+              "value": "package",
+              "label": {
+                "en-US": "Package",
+                "zh-CN": "包裹"
+              }
+            },
+            {
+              "value": "lock",
+              "label": {
+                "en-US": "Lock",
+                "zh-CN": "锁"
+              }
+            },
+            {
+              "value": "truck",
+              "label": {
+                "en-US": "Truck",
+                "zh-CN": "货车"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "default": "Free returns",
+          "id": "sales_point_2",
+          "label": {
+            "zh-CN": "卖点 #2",
+            "en-US": "Sales point # 2"
+          }
+        },
+        {
+          "type": "select",
+          "default": "leaf",
+          "id": "sales_point_3_icon",
+          "label": {
+            "en-US": "Sales point #3 icon",
+            "zh-CN": "卖点 #3 图标"
+          },
+          "options": [
+            {
+              "value": "checkmark",
+              "label": {
+                "en-US": "Checkmark",
+                "zh-CN": "标记"
+              }
+            },
+            {
+              "value": "globe",
+              "label": {
+                "en-US": "Globe",
+                "zh-CN": "全球化"
+              }
+            },
+            {
+              "value": "leaf",
+              "label": {
+                "en-US": "Leaf",
+                "zh-CN": "树叶"
+              }
+            },
+            {
+              "value": "package",
+              "label": {
+                "en-US": "Package",
+                "zh-CN": "包裹"
+              }
+            },
+            {
+              "value": "lock",
+              "label": {
+                "en-US": "Lock",
+                "zh-CN": "锁"
+              }
+            },
+            {
+              "value": "truck",
+              "label": {
+                "en-US": "Truck",
+                "zh-CN": "货车"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "default": "Sustainably made",
+          "id": "sales_point_3",
+          "label": {
+            "zh-CN": "卖点 #3",
+            "en-US": "Sales point # 3"
+          }
+        },
+        {
+          "type": "select",
+          "default": "lock",
+          "id": "sales_point_4_icon",
+          "label": {
+            "en-US": "Sales point #4 icon",
+            "zh-CN": "卖点 #4 图标"
+          },
+          "options": [
+            {
+              "value": "checkmark",
+              "label": {
+                "en-US": "Checkmark",
+                "zh-CN": "标记"
+              }
+            },
+            {
+              "value": "globe",
+              "label": {
+                "en-US": "Globe",
+                "zh-CN": "全球化"
+              }
+            },
+            {
+              "value": "leaf",
+              "label": {
+                "en-US": "Leaf",
+                "zh-CN": "树叶"
+              }
+            },
+            {
+              "value": "package",
+              "label": {
+                "en-US": "Package",
+                "zh-CN": "包裹"
+              }
+            },
+            {
+              "value": "lock",
+              "label": {
+                "en-US": "Lock",
+                "zh-CN": "锁"
+              }
+            },
+            {
+              "value": "truck",
+              "label": {
+                "en-US": "Truck",
+                "zh-CN": "货车"
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "default": "Secure payments",
+          "id": "sales_point_4",
+          "label": {
+            "zh-CN": "卖点 #4",
+            "en-US": "Sales point # 4"
+          }
+        }
+      ]
+    },
+    {
+      "type": "buy_buttons",
+      "limit": 1,
+      "name": {
+        "en-US": "Buy buttons",
+        "zh-CN": "加购按钮"
+      },
+      "settings": [
+        {
+          "type": "checkbox",
+          "label": {
+            "zh-CN": "开启立即购买",
+            "en-US": "Show dynamic checkout button"
+          },
+          "id": "show_buy_now",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "label": {
+            "zh-CN": "开启加购按钮",
+            "en-US": "Show ‘Add to cart’ button"
+          },
+          "info": {
+            "zh-CN": "礼品卡商品不支持",
+            "en-US": "Gift card items are not supported"
+          },
+          "id": "show_add",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "label": {
+            "zh-CN": "开启PayPal按钮",
+            "en-US": "Show 'PayPal express checkout' button"
+          },
+          "info": {
+            "zh-CN": "请到<a href='/admin/pay' target='_blank'>付款渠道</a>中配置PayPal",
+            "en-US": "Go to <a href='/admin/pay' target='_blank'>Payment channels</a> to customize PayPal"
+          },
+          "id": "show_paypal",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "sharing",
+      "limit": 1,
+      "name": {
+        "en-US": "Social sharing",
+        "zh-CN": "社交分享"
+      },
+      "settings": []
+    },
+    {
+      "type": "desc",
+      "limit": 1,
+      "name": {
+        "en-US": "Description",
+        "zh-CN": "描述"
+      },
+      "settings": [
+        {
+          "type": "select",
+          "id": "desc_style",
+          "default": "Expandable",
+          "label": {
+            "en-US": "Description style",
+            "zh-CN": "描述风格"
+          },
+          "options": [
+            {
+              "value": "Expandable",
+              "label": {
+                "en-US": "Expandable",
+                "zh-CN": "可展开"
+              }
+            },
+            {
+              "value": "visible",
+              "label": {
+                "en-US": "visible",
+                "zh-CN": "一直可见"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "custom",
+      "limit": 3,
+      "allow_delete": false,
+      "name": {
+        "en-US": "Custom content",
+        "zh-CN": "自定义内容"
+      },
+      "settings": [
+        {
+          "type": "select",
+          "id": "desc_style",
+          "label": {
+            "en-US": "Description style",
+            "zh-CN": "描述风格"
+          },
+          "options": [
+            {
+              "value": "expand",
+              "label": {
+                "en-US": "Expandable",
+                "zh-CN": "可展开"
+              }
+            },
+            {
+              "value": "visible",
+              "label": {
+                "en-US": "visible",
+                "zh-CN": "一直可见"
+              }
+            }
+          ],
+          "default": "expand"
+        },
+        {
+          "type": "header",
+          "info": {
+            "en-US": "When configuring text and page at the same time, text content will be displayed first. ",
+            "zh-CN": "同时配置文本、页面时，文本内容将优先展示。"
+          },
+          "content": {
+            "en-US": "Custom content",
+            "zh-CN": "自定义内容"
+          }
+        },
+        {
+          "type": "header",
+          "content": {
+            "en-US": "Text",
+            "zh-CN": "文本"
+          }
+        },
+        {
+          "type": "text",
+          "id": "custom_content_heading",
+          "label": {
+            "en-US": "Title",
+            "zh-CN": "标题"
+          },
+          "default": ""
+        },
+        {
+          "type": "richtext",
+          "id": "custom_content_description",
+          "label": {
+            "en-US": "Description",
+            "zh-CN": "文字"
+          },
+          "default": ""
+        },
+        {
+          "type": "header",
+          "content": {
+            "en-US": "Page",
+            "zh-CN": "页面"
+          }
+        },
+        {
+          "type": "page",
+          "id": "page",
+          "label": {
+            "en-US": "Custom content",
+            "zh-CN": "自定义内容"
+          }
+        }
+      ]
+    },
+    {
+      "type": "sales_and_reviews",
+      "settings": []
+    }
+  ],
+  "block_groups": [
+    {
+      "type": "sales_and_reviews",
+      "limit": 2,
+      "combinable_blocks": [
+        {
+          "type": "internal-product-reviews-masonry_product_star",
+          "limit": 1
+        },
+        {
+          "type": "sales",
+          "limit": 1
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "product_detail",
+      "cname": {
+        "en-US": "Product details",
+        "zh-CN": "商品详情"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "ccategory": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": true,
+      "blocks": [
+        {
+          "type": "title",
+          "settings": {
+            "mobile_product_title_style": "full"
+          }
+        },
+        {
+          "type": "subtitle",
+          "settings": []
+        },
+        {
+          "type": "price",
+          "settings": {}
+        },
+        {
+          "type": "label",
+          "settings": {
+            "label1": "",
+            "ids1": [],
+            "label2": "",
+            "ids2": []
+          }
+        },
+        {
+          "type": "variant",
+          "settings": []
+        },
+        {
+          "type": "qty",
+          "settings": []
+        },
+        {
+          "type": "buy_buttons",
+          "settings": {
+            "show_buy_now": true,
+            "show_add": true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

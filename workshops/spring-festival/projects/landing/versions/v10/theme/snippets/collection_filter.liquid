@@ -1,0 +1,138 @@
+{% capture selectedCountHtml %}
+  <div class="inline-block" role="selectedCount"></div>
+{% endcapture %}
+<div class="flex md:items-center lg:flex-1 collection_filter_container">
+  <div class="collection_filter_title body-plus-2">
+    {{ 'i18n.collection.collection_detail.filter' | t }}
+  </div>
+  <div class="flex md:items-center">
+    <div class="filter-content-inner flex md:items-center lg:flex-wrap" role="content">
+      <spz-render class="filter-content-inner-render" layout="container" manual as="default">
+        <template>
+          <div class="filter-item">
+            <spz-dropdown
+              id="filter-${data.title}-dropdown"
+              {% if shop.locale == 'ar-SA' %}
+                placement="bottomRight" overlay-style="top: 20px; left: 12px;"
+              {% else %}
+                placement="bottomLeft" overlay-style="top: 20px; left: -12px;"
+              {% endif %}
+              layout="nodisplay"
+              hidden
+            >
+              <div class="filter-content body-plus-2">
+                <div class="filter_item_total flex md:items-center justify-between">
+                  <div>
+                    {{ 'i18n.collection.collection_detail.selected' | t: number: selectedCountHtml }}
+                  </div>
+                  <div
+                    class="filter-item-reset-btn cursor-pointer font-medium underline"
+                    role="reset"
+                  >
+                    {{ 'i18n.collection.collection_detail.reset' | t }}
+                  </div>
+                </div>
+                <spz-selector
+                  id="filter-item-selector-${data.label}"
+                  layout="container"
+                  multiple
+                  @select="collection-filter.apply(values=event.selectedOptions);"
+                  role="items"
+                >
+                  <div
+                    spz-for="item in data.values"
+                    class="filter-item-option flex md:items-center"
+                    option="${item.value}"
+                    value="${item.value}"
+                    key="item.value"
+                  >
+                    <div class="filter-item-option-checkbox lg:shrink-0 relative border cursor-pointer">
+                      {% include 'icon_collection_checkbox', icon_class: 'filter_checkbox_svg' %}
+                    </div>
+                    <div class="cursor-pointer">
+                      <span>${item.label}</span>
+                      <span spz-if="${item.count >= 0}">(${item.count})</span>
+                    </div>
+                  </div>
+                </spz-selector>
+              </div>
+            </spz-dropdown>
+            <div
+              class="filter-item-header cursor-pointer relative flex md:items-center"
+              @tap="filter-${data.title}-dropdown.open;"
+            >
+              <span>${data.title}</span>
+              {% include 'icon_arrow_right' %}
+            </div>
+          </div>
+        </template>
+      </spz-render>
+      <spz-render class="filter-content-inner-render" layout="container" manual as="price">
+        <template>
+          <div class="filter-item">
+            <spz-dropdown
+              id="filter-${data.title}-dropdown"
+              {% if shop.locale == 'ar-SA' %}
+                placement="bottomRight" overlay-style="top: 20px; left: 12px;"
+              {% else %}
+                placement="bottomLeft" overlay-style="top: 20px; left: -12px;"
+              {% endif %}
+              layout="nodisplay"
+              hidden
+            >
+              <div class="filter-content body-plus-2">
+                <div class="py-5 flex justify-end">
+                  <span
+                    class="filter-item-reset-btn cursor-pointer font-medium text-right underline"
+                    role="reset"
+                  >
+                    {{ 'i18n.collection.collection_detail.reset' | t }}
+                  </span>
+                </div>
+                <div class="filter_price text-center">
+                  ${(
+                  {{ 'i18n.collection.collection_detail.highest_price' | t | json }}
+                  ).replace(/\{\{\s*highest_price\s*\}\}/, `<spz-currency
+                    class="inline-block"
+                    value="${data.range_max}"
+                    layout="container"
+                  ></spz-currency
+                  >`)}
+                </div>
+                <div class="filter-item-price-container">
+                  <div class="filter-item-price flex items-center">
+                    <span>{{ shop.finance_symbol }}</span>
+                    <input
+                      class="w-full body-minus-2"
+                      type="number"
+                      placeholder="{{'i18n.collection.collection_detail.from' | t }}"
+                      role="price-min"
+                      @change="collection-filter.apply"
+                    >
+                  </div>
+                  <div class="filter-item-price flex items-center">
+                    <span>{{ shop.finance_symbol }}</span>
+                    <input
+                      class="w-full body-minus-2"
+                      type="number"
+                      placeholder="{{'i18n.collection.collection_detail.to' | t }}"
+                      role="price-max"
+                      @change="collection-filter.apply"
+                    >
+                  </div>
+                </div>
+              </div>
+            </spz-dropdown>
+            <div
+              class="filter-item-header cursor-pointer relative flex md:items-center"
+              @tap="filter-${data.title}-dropdown.open;"
+            >
+              <span>${data.title}</span>
+              {% include 'icon_arrow_right' %}
+            </div>
+          </div>
+        </template>
+      </spz-render>
+    </div>
+  </div>
+</div>

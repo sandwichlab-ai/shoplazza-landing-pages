@@ -1,0 +1,276 @@
+{% include 'card_spacing_css' %}
+{% assign blog = section.settings.blog_posts %}
+{% assign blogUrl = section.settings.blog_posts.url | delete_root_url %}
+{% assign handle = blogUrl | remove: '/blogs/' %}
+{% assign default_image = 'image' | placeholder_svg %}
+{% assign force_image_size = section.settings.force_image_size %}
+{% unless blog.id and blog.id != 0 %}
+  {% assign blog_url = 'javascript:;' %}
+{% else %}
+  {% assign blog_url = blog.url | add_root_url %}
+{% endunless %}
+
+{% include 'blog_collection_css' %}
+
+<div class="blog_collection-{{section.id}} page-container">
+  <div class="blog_collection-heading">
+    <h4 class="blog_collection-heading-title">{{ section.settings.heading | escape }}
+    </h4>
+    {% if section.settings.show_view_all %}
+      <a class="blog_collection-link body-plus-2" {% include 'link', link: blog_url %}>{{ 'i18n.general.blog.view_all' | t }}
+      </a>
+    {% endif %}
+  </div>
+  {% capture default_article %}
+    {
+      "author": "Archetype Themes",
+      "image": {{ 'image' | placeholder_svg | json }},
+      "published_at": "",
+      "title": "Example blog post",
+      "url": ""
+    }
+  {% endcapture %}
+  <script id="blog_collection-template-data-{{section.id}}" type="application/json">
+    {
+      "articles": [
+        {{default_article}},
+        {{default_article}},
+        {{default_article}},
+        {{default_article}},
+        {{default_article}}
+      ]
+    }
+  </script>
+
+  <spz-render src="{% if blog.id and blog.id != 0 %}{{ routes.root_url }}api/front{{blog.url | delete_root_url }}/articles?per_page=5&page=1{% else %}script:blog_collection-template-data-{{section.id}}{% endif %}" layout="container">
+    <template>
+      ${function(){
+        const tempArticles = data.articles.map((item) => {
+          const image = (item.image && item.image.src) ? item.image : {{ 'image' | placeholder_svg | json }};
+          return Object.assign(item, {
+            width: image.width,
+            height: image.height,
+            image: image,
+            published_at: item.published_at || new Date()
+        })});
+        const firstBlog = tempArticles[0];
+        const remainBlogs = tempArticles.slice(1,5);
+        return `
+          <div class="flex md:flex-col">
+            <div class="blog_collection-image-wrapper">
+              <a class="blog_collection-image-link" spz-href="${firstBlog.url}" data-size="{{ force_image_size }}">
+                <spz-img
+                  class="blog_collection-img"
+                  src="${firstBlog.image.src}"
+                  layout="responsive"
+                  width="${firstBlog.width}"
+                  height="${firstBlog.height}"
+                  alt="${firstBlog.image.alt || firstBlog.title}"
+                  object-fit="cover"
+                  data-size="{{ force_image_size }}"
+                  auto-fit
+                ></spz-img>
+              </a>
+              <div class="blog_collection-item-desc blog_collection-first-item">
+                <a class="blog_collection-desc-title-first" spz-href="${firstBlog.url}">${firstBlog.title}</a>
+                {% if section.settings.show_date or section.settings.show_author %}
+                  <p class="blog_collection-desc-time">
+                    {% if section.settings.show_date %}
+                      <spz-timeago layout="container" datetime="${firstBlog.published_at}"></spz-timeago>
+                    {% endif %}
+                    {% if section.settings.show_author %}
+                      <span class="{% if section.settings.show_date %} blog_post_author {% endif %} body-minus-2">{{ 'i18n.general.blog.by' | t }} ${firstBlog.author}</span>
+                    {% endif %}
+                  </p>
+                {% endif %}
+              </div>
+            </div>
+            <div class="blog_collection-list-inner">
+              <h4 class="blog_collection-list-inner-title md:hidden">
+                {{ 'i18n.general.blog.latest_post' | t }}
+              </h4>
+              <div class="blog_collection-item" spz-for="item in remainBlogs" key="item.id">
+                <a class="blog_collection-image-link" spz-href="${item.url}" data-size="{{ force_image_size }}">
+                  <spz-img
+                    class="blog_collection-img"
+                    src="${item.image.src}"
+                    layout="responsive"
+                    width="${item.width}"
+                    height="${item.height}"
+                    alt="${item.image.alt || item.title}"
+                    object-fit="cover"
+                    auto-fit>
+                  </spz-img>
+                </a>
+                <div class="blog_collection-item-desc">
+                  <a class="blog_collection-desc-title lg:body-plus-2" spz-href="${item.url}">${item.title}</a>
+                  {% if section.settings.show_date or section.settings.show_author %}
+                    <p class="blog_collection-desc-time">
+                      {% if section.settings.show_date %}
+                        <spz-timeago layout="container" datetime="${item.published_at}"></spz-timeago>
+                      {% endif %}
+                      {% if section.settings.show_author %}
+                        <span class="{% if section.settings.show_date %} blog_post_author {% endif %} body-minus-2">{{ 'i18n.general.blog.by' | t }} ${item.author}</span>
+                      {% endif %}
+                    </p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+      }()}
+    </template>
+  </spz-render>
+</div>
+
+{% schema %}
+{
+  "name": "blog_collection",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "default": "Blog posts"
+    },
+    {
+      "type": "blog",
+      "id": "blog_posts",
+      "label": {
+        "en-US": "Blog posts",
+        "zh-CN": "博客专辑"
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "show_date",
+      "label": {
+        "en-US": "Show date",
+        "zh-CN": "显示日期"
+      },
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_author",
+      "label": {
+        "en-US": "Show author",
+        "zh-CN": "显示作者"
+      },
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": {
+        "en-US": "Show 'View all' button",
+        "zh-CN": "显示‘View all’按钮"
+      },
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "force_image_size",
+      "label": {
+        "en-US": "Force image size",
+        "zh-CN": "强制图片尺寸"
+      },
+      "options": [
+        {
+          "value": "natural",
+          "label": {
+            "en-US": "Natural",
+            "zh-CN": "原尺寸"
+          }
+        },
+        {
+          "value": "100%",
+          "label": {
+            "en-US": "Square (1:1)",
+            "zh-CN": "方形 (1:1)"
+          }
+        },
+        {
+          "value": "75%",
+          "label": {
+            "en-US": "Landscape (4:3)",
+            "zh-CN": "景观画(4:3)"
+          }
+        },
+        {
+          "value": "150%",
+          "label": {
+            "en-US": "Portrait (2:3)",
+            "zh-CN": "肖像画(2:3)"
+          }
+        },
+        {
+          "value": "56.25%",
+          "label": {
+            "en-US": "Wide (16:9)",
+            "zh-CN": "宽屏(16:9)"
+          }
+        }
+      ],
+      "default": "natural"
+    },
+    {
+      "type": "spacing",
+      "id": "spacing",
+      "label": {
+        "en-US": "Spacing",
+        "zh-CN": "间距留白"
+      },
+      "pc": {
+        "top": "40",
+        "right": "",
+        "bottom": "40",
+        "left": ""
+      },
+      "mobile": {
+        "top": "20",
+        "right": "",
+        "bottom": "20",
+        "left": ""
+      },
+      "default": {
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        }
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "blog_collection",
+      "cname": {
+        "en-US": "Blog posts",
+        "zh-CN": "博客专辑"
+      },
+      "category": {
+        "en-US": "Blog",
+        "zh-CN": "博客"
+      },
+      "ccategory": {
+        "en-US": "Blog",
+        "zh-CN": "博客"
+      },
+      "icon": "oss/operation/b950c409371f126944b7b9ef9a8db876.svg",
+      "display": true
+    }
+  ]
+}
+{% endschema %}

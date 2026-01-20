@@ -1,0 +1,135 @@
+{% stylesheet %}
+  .shipment-tracking-buttons .is-tracking [role="tracking-info"] {
+    display: none;
+  }
+
+  .shipment-tracking-buttons .is-tracking [role="fold-tracking-info"] {
+    display: inline-block;
+  }
+
+  .shipment-tracking-number {
+    padding: 0 20px;
+    line-height: 2.5rem;
+    background-color: rgba(230,230,230,35%);
+    color: var(--color-body-text);
+  }
+
+  .shipment-tracking-content {
+    padding: 0 20px;
+    border-bottom: 1px solid #f1f1f1;
+  }
+
+  .shipment-tracking-content-tag {
+    margin-top: 1.25rem;
+    font-size: 22px;
+    line-height: 1.75rem;
+  }
+
+  .shipment-tracking-progress {
+    position: relative;
+    width: 100%;
+    height: 14px;
+    margin-bottom: 1.25rem;
+    background: #f1f1f1;
+    border-radius: .75rem;
+    margin-top: 1rem;
+  }
+
+  .shipment-tracking-progress-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    opacity: .45;
+    border-radius: .75rem;
+  }
+
+  .shipment-tracking-progress-point {
+    position: absolute;
+    top: 0;
+    width: 14px;
+    height: 100%;
+    border-radius: 9999px;
+  }
+
+  .shipment-tracking-pending {
+    color: #919ba0;
+  }
+
+  .shipment-tracking-checkpoints {
+    height: 580px;
+    max-height: calc(100vh - 80px);
+    margin: 0;
+    padding: .5rem 0;
+    overflow: auto;
+    list-style-type: none;
+  }
+
+  .shipment-tracking-checkpoints li {
+    position: relative;
+    margin-left: 7px;
+    padding-left: 1.25rem;
+    padding-bottom: 1.25rem;
+    line-height: 1.25rem;
+    color: var(--color-body-text);
+    border-left: 1px solid #32393d;
+    border-color: rgba(50, 57, 61, .15);
+  }
+
+  .shipment-tracking-checkpoints li:first-child:before {
+    border-color: transparent;
+    background-color: #ffa300;
+  }
+
+  .shipment-tracking-checkpoints li:first-child {
+    color: var(--color-body-text);
+  }
+
+  .shipment-tracking-checkpoints li:last-child {
+    border-color: transparent;
+  }
+
+  .shipment-tracking-checkpoints li > div {
+    transform: translateY(-6px);
+  }
+
+  .shipment-tracking-checkpoints li:before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: -2px;
+    width: 13px;
+    height: 13px;
+    border-radius: 9999px;
+    background-color: #fff;
+    border: 1px solid rgba(50, 57, 61, .15);
+  }
+{% endstylesheet %}
+
+<template id="shipment-tracking-detail-template">
+  <div>
+    <div class="shipment-tracking-number">
+      <span>${data.trackingNumber}</span>  
+      <span spz-if="${!!data.carrierName}">· ${data.carrierName}</span></div>
+    <div class="shipment-tracking-content">
+      <h3 class="shipment-tracking-content-tag" spz-if="${!!data.tagInfo}">${data.tagInfo}</h3>
+      <div class="shipment-tracking-progress">
+        <div class="shipment-tracking-progress-bar" style="width: ${data.width}; background-color: ${data.primaryColor}"></div>
+        <span class="shipment-tracking-progress-point" style="left: ${data.width == '0%' ? '0' : `calc(${data.width} - 14px)`}; background-color: ${data.primaryColor};"></span>
+      </div>
+
+      <div class="shipment-tracking-pending" spz-if="${data.tag == 'Pending'}">{{ "i18n.customers.order_details.pending_tips" | t }}</div>
+      <ul class="shipment-tracking-checkpoints" spz-else>
+        <li spz-for="checkpoint in data.checkpoints">
+          <div>
+            <div>${checkpoint.message}</div>
+            <div>
+              <span>${checkpoint.checkpoint_time_formatted}</span>
+              <span spz-if="!!checkpoint.location">&nbsp;·&nbsp;${checkpoint.location}</span>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>

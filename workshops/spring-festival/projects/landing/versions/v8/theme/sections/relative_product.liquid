@@ -1,0 +1,166 @@
+{% if product.id %}
+  <style>
+    [data-section-id="{{ section.id }}"] .recommendations-title {
+      font-size: calc(var(--type-heading-font-size) * 0.5333);
+    }
+
+    @media (max-width: {{ settings.breakpoint | minus: 0.02 }}px) {
+      {% if section.settings.enable_carousel %}
+        [data-section-id="{{ section.id }}"] .recommendations-container {
+          padding-right: 0;
+        }
+      {% endif %}
+
+
+      [data-section-id="{{ section.id }}"] .recommendations_carousel > .i-spzhtml-slides-container > .i-spzhtml-slide-item {
+        flex: unset !important;
+        flex-shrink: 0 !important;
+        width: 40% !important;
+        padding-right: 16px;
+      }
+    }
+
+    @media (min-width: {{ settings.breakpoint }}px) {
+      [data-section-id="{{ section.id }}"] .recommendations-title {
+        font-weight: 500;
+        font-size: calc(var(--type-heading-font-size) * 0.8);
+      }
+
+      [data-section-id="{{ section.id }}"] .recommendations_carousel > .spz-carousel-button.spz-disabled {
+        display: none;
+      }
+
+      [data-section-id="{{ section.id }}"] .recommendations_carousel > .i-spzhtml-slides-container > .i-spzhtml-slide-item {
+        width: 25.645%;
+        padding-right: 2.58%;
+      }
+    }
+  </style>
+
+  {% if shop.locale == 'ar-SA' %}
+    <style>
+      @media (max-width: {{ settings.breakpoint | minus: 0.02 }}px) {
+        [data-section-id='{{ section.id }}'] .recommendations-container {
+          padding-left: 0;
+          padding-right: var(--page-spacing);
+        }
+
+        [data-section-id='{{ section.id }}'] .recommendations-title {
+          padding-left: var(--page-spacing);
+          padding-right: 0;
+        }
+
+        [data-section-id='{{ section.id }}']
+          .recommendations_carousel
+          > .i-spzhtml-slides-container
+          > .i-spzhtml-slide-item {
+          padding-left: 16px;
+          padding-right: 0;
+        }
+      }
+
+      @media (min-width: {{ settings.breakpoint }}px) {
+        [data-section-id='{{ section.id }}']
+          .recommendations_carousel
+          > .i-spzhtml-slides-container
+          > .i-spzhtml-slide-item {
+          padding-left: 2.58%;
+          padding-right: 0;
+        }
+      }
+    </style>
+  {% endif %}
+
+  <spz-render
+    id="relative-product-render"
+    src="{{ '/api/product/similar-products' | add_root_url }}?product_id={{ product.id }}&page=1&per_page=8"
+    layout="container"
+    items="data.products"
+  >
+    <template>
+      <div class="recommendations-container page-container" spz-if="${data && data.length > 0}">
+        <h3 class="recommendations-title m-0 leading-1.25 font-semibold color-heading type-heading-font-family">
+          {{ section.settings.heading | escape }}
+        </h3>
+        {% if section.settings.enable_carousel %}
+          <spz-carousel
+            class="recommendations_carousel mt-4 lg:mt-5"
+            id="recommendations_carousel"
+            controls
+            effect="scroller"
+            layout="container"
+            initial-slide="0"
+            visible-count="(min-width:960px) 4, 2.4"
+            advance-count="(min-width:960px) 1, 1"
+          >
+            <div spz-for="(item, index) in data" key="item.id">
+              {% include 'product_snippet',
+                source_id: 'relative-product-render',
+                product_id: '${item.id}',
+                finish_event: "${index == 0 ? 'recommendations_carousel.calcPosition;' : ''}"
+              %}
+            </div>
+            {% include 'icon_chevron_up', attr: 'pre', icon_class: 'md:hidden' %}
+            {% include 'icon_chevron_up', attr: 'next', icon_class: 'md:hidden' %}
+          </spz-carousel>
+        {% else %}
+          <div class="recommendations-list grid gap-y-6 lg:grid-cols-4 lg:gap-x-10 lg:gap-y-11 mt-6 lg:mt-8 ${data.length > 4 ? 'gap-x-4 grid-cols-2' : 'grid-cols-1' }">
+            <div spz-for="(item, index) in data" key="item.id">
+              {% include 'product_snippet',
+                source_id: 'relative-product-render',
+                product_id: '${item.id}'
+              %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </template>
+  </spz-render>
+{% endif %}
+
+{% schema %}
+{
+  "name": "relative_product",
+  "class": "py-5 lg:mt-15",
+  "templates": ["product"],
+  "limit": 1,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "default": "You may also like"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_carousel",
+      "label": {
+        "zh-CN": "开启轮播",
+        "en-US": "Enable carousel"
+      },
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "relative_product",
+      "cname": {
+        "en-US": "Product recommendations",
+        "zh-CN": "商品推荐"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "ccategory": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": true
+    }
+  ]
+}
+{% endschema %}

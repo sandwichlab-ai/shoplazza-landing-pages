@@ -1,0 +1,74 @@
+.landing-flash-sale {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40px 20px;
+}
+
+.landing-container {
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+}
+
+.landing-content {
+  background: white;
+  border-radius: 16px;
+  padding: 60px 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.landing-title {
+  font-size: 48px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+}
+
+.landing-subtitle {
+  font-size: 24px;
+  color: #667eea;
+  margin: 0 0 24px 0;
+  font-weight: 500;
+}
+
+.landing-description {
+  font-size: 18px;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.landing-cta {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-decoration: none;
+  padding: 18px 48px;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.landing-cta:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
+
+@media (max-width: 768px) {
+  .landing-content {
+    padding: 40px 24px;
+  }
+
+  .landing-title {
+    font-size: 32px;
+  }
+
+  .landing-subtitle {
+    font-size: 18px;
+  }
+}

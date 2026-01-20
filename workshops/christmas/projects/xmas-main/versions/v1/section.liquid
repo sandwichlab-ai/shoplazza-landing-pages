@@ -1,0 +1,19 @@
+{{ 'landing-xmas-main.css' | asset_url | stylesheet_tag }}
+
+<section class="landing-page landing-xmas-main" data-project="xmas-main" data-version="v1">
+  <div class="landing-container">
+    <div class="landing-content">
+      <h1 class="landing-title">圣诞主页</h1>
+      <p class="landing-subtitle">您的副标题</p>
+      <div class="landing-description">在这里添加描述内容...</div>
+      <a href="#" class="landing-cta">立即购买</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  // 隐藏 header/footer，纯净落地页
+  document.querySelectorAll('[data-section-type="header"], [data-section-type="announcement"], footer, .footer, [class*="footer"]').forEach(el => {
+    el.style.display = 'none';
+  });
+</script>

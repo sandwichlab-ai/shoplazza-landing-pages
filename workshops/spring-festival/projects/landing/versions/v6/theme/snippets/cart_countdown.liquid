@@ -1,0 +1,30 @@
+{%- comment -%} cart countdown {%- endcomment -%}
+{% if settings.enable_countdown %}
+  <style>
+    .cart-countdown{
+      padding: 16px;
+      font-size: 13px;
+      border-radius: 6px;
+      background: var(--color-countdown-bg);
+    }
+    .cart-countdown__number{
+      color: var(--color-countdown-time-text);
+    }
+    @media (min-width: 960px) {
+      .cart-countdown{
+        padding: 22px 20px;
+        font-size: 16px;
+      }
+    }
+  </style>
+
+  {% capture countdownHtml %}
+    <spz-countdown class="cart-countdown__time inline-block" layout="container" loop timeleft-seconds="{{ settings.countdown_time | times: 60 | minus: 1 }}" storage-key="cart-countdown-time" template="cart-countdown-template">
+    </spz-countdown>
+  {% endcapture %}
+
+  <div class="cart-countdown font-bold leading-none {{class}}">
+    {% assign default_text = 'i18n.bag.general.cart_countdown_text' | t %}
+    {{ settings.custom_text | default: default_text | replace: '{countdown}', countdownHtml }}
+  </div>
+{% endif %}

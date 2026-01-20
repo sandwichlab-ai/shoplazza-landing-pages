@@ -1,0 +1,347 @@
+{% include 'card_spacing_css', is_update_page_container: false %}
+{% assign main_image = section.settings.main_image %}
+{% assign layout = section.settings.layout %}
+
+<style>
+  .recommend_image_text_container {
+    margin: 40px 0;
+  }
+  .recommend_image_text_left_text {
+    max-width: var(--page-width);
+    padding: 0 var(--page-spacing);
+    margin: 0 auto;
+  }
+  .recommend_image_text_left_img_outer {
+    margin-top: 20px;
+  }
+  .recommend_image_text_right_img_outer_container {
+    margin-top: 12px;
+  }
+  @media (min-width: {{ settings.breakpoint }}px) {
+    .recommend_image_text_container {
+      display: flex;
+      margin: 40px 0;
+    }
+    .recommend_image_text_container_sub {
+      width: 45.9%;
+      min-height: 675px;
+      padding-top: 108px;
+    }
+    .recommend_image_text_left_text {
+      margin: auto;
+      padding: 0 40px;
+    }
+    .recommend_image_text_left_img_outer {
+      width: 100%;
+      margin-top: 48px;
+    }
+    .recommend_image_text_right_img_outer {
+      width: 44.53%;
+      height: 100%;
+    }
+    .recommend_image_text_right_img_outer_container {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      z-index: -100;
+      max-width: var(--page-width);
+      padding: 0 var(--page-spacing);
+      margin: 0 auto;
+    }
+    .recommend_image_text_left_img_outer .placeholder-svg > svg {
+      max-height: 400px;
+    }
+    .recommend_image_text_right_img_outer spz-img {
+      height: 100%;
+    }
+    {% comment %} layout: left {% endcomment %}
+    [data-section-id="{{ section.id }}"] .left .recommend_image_text_container_sub {
+      margin-left: auto;
+      margin-right: 0;
+    }
+    [data-section-id="{{ section.id }}"] .left .recommend_image_text_left_text {
+      max-width: 100%;
+      padding: 0;
+    }
+    [data-section-id="{{ section.id }}"] .left .recommend_image_text_right_img_outer {
+      margin-right: auto;
+      margin-left: 0;
+    }
+
+    {% comment %} layout: right {% endcomment %}
+    [data-section-id="{{ section.id }}"] .right .recommend_image_text_container_sub {
+      margin-left: 0;
+      margin-right: auto;
+    }
+    [data-section-id="{{ section.id }}"] .right .recommend_image_text_left_text {
+      max-width: 80%;
+      padding: 0 40px;
+    }
+    [data-section-id="{{ section.id }}"] .right .recommend_image_text_right_img_outer {
+      margin-right: 0;
+      margin-left: auto;
+    }
+  }
+</style>
+
+<div class="recommend_image_text_container relative {{layout}}">
+  <div class="recommend_image_text_container_sub">
+    {% include 'global_text', container_class: 'recommend_image_text_left_text' %}
+    {% for block in section.blocks %}
+      {% if block.type == 'image' %}
+        {% assign image_block = block.settings.image_block %}
+        {% include 'global_img',
+          image: image_block,
+          imageWidth: 100,
+          imageHeight: 63.54,
+          image_outer: 'recommend_image_text_left_img_outer',
+          ssrIndex: 0,
+          sizeRatio: 1
+        %}
+      {% endif %}
+    {% endfor %}
+  </div>
+  <div class="recommend_image_text_right_img_outer_container">
+    {% include 'global_img',
+      image: main_image,
+      image_outer: 'recommend_image_text_right_img_outer',
+      image_class: 'h-full'
+    %}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "feature_collection_second",
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "main_image",
+      "label": {
+        "en-US": "Main image",
+        "zh-CN": "主图片"
+      }
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": {
+        "en-US": "Layout",
+        "zh-CN": "布局"
+      },
+      "options": [
+        {
+          "value": "left",
+          "label": {
+            "en-US": "Main image left",
+            "zh-CN": "主图片在左"
+          }
+        },
+        {
+          "value": "right",
+          "label": {
+            "en-US": "Main image right",
+            "zh-CN": "主图片在右"
+          }
+        }
+      ],
+      "default": "right"
+    },
+    {
+      "type": "spacing",
+      "id": "spacing",
+      "label": {
+        "en-US": "Spacing",
+        "zh-CN": "间距留白"
+      },
+      "pc": {
+        "top": "40",
+        "right": "",
+        "bottom": "40",
+        "left": ""
+      },
+      "mobile": {
+        "top": "20",
+        "right": "",
+        "bottom": "20",
+        "left": ""
+      },
+      "default": {
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        }
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": {
+            "en-US": "Heading",
+            "zh-CN": "标题"
+          },
+          "default": "Recommended images and text"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": {
+        "en-US": "Text",
+        "zh-CN": "文字"
+      },
+      "limit": 1,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": {
+            "en-US": "Text",
+            "zh-CN": "文字"
+          },
+          "default": ""
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": {
+        "en-US": "Button",
+        "zh-CN": "按钮"
+      },
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": {
+            "en-US": "Button",
+            "zh-CN": "按钮"
+          },
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": {
+            "en-US": "Button link",
+            "zh-CN": "按钮链接"
+          }
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": {
+            "en-US": "Button style",
+            "zh-CN": "按钮样式"
+          },
+          "options": [
+            {
+              "value": "primary_button",
+              "label": {
+                "en-US": "Primary button",
+                "zh-CN": "主要按钮"
+              }
+            },
+            {
+              "value": "secondary_button",
+              "label": {
+                "en-US": "Secondary button",
+                "zh-CN": "次要按钮"
+              }
+            }
+          ],
+          "default": "secondary_button"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": {
+        "en-US": "Image",
+        "zh-CN": "图片"
+      },
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image_block",
+          "label": {
+            "en-US": "Image",
+            "zh-CN": "图片"
+          }
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "recommended_images_text",
+      "cname": {
+        "en-US": "Recommended images and text",
+        "zh-CN": "推荐图文"
+      },
+      "category": {
+        "en-US": "Image with text",
+        "zh-CN": "图文"
+      },
+      "ccategory": {
+        "en-US": "Image with text",
+        "zh-CN": "图文"
+      },
+      "icon": "oss/operation/94c9fa3d32bc04e19def767338159523.svg",
+      "display": true,
+      "blocks": [
+        {
+          "type": "heading",
+          "settings": {
+            "heading": "Recommended images and text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": ""
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "button_text": "Shop now",
+            "button_style": "secondary_button",
+            "button_link": ""
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "main_image": ""
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

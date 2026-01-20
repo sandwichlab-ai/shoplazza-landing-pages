@@ -1,0 +1,416 @@
+<style>
+  .search-filter-sort-wrap-mobile {
+    margin-top: 16px;
+  }
+  .search-filter-sort-btn {
+    display: flex;
+    margin-{{inline_end}}: 16px;
+  }
+  .search-filter-button {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    padding: 4px 12px;
+    margin-{{inline_end}}: 8px;
+    border: 1px solid #e6e6e6;
+    border-radius: 2px;
+    font-size: 12px;
+    font-weight: 400;
+    background: transparent;
+  }
+  .search-filter-button.active {
+    color: #292929;
+    border: 1px solid #292929;
+  }
+  .filter-sidebar-mobile {
+    height: auto !important;
+  }
+
+  .filter-sort-header-mobile {
+    display: flex;
+    align-items: center;
+    height: 54px;
+    padding: 16px 16px 8px;
+    border-bottom: 1px solid #e6e6e6;
+    background: #fff;
+  }
+  .filter-sort-content-mobile {
+    background: #fff;
+  }
+  .filter-content-mobile {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 54px - 160px);
+  }
+  .filter-sort-anchor {
+    flex: 1;
+    overflow: auto;
+  }
+  .filter-content-top {
+    display: flex;
+    flex: 1;
+    height: 100%;
+    overflow: auto;
+  }
+  .filter-left-mobile {
+    width: 90px;
+    background: #f6f6f6;
+    overflow: auto;
+  }
+  .filter-title-mobile {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 4px 10px;
+    color: rgba(41, 41, 41, 0.6);
+    font-size: 12px;
+    font-weight: 400;
+  }
+  [active].filter-title-mobile {
+    color: #292929;
+    font-size: 12px;
+    font-weight: 600;
+    background: #fff;
+  }
+  [active].filter-title-mobile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    {{inline_start}}: 0;
+    width: 4px;
+    height: 36px;
+    background: #000;
+  }
+
+  .filter-right-mobile {
+    flex: 1;
+    padding: 0 16px 20px;
+    color: #292929;
+    font-size: 12px;
+    font-weight: 400;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .filter-right-title-mobile {
+    padding: 9px 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .filter-right-content-mobile {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: -10px;
+    margin-bottom: 8px;
+  }
+
+  .filter-right-tag-mobile {
+    padding: 8px;
+    margin: 10px 10px 0 0;
+    border-radius: 2px;
+    border: 1px solid #e6e6e6;
+    word-break: break-all;
+  }
+
+  html[dir="rtl"] .filter-right-tag-mobile {
+    margin-left: 10px;
+    margin-right: 0;
+  }
+
+   .filter-right-tag-mobile:active {
+    border: 1px solid #222;
+    background: rgba(34, 34, 34, 0.08);
+  }
+  .search-filter-mobile-view-more-btn {
+    order: 10;
+    align-self: center;
+    margin-bottom: 8px;
+    text-decoration: underline;
+  }
+
+  .search-filter-mobile-view-more-btn:not([hidden]) ~ .filter-right-content-mobile .filter-right-tag-mobile:nth-child(n + 9) {
+    display: none;
+  }
+
+  [selected].filter-right-tag-mobile {
+    border: 1px solid #292929;
+    font-weight: 500;
+  }
+  .filter-btn-mobile {
+    display: flex;
+    flex-shrink: 0;
+    justify-content: flex-end;
+    align-items: center;
+    min-height: 56px;
+    padding:  16px;
+    border-top: 1px solid #e6e6e6;
+    text-align: center;
+    background: #fff;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .filter-reset-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-width: 72px;
+    padding: 0 16px;
+    height: 100%;
+    margin-{{inline_end}}: 12px;
+    border-radius: 2px;
+    border: 1px solid #292929;
+    color: #292929;
+  }
+  .filter-confirm-mobile {
+    min-width: 200px;
+    min-height: 40px;
+    padding: 10px 16px;
+    border-radius: 2px;
+    background: #292929;
+    color: #fff;
+  }
+
+  .filter-price-input-mobile {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    height: 38px;
+    padding: 12px;
+    border-radius: 2px;
+    border: 1px solid #292929;
+  }
+  .filter-price-split {
+    padding: 0 8px;
+  }
+  input {
+    border: none;
+    padding: unset;
+  }
+  .filter-price-input-mobile input {
+    width: 100%;
+  }
+  .ios_safari_bottom_bar {
+    display: none;
+  }
+  .sort-sel-option-mobile {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    padding: 0px 16px;
+    color: #292929;
+    font-size: 14px;
+    font-weight: 400;
+  }
+  [selected].sort-sel-option-mobile {
+    font-weight: 500;
+  }
+  :not([selected]).sort-sel-option-mobile .icon-search-sort-checked {
+    opacity: 0;
+  }
+  .result-loading .loading-bounce {
+    margin: 0 auto;
+  }
+  .result-loading,
+  .is-loading .result-text,
+  .is-loading .filter-sidebar-mobile {
+    display: none;
+  }
+  .result-text,
+  .filter-sidebar-mobile,
+  .is-loading .result-loading {
+    display: block;
+  }
+  .filter-disable-mask{
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: transparent;
+  }
+</style>
+
+<div class="search-filter-sort-wrap-mobile lg:hidden">
+  <div class="search-filter-sort-btn">
+      <spz-render id="filter-button-outside" class="filter-botton-mibile" manual layout="container">
+        <div
+          class="search-filter-button"
+          @tap="search-filter-sidebar.open;filter-button-mobile.toggleClass(class='active',force=true);sort-button-mobile.toggleClass(class='active',force=false);filter-content-mobile.show;sort-content-mobile.hide;"
+        >
+          {% include 'icon_filter' %}
+          <span class="ml-2">{{ 'i18n.search.filter' | t }}</span>
+        </div>
+        <template>
+          <div
+            class="search-filter-button ${data.count>0 ? 'active':''}"
+            @tap="search-filter-sidebar.open;filter-button-mobile.toggleClass(class='active',force=true);sort-button-mobile.toggleClass(class='active',force=false);filter-content-mobile.show;sort-content-mobile.hide;"
+          >
+            {% include 'icon_filter' %}
+            <span class="ml-2">{{ 'i18n.search.filter' | t }}</span>
+          </div>
+        </template>
+      </spz-render>
+
+    {% if sort_size > 0 %}
+      <button
+        type="button"
+        class="search-filter-button"
+        @tap="search-filter-sidebar.open;filter-button-mobile.toggleClass(class='active',force=false);sort-button-mobile.toggleClass(class='active',force=true);sort-content-mobile.show;filter-content-mobile.hide;"
+      >
+        <span>{{ 'i18n.search.sort_by' | t }}</span>
+      </button>
+    {% endif %}
+  </div>
+
+  {% include 'search_filter_result', result_id: 'search-filter-result-mobile' %}
+</div>
+
+{% if show_filter %}
+<spz-filter
+  id="search-filter-mobile"
+  class="lg:hidden"
+  layout="container"
+  src="{{ searchSrc }}"
+  items="data.filters"
+  list-id="search-list"
+  result-id="search-filter-result-mobile"
+  content-id="filter-sort-content-mobile"
+  disabled-selection-before-finish-render
+  @unselectable="search-filter-sidebar.toggleClass(class='is-loading',force=true);filter-disable-mask.show;"
+  @selectable="search-filter-sidebar.toggleClass(class='is-loading',force=false);filter-disable-mask.hide;"
+  @resultFinish="filter-button-outside.rerender(data=event);"
+  @contentFinish="filter-left-title.rerender(data=event.data);search-filter-view-more-handler-mobile.resetStatus();"
+  @beforeContentRender="search-filter-modal-anchor.freeze;"
+></spz-filter>
+{% endif %}
+
+<spz-sidebar id="search-filter-sidebar" class="filter-sidebar-mobile" hidden layout="nodisplay" side="top" disable-unmount>
+  <div class="filter-sort-header-mobile">
+      <button
+        type="button"
+        id="filter-button-mobile"
+        class="search-filter-button filter-botton-mibile"
+        @tap="filter-button-mobile.toggleClass(class='active',force=true);sort-button-mobile.toggleClass(class='active',force=false);sort-content-mobile.hide;filter-content-mobile.show;"
+      >
+        {% include 'icon_filter' %}
+        <span class="ml-2">{{ 'i18n.search.filter' | t }}</span>
+      </button>
+    {% if sort_size > 0 %}
+      <button
+        type="button"
+        id="sort-button-mobile"
+        class="search-filter-button"
+        @tap="filter-button-mobile.toggleClass(class='active',force=false);sort-button-mobile.toggleClass(class='active',force=true);filter-content-mobile.hide;sort-content-mobile.show;"
+      >
+        <span>{{ 'i18n.search.sort_by' | t }}</span>
+      </button>
+    {% endif %}
+  </div>
+
+  <div id="filter-sort-content-mobile" class="filter-sort-content-mobile" role="content">
+    <div id="filter-content-mobile" class="filter-content-mobile">
+      <spz-anchor class="filter-sort-anchor" id="search-filter-modal-anchor" layout="container" manual>
+        <div class="filter-content-top">
+          <div class="filter-left-mobile" role="anchor-links">
+            <spz-render id="filter-left-title" layout="container" manual @finish="search-script.execute(func='resetAnchor');">
+              <template>
+                <div>
+                  <div class="filter-title-mobile" spz-for="item in data" key="item.param_name" data-anchor-link="${ item.param_name }">
+                    <div class="line-clamp-2">${ item.title }</div>
+                  </div>
+                </div>
+              </template>
+            </spz-render>
+          </div>
+          <div class="filter-right-mobile" role="anchor-scrollable-container">
+            <spz-render layout="container" manual as="default">
+              <template>
+                <div class="flex flex-col" data-anchor-part="${data.param_name}">
+                  <div class="filter-right-title-mobile line-clamp-1">${data.title}</div>
+                  <button class="search-filter-mobile-view-more-btn clear" spz-if="${data.values.length > 8}" data-one-click-name="${data.param_name}">
+                    {{ 'i18n.search.view_more' | t }}
+                  </button>
+                  <spz-selector
+                    class="filter-right-content-mobile"
+                    layout="container"
+                    multiple
+                    role="items"
+                    @select="search-filter-mobile.apply(data=event.selectedOptions);search-script.execute(func='setAnchorActiveValue', params=${data.param_name});"
+                  >
+                    <div class="filter-right-tag-mobile" spz-for="item in data.values" option="${item.value}" value="${item.value}" key="item.value">${item.label}</div>
+                  </spz-selector>
+                </div>
+              </template>
+            </spz-render>
+
+            <spz-render layout="container" manual as="price">
+              <template>
+                <div data-anchor-part="${ data.param_name }">
+                  <div class="filter-right-title-mobile line-clamp-1">${ data.title }</div>
+                  <div class="flex items-center">
+                    <div class="filter-price-input-mobile">
+                      <span>{{ shop.finance_symbol }}</span>
+                      <input
+                        type="number"
+                        role="price-min"
+                        @change="search-filter-mobile.apply;"
+                        @input-debounced="search-script.execute(func='setAnchorActiveValue', params=${data.param_name});"
+                      >
+                    </div>
+                    <span class="filter-price-split">{{ 'i18n.search.to' | t }}</span>
+                    <div class="filter-price-input-mobile">
+                      <span>{{ shop.finance_symbol }}</span>
+                      <input
+                        type="number"
+                        role="price-max"
+                        @change="search-filter-mobile.apply;"
+                        @input-debounced="search-script.execute(func='setAnchorActiveValue', params=${data.param_name});"
+                      >
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </spz-render>
+          </div>
+        </div>
+      </spz-anchor>
+      <div class="filter-btn-mobile">
+        <div class="filter-reset-mobile" @tap="search-filter-mobile.clearAll;search-script.execute(func='setAnchorActiveValue', params='');">{{ 'i18n.search.reset' | t }}</div>
+        <spz-render id="filter-result-count" layout="container" manual>
+          <div class="filter-confirm-mobile" @tap="search-filter-sidebar.close;">{{ 'i18n.search.show_results' | t: count: count }}</div>
+          <template>
+            <div class="filter-confirm-mobile" @tap="search-filter-sidebar.close;">
+              <span class="result-text">${({{ 'i18n.search.show_results' | t | json }}).replace(/\{\{\s*count\s*\}\}/,data)}</span>
+              {% include 'loading', display: false, class: 'result-loading' %}
+            </div>
+          </template>
+        </spz-render>
+      </div>
+    </div>
+    <div id="sort-content-mobile" class="sort-content-mobile">
+      <spz-selector
+        layout="container"
+        role="sortBy"
+        @select="search-list.refresh(sort_by=event.selectedOptions, redo=true);search-sort-sel-val.rerender(data=event.selectedOptions);search-filter-sidebar.close"
+      >
+        {% for item in search.sorts %}
+          <div
+            class="sort-sel-option-mobile"
+            option="{{item.name}}"
+            {% if (sort_by_val == nil and item.name == default_sort_val ) or item.name == sort_by_val %}
+              selected
+            {% endif %}
+          >
+            {{ item.label }}
+            {% include 'icon_checked', icon_class: 'icon-search-sort-checked' %}
+          </div>
+        {% endfor %}
+      </spz-selector>
+    </div>
+  </div>
+  <div id="filter-disable-mask" class="filter-disable-mask hidden"></div>
+</spz-sidebar>

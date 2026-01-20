@@ -1,0 +1,111 @@
+/* 隐藏导航和页脚，打造纯净落地页 */
+body:has(.hello-world) header,
+body:has(.hello-world) .header,
+body:has(.hello-world) [data-section-type="header"],
+body:has(.hello-world) [data-section-type="announcement"],
+body:has(.hello-world) footer,
+body:has(.hello-world) .footer,
+body:has(.hello-world) [data-section-type="footer"],
+body:has(.hello-world) .breadcrumbs {
+  display: none !important;
+}
+
+.hello-world {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  padding: 60px 20px;
+}
+
+.hello-world__container {
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+}
+
+.hello-world__content {
+  background: white;
+  border-radius: 16px;
+  padding: 60px 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.hello-world__icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  animation: wave 1.5s ease-in-out infinite;
+}
+
+@keyframes wave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(20deg); }
+  75% { transform: rotate(-20deg); }
+}
+
+.hello-world__title {
+  font-size: 48px;
+  font-weight: 700;
+  color: #1e40af;
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+}
+
+.hello-world__subtitle {
+  font-size: 24px;
+  color: #3b82f6;
+  margin: 0 0 24px 0;
+  font-weight: 500;
+}
+
+.hello-world__message {
+  font-size: 18px;
+  color: #64748b;
+  line-height: 1.6;
+  margin-bottom: 24px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hello-world__timestamp {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 32px;
+}
+
+.hello-world__button {
+  display: inline-block;
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  color: white;
+  text-decoration: none;
+  padding: 16px 40px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hello-world__button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+@media (max-width: 768px) {
+  .hello-world__content {
+    padding: 40px 24px;
+  }
+
+  .hello-world__title {
+    font-size: 32px;
+  }
+
+  .hello-world__subtitle {
+    font-size: 18px;
+  }
+
+  .hello-world__icon {
+    font-size: 48px;
+  }
+}

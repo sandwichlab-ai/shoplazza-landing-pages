@@ -1,0 +1,66 @@
+{% assign btn_bg_color = item.settings.btn_bg_color %}
+{% assign btn_color = item.settings.btn_color %}
+{% stylesheet %}
+[data-section-id="{{ section.id }}"] .blur-\[136px\] {
+  filter: blur(136px);
+}
+
+@media (min-width: 960px) {
+  .lg\:max-w-\[490px\] { max-width: 490px; }
+  .lg\:inset-x-\[-98px\] { left: -98px; right: -98px; }
+  .lg\:inset-y-\[-50px\] { top: -50px; bottom: -50px; }
+}
+[data-section-id="{{ section.id }}"] .slideshow-mask-{{ forloop.index }} #custom_mask_button {
+  color: {{ item.settings.btn_color }}; 
+  border: 1px solid transparent;
+  background-color: {{ item.settings.btn_bg_color }}; 
+}
+body[data-button-hover-animation="color_invert"] [data-section-id="{{ section.id }}"] .slideshow-mask-{{ forloop.index }} #custom_mask_button:hover {
+  color: {{ item.settings.btn_bg_color }};
+  border: 1px solid {{ item.settings.btn_bg_color }};
+  background-color: {{ item.settings.btn_color }}; 
+}
+{% endstylesheet %}
+<div class="slideshow-mask-{{ forloop.index }} slideshow-mask-text inset-0 flex overflow-hidden w-full py-12 {% unless section.settings.full_page %} rounded-global-small {% endunless %} lg:py-20 px-[22px] {{container_class}}" 
+  style="text-align: {{ text_align }};justify-content: {{ justify_content }};align-items: {{ align_items }};{% if item.settings.mask %}background-color: rgba(0,0,0,{{ item.settings.mask }}%); {% endif %}"
+  slide_style="{{slide_style}}" text_align="{{text_align}}">
+  <div class="slideshow-mask-content relative z-10 max-w-[300px] lg:max-w-[490px]">
+    {%- comment -%} 文字背景阴影 {%- endcomment -%}
+    <div class="pointer-events-none absolute inset-x-[-22px] lg:inset-x-[-98px] -inset-y-5 lg:inset-y-[-50px] {% if item.settings.mask %} blur-[136px] bg-black opacity-[18%] {% endif %} -z-1"></div>
+    {% if item.settings.heading %}
+      <style>
+        [data-section-id="{{ section.id }}"] .slick_title-{{ forloop.index }} {
+          font-size: {{ item.settings.heading_size | times: 0.5 }}px;
+        }
+        [data-section-id="{{ section.id }}"] .mce__content p {
+          margin: 0;
+        }
+        @media(min-width: 960px) {
+          [data-section-id="{{ section.id }}"] .slick_title-{{ forloop.index }} {
+            font-size: {{ item.settings.heading_size }}px;
+          }
+        }
+      </style>
+      <h3 class="slick_title slick_title-{{ forloop.index }} m-0 mb-3 last:mb-0 leading-1.2 type-heading-font-family mce__content">{{ item.settings.heading }}</h3>
+    {% endif %}
+    {% if item.settings.text %}
+      <p class="slick_text body-plus-2 leading-1.3 m-0 mb-5 last:mb-0">{{ item.settings.text }}</p>
+    {% endif %}
+    {% if item.settings.link_text1 or item.settings.link_text2 %}
+      <div class="slideshow-mask-btn flex flex-wrap -mt-3 -ml-3 body-plus-2 leading-1.5 {{slideshow_btn_class}}" style="justify-content: {{ justify_content }};">
+        {% if item.settings.link_text1 %}
+          <a
+            {% if item.settings.btn_bg_color and item.settings.btn_color %}id="custom_mask_button"{% endif %}
+            class="mask_button inline-block py-2 px-6 mt-3 ml-3 no-underline whitespace-nowrap rounded-btn button-primary"
+            {% include 'link', link: item.settings.url1 %}>{{ item.settings.link_text1 }}</a>
+        {% endif %}
+        {% if item.settings.link_text2 %}
+          <a
+          {% if item.settings.btn_bg_color and item.settings.btn_color %}id="custom_mask_button"{% endif %}
+            class="mask_button inline-block py-2 px-6 mt-3 ml-3 no-underline whitespace-nowrap rounded-btn button-primary"
+            {% include 'link', link: item.settings.url2 %}>{{ item.settings.link_text2 }}</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+</div>

@@ -1,0 +1,23 @@
+<div class="flex-shrink-0 flex flex-col {{class}}">
+  <div class="break-words" spz-if="${!!item.disabled}">
+    *${item.quantity}
+  </div>
+  <spz-quantity
+    spz-else
+    icon-class="clear flex items-center justify-center flex-shrink-0 h-full w-7"
+    input-class="clear flex-1 h-full text-center body-base color-body-text"
+    name="quantity"
+    value="${item.quantity}"
+    min="1"
+    max="${item.available_quantity}"
+    height="28"
+    layout="flex-item"
+    @quantityChange="{{actionId}}.update(value=event.value,id='${item.id}');"
+    @quantityChangeUnderflow="{{actionId}}.delete(id='${item.id}');"
+  >
+    {% include 'icon_cart_minus', attr: 'role="decrease"' %}
+    {% include 'icon_cart_plus', attr: 'role="increase"' %}
+  </spz-quantity>
+
+  <div class="{{item_text_class}} mt-1" spz-if="${!!item.item_text}">${item.item_text}</div>
+</div>

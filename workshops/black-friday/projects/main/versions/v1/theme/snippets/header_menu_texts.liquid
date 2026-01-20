@@ -1,0 +1,121 @@
+{% assign secondLinks = link.secondLinks %}
+{% assign hasThirdMenu = link.hasThirdMenu %}
+{% assign product0 = link.product0 %}
+{% assign isFullscreen = link.isFullscreen %}
+
+{% capture childrens %}
+
+    {% if hasThirdMenu %}
+        <spz-list
+            layout="container"
+            type="grid"
+            column-count="4"
+            list="list"
+            class="header__waterfall-wrapper header_menu_hover_animation m-0 p-0 flex list-none w-full mt--10 grid-menu-list"
+        >
+            {% for secondLink in secondLinks %}
+                {% assign thirdLinks = secondLink.thirdLinks %}
+                {% assign index = forloop.index %}
+
+                <div
+                    class="leading-1.4 header__menu-item-second-wrapper"
+                    role="tab"
+                    data-panel="Tab-{{ index }}"
+                    {% if index == 1 %}
+                        active
+                    {% endif %}
+                    sub-dropdown
+                >
+                    {% 
+                        render 'header_menu_title',  
+                        link: secondLink,
+                        linkWrapperClass: "header__menu-item-second flex items-start no-underline",
+                        commonTextClass: '',
+                        titleClass: '',
+                        linkAttrs: '',
+                        topChildrens: '',
+                        tagClass:"header__menu-item-tag",
+                        isWrapperChildren: false,
+                    %}
+
+                    {% for thirdLink in thirdLinks %}
+                        {% 
+                            render 'header_menu_title',  
+                            link: thirdLink,
+                            linkWrapperClass: "header__menu-item-last flex items-start no-underline",
+                            commonTextClass: '',
+                            linkAttrs: '',
+                            titleClass: '',
+                            topChildrens: '',
+                            tagClass:"header__menu-item-tag",
+                            isWrapperChildren: false,
+                        %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </spz-list>
+    {% endif %}
+
+    {% unless hasThirdMenu %}
+        {% if product0 %}
+            <ul 
+                class="header__waterfall-wrapper header_menu_hover_animation m-0 p-0 flex list-none w-full mt--10">
+                {% for secondLink in secondLinks %}
+                    {% 
+                        render 'header_menu_title',  
+                        link: secondLink, 
+                        linkWrapperClass: "header__menu-item-last w-full no-underline",
+                        commonTextClass: '',
+                        titleClass: 'font-medium',
+                        linkAttrs: '',
+                        topChildrens: '',
+                        tagClass:"header__menu-item-tag",
+                        isWrapperChildren: false,
+                    %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endunless %}
+
+    {% unless hasThirdMenu %}
+        {% unless product0 %}
+            <ul class="header__second_menu-wrapper header-shadow absolute header-bg list-none overflow-x-hidden overflow-y-auto">
+                {% for second_link in second_links %}
+                    <li class="header_menu_hover_animation">
+                        {% 
+                            render 'header_menu_title',  
+                            link: second_link, 
+                            linkWrapperClass: "header__menu-item-last flex items-start no-underline",
+                            commonTextClass: '',
+                            titleClass: '',
+                            linkAttrs: '',
+                            topChildrens: '',
+                            tagClass:"header__menu-item-tag",
+                            isWrapperChildren: false,
+                        %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endunless %}
+    {% endunless %}
+
+    {% if product0 %}
+        {% capture pro_label_type %}{{label_type}}-{{ index }}{% endcapture %}
+        <div class="header__menu_product header_menu_hover_animation">
+            {% render 'product', card_product: product0, label_type: pro_label_type %}
+        </div>
+    {% endif %}
+
+{% endcapture %}
+
+{% assign containerClass = '' %}
+{% if product0 %}
+    {% assign containerClass = 'menu_has_product' %}
+{% endif %}
+
+{% 
+  render 'header_menu_popup_container',
+  containerClass: containerClass,
+  children: childrens,
+  isFullscreen: isFullscreen
+%}

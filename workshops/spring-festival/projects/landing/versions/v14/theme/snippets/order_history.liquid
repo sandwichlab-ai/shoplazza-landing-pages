@@ -1,0 +1,70 @@
+<div class='page-container text-center order_verify_container body-plus-2'>
+  <div class='order_verify_title mt-6 title-color'>{{ 'i18n.customers.order_verify.view_history_order' | t }}</div>
+  <spz-render id='order_verify_history' layout='container' manual>
+    <template>
+      <div class='form-tips-text'>${data.errors && data.errors[0]}</div>
+    </template>
+  </spz-render>
+  <form
+    class='form flex-col'
+    id='order-history-form'
+    method='POST'
+    action-xhr='{{ '/api/customers/email_sign_in' | add_roo_url }}'
+    custom-validation='input-interact-and-submit'
+    redirect-when-submit-success='{{ routes.account_order_url }}'
+    @submitError="order_verify_history.rerender(data=event);order_verify_history.toggleClass(class='hidden', force=false);"
+  >
+    <div class='form_item'>
+      <input
+        class='form_input'
+        type='text'
+        id='email'
+        name='email'
+        tabindex='1'
+        autofocus
+        required
+        pattern="[a-zA-Z0-9!#$%&'*+\/=?^_`\{\|\}~\-]+(?:\.[a-zA-Z0-9!#$%&'*+\/=?^_`\{\|\}~\-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?"
+        @input-debounced="order-send-email-form.insert(name='email', value=event.value);order_verify_history.toggleClass(class='hidden', force=true);"
+      >
+      <label class='form_label' for='email'>{{ 'i18n.customers.order_verify.email' | t }}</label>
+      <div class='form_item form-tips-error' validation-for='email' visible-when-invalid='valueMissing' hidden>{% include 'icon_warning' %}{{ 'i18n.customers.tips.email_is_required' | t }}</div>
+      <div class='form_item form-tips-error' validation-for='email' visible-when-invalid='patternMismatch' hidden>{% include 'icon_warning' %}{{ 'i18n.customers.tips.request_valid_email' | t }}</div>
+      <div class="form_item_group_code">
+        <div class='form_item'>
+          <input
+            class='form_input'
+            type='text'
+            id='code'
+            name='code'
+            tabindex='2'
+            required
+            maxlength="6"
+            @input-debounced="order_verify_history.toggleClass(class='hidden', force=true);"
+          >
+          <label class='form_label' for='code'>{{ 'i18n.customers.order_verify.verification_code' | t }}</label>
+          <div class='form_item form-tips-error' validation-for='code' visible-when-invalid='valueMissing' hidden>{% include 'icon_warning' %}{{ 'i18n.customers.order_verify.invalid_verification_code' | t }}</div>
+        </div>
+        <div class="form_item">
+          <spz-countdown manual @timeout="order-history-send-countdown.toggleClass(class='hidden', force=true);order-history-send-btn.toggleClass(class='hidden', force=false);" class="hidden" id="order-history-send-countdown" layout="container" timeleft-seconds="59">
+            <template>
+              <button type="button" class="w-full send_code" disabled>${ss}s</button>
+            </template>
+          </spz-countdown>
+          <div id="order-history-send-btn" class="w-full send_code cursor-pointer flex justify-center items-center" tabindex="3" @tap="order-send-email-form.submit(actionXhr='{{ '/api/customers/login_email' | add_root_url }}');">{{ 'i18n.customers.order_verify.send' | t }}</div>
+        </div>
+      </div>
+    </div>
+    <button class='form_submit button-primary mb-3 block w-full' type='submit' tabindex='4'>{{ 'i18n.customers.order_verify.view_order' | t }}</button>
+    <a class="cursor-pointer order_verify_link" @tap="SPZ.replaceUrlState(type='view', reload=true);" tabindex="4">{{ 'i18n.customers.order_verify.find_by_order_id' | t }}</a>
+  </form>
+
+  <form
+    id="order-send-email-form"
+    method="POST"
+    action-xhr="{{ '/api/customers/login_email' | add_root_url }}"
+    @submitError="order_verify_history.rerender(data=event);"
+    @submitSuccess="theme-toast.showToast(content='{{ 'i18n.customers.order_verify.verification_code_sent' | t }}');order-history-send-countdown.toggleClass(class='hidden', force=false);order-history-send-countdown.restart;order-history-send-btn.toggleClass(class='hidden', force=true);"
+  >
+    <input name="email" type="hidden">
+  </form>
+</div>

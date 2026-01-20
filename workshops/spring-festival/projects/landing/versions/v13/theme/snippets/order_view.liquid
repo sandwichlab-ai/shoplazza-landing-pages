@@ -1,0 +1,95 @@
+{% assign countryCode = ip_address.country_short %}
+{% assign countryPhoneArea = '' %}
+
+{% for item in phone_area %}
+  {% if item.iso_code_2 == countryCode %}
+    {% assign countryPhoneArea = item.phone_code %}
+  {% endif %}
+{% endfor %}
+
+<div class='page-container text-center order_verify_container body-plus-2'>
+  <div class='order_verify_title mt-6 title-color'>{{ 'i18n.customers.order_verify.find_your_order' | t }}</div>
+  <spz-render id='order_verify_view' layout='container' manual>
+    <template>
+      <div class='form-tips-text'>
+        ${data.error == 'order number' ? '{{ invalid_order_id }}' : '{{ invalid_email_or_phone }}'}
+      </div>
+    </template>
+  </spz-render>
+  <form
+    class='form flex-col'
+    id='order-view-form'
+    method='POST'
+    action-xhr='{{ '/api/order_verify' | add_root_url }}'
+    custom-validation='change-interact-and-submit'
+    @submitError="order_verify_view.rerender(data=event);order_verify_view.toggleClass(class='hidden', force=false);"
+    @submitSuccess='SPZ.navigateTo(url=event.value);'
+  >
+    <div class='form_item'>
+      <input
+        class='form_input'
+        type='text'
+        id='order_number'
+        name='order_number'
+        tabindex='1'
+        autofocus
+        required
+        @input-debounced="order_verify_view.toggleClass(class='hidden', force=true);"
+      >
+      <label class='form_label' for='order_number'>{{ 'i18n.customers.order_verify.order_id' | t }}</label>
+      <div class='form_item form-tips-error' validation-for='order_number' visible-when-invalid='valueMissing' hidden>
+        {% include 'icon_warning' %}
+        {{ 'i18n.customers.order_verify.invalid_order_id' | t }}
+      </div>
+    </div>
+
+    <div class='form_item'>
+      <spz-phonenumber
+        id="phone-number"
+        layout="container"
+        phone-pattern="[\+0-9\(\).\s\-]+"
+        default-country="{{ countryCode }}"
+        default-phone-code="{{ countryPhoneArea }}"
+      >
+        <input
+          class="form_input"
+          id="email_or_phone"
+          name="email_or_phone"
+          type="text"
+          tabindex="2"
+          required
+          pattern="([a-zA-Z0-9!#$%&'*+\/=?^_`\{\|\}~\-]+(?:\.[a-zA-Z0-9!#$%&'*+\/=?^_`\{\|\}~\-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?)|([\+0-9\(\).\s\-]+)"
+          @input-debounced="order_verify_view.toggleClass(class='hidden', force=true);"
+        >
+        <label class='form_label' for='email_or_phone'>{{ 'i18n.customers.order_verify.email_or_phone' | t }}</label>
+        <div class='form_item form-tips-error email_or_phone_tip' validation-for='email_or_phone' visible-when-invalid='customError' hidden>{% include 'icon_warning' %}{{ 'i18n.customers.tips.request_valid_phone' | t }}</div>
+        <div class='form_item form-tips-error email_or_phone_tip' validation-for='email_or_phone' visible-when-invalid='valueMissing' hidden>
+          {% include 'icon_warning' %}
+          {{ 'i18n.customers.order_verify.invalid_email_or_phone' | t }}
+        </div>
+        <div class="form_item form-tips-error email_or_phone_tip" validation-for="email_or_phone" visible-when-invalid="patternMismatch">
+          {% include 'icon_warning' %}  
+          {{ 'i18n.customer.order_verify.invalid_email' | t }}
+        </div>
+        <div role="phone-area" class="flex order_verify_flag_container" hidden>
+          <div role="flag" class="order_verify_flag"></div>
+          <select role="areacode" class="order_verify_code_select">
+            <option value="" disabled>*</option>
+          </select>
+        </div>
+      </spz-phonenumber>
+    </div>
+
+    <button class='form_submit button-primary mb-3 block w-full' type='submit' tabindex='4'>{{ 'i18n.customers.order_verify.view_order' | t }}</button>
+    <a
+      class='cursor-pointer order_verify_link'
+      {% if customer.id %}
+        href='{{ routes.account_order_url }}'
+      {% else %}
+        @tap="SPZ.replaceUrlState(type='history', reload=true);"
+      {% endif %}
+    >
+      {{ 'i18n.customers.order_verify.view_history_order' | t }}
+    </a>
+  </form>
+</div>

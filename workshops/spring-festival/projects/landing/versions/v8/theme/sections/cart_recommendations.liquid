@@ -1,0 +1,119 @@
+{% include 'cart_recommend_css' %}
+{% assign cart_recommendations = section.settings.cart_recommendations %}
+{% assign cart_collection = section.settings.cart_collection %}
+{% assign enable_carousel = section.settings.enable_carousel %}
+{% assign limit = 8 %}
+
+{% if cart_recommendations == 'collection' %}
+  {% assign collection = collections[cart_collection.id] %}
+  {% assign collectionSrc = '/api/collections/' | append: collection.id | append: '/cps' | add_root_url %}
+{% else %}
+  <spz-render layout="container" src="{{ '/api/cart' | add_root_url }}" items="cart.line_items">
+    <template>
+      <spz-render spz-if="${!!data.length}" layout="container" src="{{ '/api/product/similar-products' | add_root_url }}?product_id=${data[0] && data[0].product_id}&page=1&per_page={{ limit }}" @finish="cart-recommendations-render.rerender(data=event.data.data.products);"></spz-render>
+    </template>
+  </spz-render>
+{% endif %}
+
+{% if cart_recommendations != 'none' %}
+  <spz-render id="cart-recommendations-render" layout="container" {% if cart_recommendations == 'collection' and collection and collection.id != 0 %} src="{{ collectionSrc }}?page=0&limit={{ limit }}" items="data.products" {% else %} manual {% endif %}>
+    <template>
+      <div class="page-container cart_recommend_container">
+        <div class="cart_recommend_title title-color">{{ 'i18n.bag.general.cart_recommendations' | t }}</div>
+        <div class="recommend_list_container {% if enable_carousel %} md:flex lg:hidden md:overflow-x-scroll{% else %} grid lg:grid-cols-4 md:grid-cols-2 lg:gap-x-10 lg:gap-y-11 md:gap-x-4 md:gap-y-6  {% endif %}">
+          <div class="recommend_list_item {% if enable_carousel %} md:shrink-0 md:pr-4 md:w-2/3 {% endif %}" spz-for="item in data" key="item.id">
+            {% include 'product_snippet', source_id: 'cart-recommendations-render', product_id: '${item.id}' %}
+          </div>
+        </div>
+        {% if enable_carousel %}
+          <spz-carousel class="recommend_list_carousel md:hidden" controls layout="container" initial-slide="0" visible-count='3.8' data-type="carousel" data-controls="${data.length > 4 ? true : false}">
+            <div class="recommend_carousel_item" spz-for="item in data" key="item.id">
+              {% include 'product_snippet', source_id: 'cart-recommendations-render', product_id: '${item.id}' %}
+            </div>
+            {% include 'icon_chevron_up', attr: 'pre hidden' %}
+            {% include 'icon_chevron_up', attr: 'next hidden' %}
+          </spz-carousel>
+        {% endif %}
+      </div>
+    </template>
+  </spz-render>
+{% endif %}
+
+
+{% schema %}
+{
+  "name": "cart_recommendations",
+  "templates": ["cart"],
+  "limit": 1,
+  "settings": [
+    {
+      "type": "select",
+      "id": "cart_recommendations",
+      "label": {
+        "en-US": "Cart recommendations",
+        "zh-CN": "购物车推荐"
+      },
+      "default": "none",
+      "options": [
+        {
+          "value": "none",
+          "label": {
+            "en-US": "None",
+            "zh-CN": "无"
+          }
+        },
+        {
+          "value": "collection",
+          "label": {
+            "en-US": "From selected collection",
+            "zh-CN": "从已选择的专辑"
+          }
+        },
+        {
+          "value": "product",
+          "label": {
+            "en-US": "From the collection of items you added",
+            "zh-CN": "从已添加的商品的专辑"
+          }
+        }
+      ]
+    },
+    {
+      "type": "collection",
+      "id": "cart_collection",
+      "label": {
+        "zh-CN": "购物车专辑",
+        "en-US": "Cart collection"
+      }
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_carousel",
+      "label": {
+        "zh-CN": "开启轮播",
+        "en-US": "Enable carousel"
+      },
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name":"cart_recommendations",
+      "cname": {
+        "zh-CN": "购物车推荐",
+        "en-US": "Cart recommendations"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "ccategory": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": true,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

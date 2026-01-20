@@ -1,0 +1,93 @@
+<div class='page-container text-center hidden address_form_container' id="{{id}}">
+    <div class='address_form_header text-6 title-color'>
+      {{title}}
+    </div>
+    {% comment %} error tip area {% endcomment %}
+    <spz-render id='{{pre}}_form-tips-address' layout='container' manual>
+      <template>
+        <div class='form-tips-text'>${data.errors && data.errors[0]}</div>
+      </template>
+    </spz-render>
+    <form
+      class='address_form flex items-center justify-center flex-col'
+      method='{{method}}'
+      refresh-when-submit-success
+      custom-validation='change-interact-and-submit'
+      action-xhr='{{url}}'
+      @submitError='{{pre}}_form-tips-address.rerender(data=event);'
+      autocomplete='off'
+      id='{{form_id}}'
+      items='{{items}}'
+    >
+      <div class='form_item_group'>
+        <div class='form_item'>
+          <input class='form_input' type='text' id='{{pre}}_firstName' name='first_name' maxlength='50'>
+          <label class='form_label' for='{{pre}}_firstName'>{{ 'i18n.customers.add_new_address.first_name' | t }}</label>
+        </div>
+        <div class='form_item'>
+          <input class='form_input' type='text' id='{{pre}}_lastName' name='last_name' maxlength='50'>
+          <label class='form_label' for='{{pre}}_lastName'>{{ 'i18n.customers.add_new_address.last_name' | t }}</label>
+        </div>
+      </div>
+      <div class='form_item'>
+        <input class='form_input' type='text' id='{{pre}}_company' name='company'>
+        <label class='form_label' for='{{pre}}_company'>{{ 'i18n.customers.add_new_address.company' | t }}</label>
+      </div>
+      <div class='form_item'>
+        <input class='form_input' type='text' id='{{pre}}_address' name='address'>
+        <label class='form_label' for='{{pre}}_address'>{{ 'i18n.customers.add_new_address.address' | t }}</label>
+      </div>
+      <div class='form_item'>
+        <input class='form_input' type='text' id='{{pre}}_address1' name='address1'>
+        <label class='form_label' for='{{pre}}_address1'>{{ 'i18n.customers.add_new_address.apartment' | t }}</label>
+      </div>
+      <div class='form_item'>
+        <input class='form_input' type='text' id='{{pre}}_city' name='city'>
+        <label class='form_label' for='{{pre}}_city'>{{ 'i18n.customers.add_new_address.city' | t }}</label>
+      </div>
+      <div class='form_item_group mt-4'>
+        <spz-area country id='{{pre}}_addressesAddCountry' layout='container'>
+          <select class='form_select form_item' name='country_code' id='{{pre}}_countryCode' value='' required>
+            <option empty value='' selected disabled>{{ 'i18n.customers.add_new_address.country' | t }}</option>
+          </select>
+          <label class='form_select-label' for='{{pre}}_countryCode'>{% include 'icon_chevron_up' %}</label>
+        </spz-area>
+        <spz-area province layout='container' country-id='{{pre}}_addressesAddCountry' manual>
+          <select id='{{pre}}_provinceCode' class='form_select form_item' name='province_code' value=''>
+            <option empty value='' selected disabled>{{ 'i18n.customers.add_new_address.province' | t }}</option>
+          </select>
+          <label class='form_select-label' for='{{pre}}_provinceCode'>{% include 'icon_chevron_up' %}</label>
+          <input type='hidden' name='province' value=''>
+        </spz-area>
+      </div>
+      <div class="form_item form-tips-error" validation-for="{{pre}}_countryCode" visible-when-invalid="valueMissing">
+        {% include 'icon_warning' %}{{ 'i18n.customers.tips.select_country' | t }}
+      </div>
+      <div class="form_item">
+        <input class="form_input" type="text" id="{{pre}}_zip" name="zip">
+        <label class="form_label" for="{{pre}}_zip">{{ 'i18n.customers.add_new_address.postal_code' | t }}</label>
+      </div>
+      <div class="form_item">
+        <input class="form_input" type="text" id="{{pre}}_email" name="email" pattern="[a-zA-Z0-9!#$%&'*+\/=?^_`\{\|\}~\-]+(?:\.[a-zA-Z0-9!#$%&'*+\/=?^_`\{\|\}~\-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?">
+        <label class="form_label" for="{{pre}}_email">{{ 'i18n.customers.add_new_address.email' | t }}</label>
+        <div class="form_item form-tips-error" validation-for="{{pre}}_email" visible-when-invalid="patternMismatch" hidden>{% include 'icon_warning' %}{{ 'i18n.customers.tips.request_valid_email' | t }}</div>
+      </div>
+      <div class="form_item">
+        <spz-area areacode layout="container" country-id="{{pre}}_addressesAddCountry">
+          <select id="{{pre}}_phoneAreaCode" name="phone_area_code" value="">
+            <option empty value="" selected disabled>{{ 'i18n.customers.add_new_address.area_code' | t }}</option>
+          </select>
+          <label for="{{pre}}_phoneAreaCode">{% include 'icon_chevron_up' %}</label>
+        </spz-area>
+        <input class="form_input" type="text" id="{{pre}}_phone" name="phone">
+        <label class="form_label" for="{{pre}}_phone">{{ 'i18n.customers.add_new_address.phone' | t }}</label>
+      </div>
+      <div class="addresses_default form_checkbox_container" id="{{pre}}_address_default">
+        <input type="checkbox" id="{{pre}}_isDefault" name="is_default" class="form_checkbox">
+        <label class="form_checkbox-label" for="{{pre}}_isDefault">{% include 'icon_checkbox_selected' %}</label>
+        <label class="form_checkbox_text" for="{{pre}}_isDefault">{{ 'i18n.customers.add_new_address.set_default' | t }}</label>
+      </div>
+      <button class="mt-8 form_submit button-primary w-full">{{button}}</button>
+      <div class="underline text-center address_cencel cursor-pointer" @tap="addressList.toggleClass(class='hidden', force=false);{{id}}.toggleClass(class='hidden', force=true);">{{ 'i18n.customers.add_new_address.cancel' | t }}</div>
+    </form>
+  </div>

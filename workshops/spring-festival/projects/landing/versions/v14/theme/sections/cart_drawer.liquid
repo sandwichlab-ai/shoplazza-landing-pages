@@ -1,0 +1,97 @@
+{% if settings.cart_type == 'drawer' or settings.cart_style == 'drawer' %}
+  {% include 'cart_drawer_css' %}
+  {% include 'cart_countdown_template' %}
+
+  <spz-sidebar class="flex flex-col bg-white" id="cart-drawer-modal" layout="nodisplay" side="right" hidden @open="cart-drawer-summary-sticky-render.toggleClass(class='open', force=true);cart-drawer-summary-sticky-observer.restart()" @beforeClose="cart-drawer-summary-sticky-render.toggleClass(class='open', force=false);cart-drawer-summary-sticky-modal.close();" disable-unmount>
+    <header class="cart-drawer-header flex-shrink-0 flex items-center justify-between">
+      <h4 class="cart-drawer-title m-0 type-heading-font-family color-heading">
+        {{ 'i18n.bag.general.cart' | t }}
+      </h4>
+      <button class="clear flex p-2 cursor-pointer" @tap="cart-drawer-modal.close();" type="button">
+        {% include 'icon_cart_modal_close' %}
+      </button>
+    </header>
+
+    <spz-cart
+      id="cart-drawer"
+      layout="container"
+      empty-item="cart.line_items"
+      @mounted="cart-drawer-subtotal-render.rerender(data=event.cart);cart-drawer-summary-sticky-render.rerender(data=event.cart);cart-drawer-items-render.rerender(data=event.cart);"
+      @cartChange="cart-drawer-items-render.rerender(data=event.cart);cart-drawer-subtotal-render.rerender(data=event.cart);cart-drawer-summary-sticky-render.rerender(data=event.cart);"
+    >
+      <template><div></div></template>
+    </spz-cart>
+    <spz-event target-id="cart-drawer" target-api="render" event-name="dj.addToCart" layout="logic"></spz-event>
+
+    {% include 'loading', class: 'cart-drawer-loading', display: true %}
+    {% include 'cart_empty', class: 'cart-drawer-empty-container', button_class: 'cart-drawer-empty-btn w-full', is_cart_drawer: true %}
+
+    {% assign hasSubtotalBlock = false %}
+
+    <div class="cart-drawer-content flex-1 overflow-y-auto px-4" id="cart-drawer-content">
+      {% include 'cart_countdown', class: 'cart-drawer-countdown-wrapper' %}
+
+      {% for item in section.blocks %}
+        {% if item.type == 'items' %}
+          {% include 'cart_drawer_items', actionId: 'cart-drawer' %}
+        {% elsif item.type == 'subtotal' %}
+          {% assign hasSubtotalBlock = true %}
+          {% include 'cart_drawer_subtotal' %}
+        {% elsif item.type contains '//apps' %}
+          {% render item %}
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <div class="cart-drawer-summary-sticky-compensation-container" id="cart-drawer-summary-sticky-compensation-container"></div>
+  </spz-sidebar>
+
+  {% if hasSubtotalBlock %}
+    {% include 'cart_drawer_summary_sticky' %}
+  {% endif %}
+{% endif %}
+
+{% schema %}
+{
+  "name": "cart_drawer",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "items",
+      "limit": 1,
+      "name": {
+        "en-US": "Items",
+        "zh-CN": "商品"
+      },
+      "settings": []
+    },
+    {
+      "type": "subtotal",
+      "limit": 1,
+      "name": {
+        "en-US": "Subtotal",
+        "zh-CN": "小计"
+      },
+      "settings": []
+    }
+  ],
+  "presets": [
+    {
+      "name": "cart_drawer",
+      "cname": {
+        "en-US": "Cart drawer",
+        "zh-CN": "抽屉购物车"
+      },
+      "category": {
+        "en-US": "Cart",
+        "zh-CN": "购物车"
+      },
+      "display": false,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,47 @@
+{% assign enable_estimated_delivery_time = item.settings.enable_estimated_delivery_time %}
+{% if enable_estimated_delivery_time == nil %}
+  {% assign enable_estimated_delivery_time = false %}
+{% endif %}
+
+{% assign enable_free_shipping_tip = item.settings.enable_free_shipping_tip %}
+{% if enable_free_shipping_tip == nil %}
+  {% assign enable_free_shipping_tip = true %}
+{% endif %}
+
+{% assign postage_free_amount = item.settings.postage_free_amount | market_rate_exchange | minus: 0 %}
+{% unless postage_free_amount > 0 %}
+  {% assign enable_free_shipping_tip = false %}
+{% endunless %}
+
+{% assign minimum_days = item.settings.minimum_days %}
+{% assign maximum_days = item.settings.maximum_days %}
+
+{% if minimum_days == nil %}
+  {% assign minimum_days = 3 %}
+{% endif %}
+
+{% if maximum_days == nil %}
+  {% assign maximum_days = 7 %}
+{% endif %}
+
+{% unless minimum_days and maximum_days and minimum_days >= 0 and maximum_days >= 0 and minimum_days < maximum_days %}
+  {% assign enable_estimated_delivery_time = false %}
+{% endunless %}
+
+{% if enable_estimated_delivery_time or enable_free_shipping_tip %}
+  <div class="product-info-shipping-container mt-4 lg:mt-5" {{ block.shoplaza_attributes }}>
+    <div class="flex items-center">
+      {% include 'icon_shipping_style', fill_color: settings.color_cart_dot_bg, icon_class: 'flex-shrink-0' %}
+      <span class="ml-2 leading-1.2">{{ 'i18n.bag.general.shipping' | t }}</span>
+    </div>
+
+    {% if enable_estimated_delivery_time %}
+      {% include 'product_info_delivery_time' %}
+    {% endif %}
+
+    {% if enable_free_shipping_tip %}
+      {% include 'product_info_free_shipping' %}
+    {% endif %}
+  </div>
+{% endif %}
+

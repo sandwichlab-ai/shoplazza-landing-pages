@@ -1,0 +1,248 @@
+{% assign mobile_columns = section.settings.columns_mobile %}
+{% assign mobile_rows = section.settings.mobile_rows | default: 2 %}
+{% assign pc_columns = section.settings.pc_columns %}
+{% assign pc_rows = section.settings.rows %}
+{% assign show_view_more_button = section.settings.button_on %}
+
+{% assign pc_limit = pc_columns | times: pc_rows %}
+{% assign mobile_limit = mobile_columns | times: mobile_rows %}
+
+{% include 'card_spacing_css' %}
+{% include 'products_tab_css' %}
+
+<spz-tabs class="page-container" layout="container">
+  <ul class="products-tabs clear hide-scrollbar flex items-center type-heading-font-family" role="tabs">
+    {% for item in section.blocks %}
+      {% assign collectionId = item.settings.collection.id %}
+      {% assign currentCollection = collections[collectionId] %}
+      {% if currentCollection.id or item.settings.title %}
+        <li class="opacity-50 cursor-pointer" role="tab" data-panel="{{section.id}}-{{forloop.index}}-panel" {% if forloop.index == 1 %} active {% endif %} {{ item.shoplaza_attributes }}>
+          {{ item.settings.title | default: currentCollection.title | escape }}
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+
+  {% for item in section.blocks %}
+    {% assign collectionId = item.settings.collection.id %}
+    {% assign currentCollection = collections[collectionId] %}
+    {% unless currentCollection.id %}
+      {% assign currentCollection = default_collection %}
+    {% endunless %}
+
+    {% assign outerIndex = forloop.index0 %}
+
+    <div class="flex flex-col" role="tabpanel" data-id="{{section.id}}-{{forloop.index}}-panel" {% if forloop.index == 1 %} active {% endif %} {{ item.shoplaza_attributes }}>
+      <div class="md:hidden grid grid-cols-{{ pc_columns }} gap-x-10 gap-y-11 mt-7">
+        {% for product in currentCollection.products limit: pc_limit %}
+          {% assign ssrIndex = -1 %}
+          {% if outerIndex == 0 and forloop.index0 == 0 %}
+            {% assign ssrIndex = 0 %}
+          {% endif %}
+
+          {% include 'product', card_product: product, ssrIndex: ssrIndex, s_columns: pc_columns, s_breakpoint: 3, s_common_columns: 4 %}
+        {% endfor %}
+      </div>
+      <div class="lg:hidden grid grid-cols-{{ mobile_columns }} gap-x-4 gap-y-6 mt-5">
+        {% for product in currentCollection.products limit: mobile_limit %}
+          {% assign mobileSsrIndex = -1 %}
+          {% if outerIndex == 0 and forloop.index0 == 0 %}
+            {% assign mobileSsrIndex = 0 %}
+          {% endif %}
+          {% assign mobileSizeRatio = mobile_columns | plus: 1 %}
+
+          {% include 'product', card_product: product, label_type: 'md', ssrIndex: mobileSsrIndex, sizeRatio: mobileSizeRatio %}
+        {% endfor %}
+      </div>
+
+      {% if show_view_more_button %}
+        <a class="flex justify-center items-center mx-auto color-body no-underline cursor-pointer mt-5 lg:mt-8" {% include 'link', link: currentCollection %}>
+          <span class="body-plus-2 cursor-pointer leading-1.5">{{ 'i18n.general.view.view_more' | t }}</span>
+          {% include "icon_arrow_tip_right", icon_class: 'products-tab-view-more-icon flex items-center' %}
+        </a>
+      {% endif %}
+    </div>
+  {% endfor %}
+</spz-tabs>
+
+{% schema %}
+{
+  "name": "products_tab",
+  "max_blocks": 5,
+  "settings": [
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": {
+        "en-US": "Products per row on mobile",
+        "zh-CN": "移动端每行商品数量"
+      },
+      "default": 2,
+      "options": [
+        {
+          "value": 1,
+          "label": {
+            "en-US": "Large grid",
+            "zh-CN": "一栏"
+          }
+        },
+        {
+          "value": 2,
+          "label": {
+            "en-US": "Small grid",
+            "zh-CN": "两栏"
+          }
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "mobile_rows",
+      "step": 1,
+      "max": 5,
+      "min": 1,
+      "label": {
+        "en-US": "Rows of products on mobile",
+        "zh-CN": "移动端商品行数"
+      },
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "pc_columns",
+      "step": 1,
+      "max": 6,
+      "min": 2,
+      "label": {
+        "en-US": "Products per row on desktop",
+        "zh-CN": "PC端每行商品数量"
+      },
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "rows",
+      "step": 1,
+      "max": 5,
+      "min": 1,
+      "label": {
+        "en-US": "Rows of products on desktop",
+        "zh-CN": "PC端商品行数"
+      },
+      "default": 1
+    },
+    {
+      "type": "checkbox",
+      "id": "button_on",
+      "label": {
+        "en-US": "Show view more button",
+        "zh-CN": "开启‘View more’按钮"
+      },
+      "default": true
+    },
+    {
+      "type": "spacing",
+      "id": "spacing",
+      "label": {
+        "en-US": "Spacing",
+        "zh-CN": "间距留白"
+      },
+      "pc": {
+        "top": "40",
+        "right": "",
+        "bottom": "40",
+        "left": ""
+      },
+      "mobile": {
+        "top": "20",
+        "right": "",
+        "bottom": "20",
+        "left": ""
+      },
+      "default": {
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        }
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection_block",
+      "name": {
+        "en-US": "Product tab",
+        "zh-CN": "商品切换"
+      },
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": {
+            "en-US": "Title",
+            "zh-CN": "标题"
+          },
+          "default": "Featured collection"
+        },
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": {
+            "en-US": "Collection",
+            "zh-CN": "专辑"
+          }
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "products_tab",
+      "cname": {
+        "en-US": "Products tab",
+        "zh-CN": "商品切换"
+      },
+      "category": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "ccategory": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "blocks": [
+        {
+          "type": "collection_block",
+          "settings": {
+            "title": "Featured collection",
+            "collection": ""
+          }
+        },
+        {
+          "type": "collection_block",
+          "settings": {
+            "title": "Featured collection",
+            "collection": ""
+          }
+        },
+        {
+          "type": "collection_block",
+          "settings": {
+            "title": "Featured collection",
+            "collection": ""
+          }
+        }
+      ],
+      "display": true
+    }
+  ]
+}
+{% endschema %}

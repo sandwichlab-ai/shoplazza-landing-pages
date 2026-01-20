@@ -1,0 +1,146 @@
+{% assign firstLinksAfterFormat = "" %}
+
+{% assign firstLinks = linklists[menu.id].links %}
+
+{% for firstLink in firstLinks %}
+
+  {% assign firstTitleEscape = firstLink.title | escape | default: "" | json %}
+  {% assign firsTitleUpcase = firstLink.title | upcase | default: ""  %}
+  {% assign firstUrl = firstLink.url | default: ""  | json %}
+  {% assign firstUrlTarget = firstLink.target | default: "" | json %}
+  {% assign firstLevel = firstLink.levels | default: "" | json %}
+  {% assign firstType = firstLink.type | default: "" | json %}
+  
+  {% assign link_source_id = firstLink.object.source_id %}
+  {% assign firstId = firstLink.id | default: "" %}
+  {% assign secondLinks = linklists[firstId].links %}
+  {% assign menuTag = menu_tags[firsTitleUpcase] %}
+
+  {% assign product0 = '' %}
+
+  {% assign isFullscreen = false %}
+
+  {% if section.settings.show_product and firstLink.type == 'collection'  and link_source_id and secondLinks  %}
+    {% assign product0 = collections[link_source_id].products[0] %}
+  {% endif %}
+
+  {% assign firstId = firstId | json %}
+
+  {% assign new_first_link_item = "{" %}
+
+  {% assign new_first_link_item = new_first_link_item | append: '"title": ' | append: firstTitleEscape | append: ',' %}
+  {% assign new_first_link_item = new_first_link_item | append: '"url": ' | append: firstUrl | append: ',' %}
+  {% assign new_first_link_item = new_first_link_item | append: '"id": "' | append: firstId | append: '",'%}
+  {% assign new_first_link_item = new_first_link_item | append: '"target": ' | append: firstUrlTarget | append: ',' %}
+  {% assign new_first_link_item = new_first_link_item | append: '"type": ' | append: firstType | append: ',' %}
+  {% assign new_first_link_item = new_first_link_item | append: '"levels": ' | append: firstLevel | append: ',' %}
+
+  {% if menuTag %}
+    {% assign menu_tag_str = menuTag | json %}
+    {% assign new_first_link_item = new_first_link_item | append: '"menuTag": ' | append: menu_tag_str | append: ',' %}
+  {% endif %}
+
+  {% if product0 %}
+    {% assign isFullscreen = true %}
+    {% assign product0_str = product0 | json %}
+    {% assign new_first_link_item = new_first_link_item | append: '"product0": ' | append: product0_str | append: ',' %}
+  {% endif %}
+
+  {% if secondLinks %}
+    {% assign new_first_link_item = new_first_link_item | append: '"hasChildMenu": ' | append: "true" | append: ',' %}
+    {% assign new_second_links = "" %}
+    {% for secondLink in secondLinks %}
+
+      {% assign secondTitleEscape = secondLink.title | escape  | default: "" | json %}
+      {% assign secondTitleUpcase = secondLink.title | upcase | default: ""  %}
+      {% assign secondUrl = secondLink.url | default: ""  | json %}
+      {% assign secondUrlTarget = secondLink.target | default: "" | json %}
+      {% assign seconddId = secondLink.id | default: "" %}
+      {% assign menuTag = menu_tags[secondTitleUpcase] %}
+      {% assign second_link_source_id = secondLink.object.source_id %}
+
+      {% assign thirdLinks = linklists[seconddId].links %}
+
+      {% assign new_second_link_item =  '{"title": ' | append: secondTitleEscape | append: ','  %}
+
+      {% if menuTag %}
+        {% assign menu_tag_str = menuTag | json %}
+        {% assign new_second_link_item = new_second_link_item | append: '"menuTag": ' | append: menu_tag_str | append: ',' %}
+      {% endif %}
+
+      {% if thirdLinks %}
+        {% assign isFullscreen = true %}
+        {% assign new_first_link_item = new_first_link_item | append: '"hasThirdMenu": ' | append: "true" | append: ',' %}
+        {% assign new_third_links = "" %}
+
+        {% for thirdLink in thirdLinks %}
+          {% assign thirdTitleEscape = thirdLink.title | escape  | default: "" | json %}
+          {% assign thirdTitleUpcase = thirdLink.title | upcase | default: ""  %}
+          {% assign thirdUrl = thirdLink.url | default: ""  | json %}
+          {% assign thirdUrlTarget = thirdLink.target | default: "" | json %}
+          {% assign thirdId = thirdLink.id | default: ""  %}
+          {% assign thirdType = thirdLink.type | default: ""  %}
+          {% assign third_link_source_id = thirdLink.object.source_id %}
+          {% assign menuTag = menu_tags[thirdTitleUpcase] %}
+
+          {% assign new_third_link_item = '{"title": ' | append: thirdTitleEscape | append: ','  %}
+
+          {% if menuTag %}
+            {% assign menu_tag_str = menuTag | json %}
+            {% assign new_third_link_item = new_third_link_item | append: '"menuTag": ' | append: menu_tag_str | append: ',' %}
+          {% endif %}
+
+          {% assign new_third_link_item = new_third_link_item | append: '"url": ' | append: thirdUrl | append: ',' %}
+          {% assign new_third_link_item = new_third_link_item | append: '"id":"' | append: thirdId | append: '",'%}
+          {% assign new_third_link_item = new_third_link_item | append: '"type":"' | append: thirdType | append: '",'%}
+          {% assign new_third_link_item = new_third_link_item | append: '"link_source_id": "' | append: third_link_source_id | append: '",' %}
+          {% assign new_third_link_item = new_third_link_item | append: '"target": ' | append: thirdUrlTarget | append: '}'%}
+
+          {% if new_third_links == "" %}
+            {% assign new_third_links = new_third_link_item %}
+          {% else %}
+            {% assign new_third_links = new_third_links | append: "," | append: new_third_link_item %}
+          {% endif %}
+
+        {% endfor %}
+
+        {% assign new_third_links = "[" | append: new_third_links | append: "]" %}
+
+        {% assign new_second_link_item = new_second_link_item | append: '"thirdLinks": ' | append: new_third_links | append: ',' %}
+
+      {% endif %}
+
+      {% assign new_second_link_item = new_second_link_item | append: '"url": ' | append: secondUrl | append: ',' %}
+      {% assign new_second_link_item = new_second_link_item | append: '"id":"' | append: seconddId | append: '",'%}
+      {% assign new_second_link_item = new_second_link_item | append: '"link_source_id": "' | append: second_link_source_id | append: '",' %}
+      {% assign new_second_link_item = new_second_link_item | append: '"target": ' | append: secondUrlTarget | append: '}'%}
+
+      {% if new_second_links == "" %}
+        {% assign new_second_links = new_second_link_item %}
+      {% else %}
+        {% assign new_second_links = new_second_links | append: "," | append: new_second_link_item %}
+      {% endif %}
+
+    {% endfor %}
+
+    {% assign new_second_links = "[" | append: new_second_links | append: "]" %}
+
+    {% assign new_first_link_item = new_first_link_item | append: '"secondLinks": ' | append: new_second_links  | append: ',' %}
+
+  {% endif %}
+
+  {% if isFullscreen %}
+    {% assign new_first_link_item = new_first_link_item | append: '"isFullscreen": ' | append: 'true' | append: ',' %}
+  {% endif %}
+  
+  {% assign new_first_link_item = new_first_link_item | append: '"link_source_id": "' | append: link_source_id | append: '" }' %}
+
+  {% if firstLinksAfterFormat == "" %}
+    {% assign firstLinksAfterFormat = new_first_link_item %}
+  {% else %}
+    {% assign firstLinksAfterFormat = firstLinksAfterFormat | append: "," | append: new_first_link_item %}
+  {% endif %}
+
+{% endfor %}
+
+{{ "[" | append: firstLinksAfterFormat | append: "]" }}

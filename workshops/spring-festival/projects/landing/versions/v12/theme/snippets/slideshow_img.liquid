@@ -1,0 +1,36 @@
+{% comment %} pc {% endcomment %}
+<div class="md:hidden relative w-full {{container_class}} {% unless section.settings.full_page %} rounded-global-small overflow-hidden {% endunless %}" style="padding-bottom: {% if img %}{{ img.height | divided_by : img.width | times: 100 | plus: section.settings.pc_height }}{% else %}{{ 40.404 | plus: section.settings.pc_height }}{% endif %}%;">
+  <spz-img
+    class="absolute w-full h-full object-cover"
+    layout='responsive'
+    width='36'
+    height='36'
+    src='{{ img.src | img_url }}'
+    alt='{{ img.alt | default: heading | escape }}'
+    object-fit='cover'
+    object-position='{{item.settings.img_position}}'
+    auto-fit
+    {% if forloop.index0 == 0 %}
+      ssr
+      size-ratio="1"
+    {% endif %}
+  ></spz-img>
+</div>
+{% comment %} mobile {% endcomment %}
+<div class="lg:hidden relative w-full {{container_class}} {% unless section.settings.full_page %} rounded-global-small overflow-hidden {% endunless %}" style="padding-bottom: {% if img %}{{ mobile_img.height | divided_by : mobile_img.width | times: 100 | plus: section.settings.mobile_height }}{% else %}{{ 80 | plus: section.settings.mobile_height }}{% endif %}%;">
+  <spz-img
+    class="absolute w-full h-full object-cover"
+    layout='responsive'
+    width='36'
+    height='36'
+    src='{{ mobile_img.src | img_url }}'
+    alt='{{ mobile_img.alt | default: heading | escape }}'
+    object-fit='cover'
+    object-position='{{item.settings.img_position}}'
+    auto-fit
+    {% if forloop.index0 == 0 %}
+      ssr
+      size-ratio="1"
+    {% endif %}
+  ></spz-img>
+</div>

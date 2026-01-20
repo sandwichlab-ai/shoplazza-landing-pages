@@ -1,0 +1,88 @@
+<!doctype html>
+<html class="no-js" lang="{{ shop.locale }}" {% if shop.locale == "ar-SA" %}dir="rtl"{% endif %}>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+    <title>{{ page_title | default: shop.name }}</title>
+    <meta name="keywords" content="{{ page_keyword | default: shop.name | escape }}">
+    <meta name="description" content="{{ page_description | default: shop.name | escape | truncatebytes: 320, '' }}">
+    <meta http-equiv="x-dns-prefetch-control" content="on">
+    <link rel="dns-prefetch" href="{{shop.cdn_domain}}">
+    <link rel="preconnect" href="{{shop.cdn_domain}}">
+    <link rel="dns-prefetch" href="{{shop.image_domain}}">
+    <link rel="preconnect" href="{{shop.image_domain}}">
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="shortcut icon" href="{{shop.favicon}}">
+    <meta name="theme-color" content="{{ settings.color_primary }}">
+    <meta name="format-detection" content="telephone=no, email=no">
+    {{ settings.type_heading_font_family | font_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+    {{ settings.type_text_font_family | font_url | preload_tag: as: 'font', type: 'font/woff2', crossorigin: 'anonymous' }}
+    {% include 'social_meta_tags' %}
+    {% include 'runtime' %}
+    {% include 'settings' %}
+    {% include 'theme_css' %}
+    <script>
+      window.SHOP_PARAMS = {
+        product_lang:{
+          added_to_cart_successfully:{{ 'i18n.product.product_detail.added_to_bag_successfully' | t  | json }},
+          view_cart:{{ 'i18n.product.product_detail.view_cart' | t  | json }},
+          select_variant:{{ 'i18n.product.product_detail.select_variant' | t | json}},
+          line_items_variant_withdraw: {{ 'i18n.bag.errors.not_in_stock' | t | json }},
+          line_items_variant_sold_out: {{ 'i18n.bag.errors.sold_out' | t | json }},
+          product_reorder: {{ 'i18n.bag.errors.reorder' | t | json }}
+        },
+        product_settings: {
+          add_to_cart_process:{{ settings.cart_style | default: "page" | json }},
+        }
+      }
+      window.breakpoint = {{settings.breakpoint}};
+      window.disabled_exts = ["bootstrap", "image_video", "social_login", "global_version", "share_product", "boowc", "paypal_express"];
+    </script>
+    {{ content_for_header }}
+    {% if settings.custom_css %}
+      <style>{{settings.custom_css}}</style>
+    {% endif %}
+    <script async crossorigin="anonymous" src="{{shop.cdn_domain}}cuttlefish/v1/spz.min.js"></script>
+  </head>
+  {% assign btn_hover_effect = settings.btn_hover_effect | default: 'enlarge_hover' %}
+  <body class="nova template-{{template.name}} m-0 type-text-font-family leading-1.3" id="nova-theme" {% if btn_hover_effect %} data-button-hover-animation={{ btn_hover_effect }}{% endif %}>
+    {% if template.name == 'product' %}
+      <script
+        id="product-json"
+        data-id="{{ product.id }}"
+        type="application/json">
+        {
+          "product": {{ product | json: "description,meta_description,meta_keyword,meta_title,brief" }},
+          "selected":
+          {% if product.selected_or_first_available_variant == nil %}{}
+          {% else %}
+            {{ product.selected_or_first_available_variant | json }}
+          {% endif %}
+        }
+      </script>
+
+      <spz-recently-viewed layout="container" count="8" product-id="{{ product.id }}"></spz-recently-viewed>
+    {% endif %}
+    {% include 'top_button' %}
+    {% include 'product_snippet_template' %}
+    <div class="page_container">
+      {% section 'announcement' %}
+      {% section 'header' %}
+      {%- comment -%} 弹窗公告插件 {%- endcomment -%}
+      <div class="plugin__static-div"></div>
+      <div class="main-content" id="main-content">
+        {% include 'breadcrumbs' %}
+        {{ content_for_layout }}
+      </div>
+      {% section 'footer' %}
+      {% section 'cart_drawer' %}
+    </div>
+    {{ content_for_js }}
+    {% include 'structured_data' %}
+    {% include 'toast' %}
+    {% include 'add_cart_toast' %}
+    {% include 'quick_shop' %}
+    {% include 'atc_event' %}
+  </body>
+</html>

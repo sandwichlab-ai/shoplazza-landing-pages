@@ -1,0 +1,306 @@
+{% render 'css_form' %}
+<style>
+  @media (min-width: {{settings.breakpoint}}px) {
+    .register-page {
+      width: calc(420px + var(--page-spacing) * 2);
+      padding: 160px 0;
+    }
+    .guest_login {
+      margin-top: 28px;
+      padding-top: 68px;
+      border-top: 1px solid #EAEAEA;
+      text-align: center;
+    }
+  }
+  .register-page {
+    padding: 20px var(--page-spacing);
+  }
+  .register_subtitle {
+    opacity: 0.75;
+    margin: 24px 0 20px;
+  }
+  .login_resetpw {
+    text-align: right;
+    display: block;
+    line-height: 20px;
+    text-decoration: none;
+    color: var(--color-body-text);
+  }
+  .social-login-container { padding: 24px 0; }
+  spz-social-login + spz-social-login { margin-left: 16px; }
+  .guest_login {
+    margin-top: 12px;
+    padding-top: 60px;
+  }
+  .guest_login_button {
+    margin: 24px auto 0;
+    width: 100%;
+    max-width: 240px;
+    height: 44px;
+    line-height: 44px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .login__form-password-actions {
+    z-index: 1;
+    position: absolute;
+    top: 10px;
+    right: 16px;
+    display: flex;
+    align-items: center;
+  }
+
+  .login__password-visibility-icon {
+    position: relative;
+    box-sizing: content-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    padding: 8px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .login__password-visibility-icon:not(.visible) .icon-eye,
+  .login__password-visibility-icon.visible .icon-eyelash {
+    display: none;
+  }
+
+  @media (max-width: 959.98px) {
+    .login__form-password-actions {
+      top: 2px;
+    }
+
+    .login-form__password-input {
+      padding-right: 96px;
+    }
+
+    .login__password-visibility-icon {
+      padding: 16px;
+      margin-right: -16px;
+    }
+  }
+</style>
+
+{% if shop.locale == 'ar-SA' %}
+  <style>
+    spz-social-login + spz-social-login {
+      margin-right: 16px;
+    }
+
+    html[dir='rtl'] .login__form-password-actions {
+      left: 16px;
+      right: unset;
+    }
+
+    @media (max-width: 959.98px) {
+      html[dir='rtl'] .login__password-visibility-icon {
+        margin-left: -16px;
+        margin-right: 0;
+      }
+
+      html[dir='rtl'] .login-form__password-input {
+        padding-left: 96px;
+        padding-right: 15px;
+      }
+    }
+  </style>
+{% endif %}
+
+{% comment %} get return_url and match checkout url {% endcomment %}
+{% assign return_url = null %}
+{% assign checkout_url = null %}
+{% assign params = REQUEST_URI | split: '?' | last | split: '&' %}
+{% for p in params %}
+  {% assign pair = p | split: '=' %}
+  {% if pair[0] contains '_returnUrl' and pair[1] != '' %}
+    {% assign return_url = pair[1] %}
+    {% assign decode_return_url = return_url | url_decode %}
+    {% assign checkout_arr = decode_return_url | split: 'checkout' %}
+    {% assign root_url = routes.root_url | default: '/' %}
+    {% if checkout_arr[0] == root_url %}
+      {% assign checkout_url = decode_return_url %}
+    {% endif %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% assign register_url = routes.account_register_url %}
+{% if return_url %}
+  {% assign register_url = register_url | append: '?_returnUrl=' | append: return_url %}
+{% endif %}
+
+<div class="page-container text-center register-page">
+  <h4 class="text-6 text-base">{{ 'i18n.customers.login.login_title' | t }}</h4>
+  <div class="register_subtitle text-base">{{ 'i18n.customers.login.login_tips' | t }}</div>
+  {% comment %} error tip area {% endcomment %}
+  <spz-render id="form-tips-login" layout="container" manual>
+    <template>
+      <div class="form-tips-text">${data.errors && data.errors[0]}</div>
+    </template>
+  </spz-render>
+
+  <form
+    id="login-form-{{section.id}}"
+    class="form flex flex-col"
+    method="POST"
+    action-xhr="{{ '/api/customers/sign_in' | add_root_url }}"
+    back-to-referrer
+    record-referrer
+    record-referrer-ignore="/account/login,/account/register"
+    custom-validation="change-interact-and-submit"
+    @submitError="form-tips-login.rerender(data=event);"
+  >
+    <div class="form_item">
+      <input
+        class="form_input"
+        id="email"
+        type="text"
+        name="email"
+        tabindex="1"
+        autofocus
+        required
+        pattern="[a-zA-Z0-9!#$%&'*+\/=?^_`\{\|\}~\-]+(?:\.[a-zA-Z0-9!#$%&'*+\/=?^_`\{\|\}~\-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?"
+      >
+      <label class="form_label" for="email">{{ 'i18n.customers.login.email' | t }}</label>
+      <div
+        class="form_item form-tips-error"
+        validation-for="email"
+        visible-when-invalid="valueMissing"
+        hidden
+      >
+        {% render 'icon_warning' %}
+        {{ 'i18n.customers.tips.email_is_required' | t }}
+      </div>
+      <div
+        class="form_item form-tips-error"
+        validation-for="email"
+        visible-when-invalid="patternMismatch"
+        hidden
+      >
+        {% render 'icon_warning' %}
+        {{ 'i18n.customers.tips.request_valid_email' | t }}
+      </div>
+    </div>
+    <div class="form_item">
+      <input
+        class="form_input login-form__password-input"
+        id="password"
+        type="password"
+        name="password"
+        tabindex="2"
+        required
+        minlength="6"
+        maxlength="16"
+        pattern="[\s\S]{6,16}"
+      >
+      <label class="form_label" for="password">{{ 'i18n.customers.login.password' | t }}</label>
+      <div
+        class="form_item form-tips-error"
+        validation-for="password"
+        visible-when-invalid="valueMissing"
+        hidden
+      >
+        {% render 'icon_warning' %}
+        {{ 'i18n.customers.tips.password_is_required' | t }}
+      </div>
+      <div
+        class="form_item form-tips-error"
+        validation-for="password"
+        visible-when-invalid="patternMismatch"
+        hidden
+      >
+        {% render 'icon_warning' %}
+        {{ 'i18n.customers.tips.length_is_required' | t }}
+      </div>
+      <div class="login__form-password-actions">
+        <i
+          class="login__password-visibility-icon"
+          id="login-form-icon-{{section.id}}"
+          @tap="login-form-{{section.id}}.togglePasswordVisibility(name='password');login-form-icon-{{section.id}}.toggleClass(class='visible');"
+        >
+          {% render 'icon_eye' %}
+          {% render 'icon_eyelash' %}
+        </i>
+        <a
+          class="md:hidden login_resetpw"
+          href="./resetpw"
+          data-track="dj.jumpToResetpw"
+          data-track-href="./resetpw"
+        >
+          {{ 'i18n.customers.login.forgot_password' | t }}
+        </a>
+      </div>
+    </div>
+
+    <a
+      class="lg:hidden login_resetpw mt-3"
+      href="./resetpw"
+      data-track="dj.jumpToResetpw"
+      data-track-href="./resetpw"
+    >
+      {{ 'i18n.customers.login.forgot_password' | t }}
+    </a>
+
+    <button class="form_submit button-primary" type="submit" tabindex="3">
+      {{ 'i18n.customers.login.login_btn' | t }}
+    </button>
+
+    <div class="footer_text">
+      <span>{{ 'i18n.customers.login.no_customer' | t }}</span>
+      <a href="{{ register_url }}" class="footer_text_link">
+        {{ 'i18n.customers.login.new_customer' | t }}
+      </a>
+    </div>
+  </form>
+
+  {%- comment -%} Social login {%- endcomment -%}
+  <spz-render layout="container" src="{{ '/api/customers/login_settings' | add_root_url }}">
+    <template>
+      <div class="social-login-container flex items-center justify-center">
+        ${ Object.keys((data && data.login_setting) || {}) .map(type => `<spz-social-login
+          layout="fixed"
+          width="24"
+          height="24"
+          type="${type}"
+          spz-if="${data.login_setting[type]}"
+        ></spz-social-login
+        >`) .join("") }
+      </div>
+    </template>
+  </spz-render>
+
+  {% comment %} tourist login {% endcomment %}
+  {% if checkout_url != null %}
+    <div class="guest_login">
+      <div>{{ 'i18n.customers.login.guest_login_title' | t }}</div>
+      <a href="{{ checkout_url }}" class="guest_login_button button-primary">
+        {{ 'i18n.customers.login.continue' | t }}
+      </a>
+    </div>
+  {% endif %}
+
+  {% render 'coupon_tips' %}
+</div>
+
+{% schema %}
+{
+  "name": "login",
+  "settings": [],
+  "presets": [
+    {
+      "name": "login",
+      "cname": {
+        "en-US": "Login",
+        "zh-CN": "登录"
+      },
+      "category": "导航",
+      "ccategory": "导航",
+      "display": false
+    }
+  ]
+}
+{% endschema %}

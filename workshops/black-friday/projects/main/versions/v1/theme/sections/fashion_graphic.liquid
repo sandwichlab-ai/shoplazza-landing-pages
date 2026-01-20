@@ -1,0 +1,262 @@
+{% assign image = section.settings.image %}
+{% assign image_width = section.settings.image_width %}
+{% assign layout = section.settings.layout %}
+{% assign enable_image_half_page_width = section.settings.enable_image_half_page_width %}
+
+{% include 'card_spacing_css' %}
+
+<style>
+  .fashion_graphic_desc {
+    align-items: center;
+    margin-top: 16px;
+  }
+
+  @media (min-width: {{ settings.breakpoint }}px) {
+    .fashion_graphic_img_container {
+      width: 50%;
+      display: flex;
+      justify-content: center;
+    }
+    .fashion_graphic_outer {
+      display: flex;
+    }
+    [data-section-id="{{ section.id }}"] .fashion_graphic_img {
+      width: {% if enable_image_half_page_width %}100%{% else %}{{ image_width }}px{% endif %};
+    }
+    .fashion_graphic_desc {
+      width: 50%;
+      align-items: flex-start;
+    }
+
+    {% comment %} layout: left {% endcomment %}
+    [data-section-id="{{ section.id }}"] .left {
+      flex-direction: row;
+    }
+    [data-section-id="{{ section.id }}"] .left .fashion_graphic_desc {
+      padding-left: 60px;
+      padding-right: 0;
+    }
+
+    {% comment %} layout: right {% endcomment %}
+    [data-section-id="{{ section.id }}"] .right {
+      flex-direction: row-reverse;
+    }
+    [data-section-id="{{ section.id }}"] .right .fashion_graphic_desc {
+      padding-left: 0;
+      padding-right: 60px;
+    }
+  }
+</style>
+
+<div class='fashion_graphic_outer page-container direction_ltr_self {{layout}}'>
+  {% include 'global_img', image: image, image_outer: 'fashion_graphic_img_container', image_class: 'fashion_graphic_img', ssrIndex: 0 %}
+  {% include 'global_text', container_class: 'fashion_graphic_desc' %}
+</div>
+
+{% schema %}
+{
+  "name": "fashion_graphic",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": {
+        "en-US": "Image",
+        "zh-CN": "图片"
+      }
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "label": {
+        "en-US": "Image width",
+        "zh-CN": "PC端图片宽度"
+      },
+      "unit": "px",
+      "step": 10,
+      "min": 100,
+      "max": 500,
+      "default": 500
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": {
+        "en-US": "Layout",
+        "zh-CN": "布局"
+      },
+      "options": [
+        {
+          "value": "left",
+          "label": {
+            "en-US": "Image on left",
+            "zh-CN": "图片在左"
+          }
+        },
+        {
+          "value": "right",
+          "label": {
+            "en-US": "Image on right",
+            "zh-CN": "图片在右"
+          }
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_image_half_page_width",
+      "label": {
+        "en-US": "Image half page width",
+        "zh-CN": "图片1/2屏宽度"
+      },
+      "default": false,
+      "info": {
+        "en-US": "When this function is turned on,  ' Image width'  is invalid",
+        "zh-CN": "当开启此功能，PC端图片宽度失效"
+      }
+    },
+    {
+      "type": "spacing",
+      "id": "spacing",
+      "label": {
+        "en-US": "Spacing",
+        "zh-CN": "间距留白"
+      },
+      "pc": {
+        "top": "40",
+        "right": "",
+        "bottom": "40",
+        "left": ""
+      },
+      "mobile": {
+        "top": "20",
+        "right": "",
+        "bottom": "20",
+        "left": ""
+      },
+      "default": {
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        }
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": {
+            "en-US": "Heading",
+            "zh-CN": "标题"
+          },
+          "default": "Image with text"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": {
+        "en-US": "Text",
+        "zh-CN": "文字"
+      },
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": {
+            "en-US": "Text",
+            "zh-CN": "文字"
+          },
+          "default": "Pair large text with an image to tell a story, explain a detail about your product, or describe a new promotion."
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": {
+        "en-US": "Button",
+        "zh-CN": "按钮"
+      },
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": {
+            "en-US": "Button text",
+            "zh-CN": "按钮文字"
+          },
+          "default": "Optional button"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": {
+            "en-US": "Button link",
+            "zh-CN": "按钮链接"
+          }
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "fashion_graphic",
+      "cname": {
+        "zh-CN": "图文",
+        "en-US": "Image with text"
+      },
+      "category": {
+        "en-US": "Image with text",
+        "zh-CN": "图文"
+      },
+      "ccategory": {
+        "en-US": "Image with text",
+        "zh-CN": "图文"
+      },
+      "icon": "oss/operation/94c9fa3d32bc04e19def767338159523.svg",
+      "display": true,
+      "blocks": [
+        {
+          "type": "heading",
+          "settings": {
+            "heading": "Image with text"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "Pair large text with an image to tell a story, explain a detail about your product, or describe a new promotion."
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "button_text": "Optional button"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

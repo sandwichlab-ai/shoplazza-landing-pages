@@ -1,0 +1,281 @@
+{% if section.blocks.size > 0 %}
+  <style>
+    .product-desc-container > section::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      height: 1px;
+      background-color: var(--color-border);
+    }
+
+    .product-desc-item-header {
+      padding: 16px;
+      user-select: none;
+      transition: background-color 0.2s cubic-bezier(0.445, 0.05, 0.55, 0.95);
+    }
+
+    .product-desc-item-header:hover,
+    .product-desc-item-header:active {
+      background-color: var(--color-primary-btn-bg);
+      color: var(--color-primary-btn-text);
+    }
+
+    .product-desc-item-header svg {
+      transition: transform 0.2s cubic-bezier(0.39, 0.575, 0.565, 1);
+    }
+
+    .product-desc-container > section[expanded] .product-desc-item-header svg {
+      transform: rotate(-180deg);
+    }
+
+    .product-desc-item-content {
+      padding: 8px var(--page-spacing) 16px;
+      color: var(--color-body-text-60);
+    }
+
+    @media (max-width: 959.98px) {
+      .product-desc-container > section::before {
+        transform: scaleY(0.5);
+      }
+    }
+
+    @media (min-width: 960px) {
+      .product-desc-container[data-full-width='false'] {
+        max-width: calc(50% + var(--page-spacing) * 2);
+      }
+
+      .product-desc-item-header {
+        padding: 20px 12px;
+      }
+
+      .product-desc-item-content {
+        padding: 8px 12px 20px;
+      }
+    }
+  </style>
+
+  <spz-accordion
+    class="product-desc-container lg:page-container"
+    data-full-width="{{ section.settings.open_full_page }}"
+    layout="container"
+    animate
+  >
+    {% for item in section.blocks %}
+      {% assign type = item.type %}
+      {% assign expand_style = item.settings.desc_style %}
+
+      {% if type == 'desc' %}
+        {% assign page_title = 'i18n.product.product_detail.product_description' | t %}
+        {% assign page_content = product.description %}
+      {% elsif type == 'custom' %}
+        {% assign page = pages[item.settings.page.id] %}
+        {% if item.settings.custom_content_heading or item.settings.custom_content_description %}
+          {% assign page_title = item.settings.custom_content_heading | default: 'title' | escape %}
+          {% assign page_content = item.settings.custom_content_description %}
+        {% elsif page %}
+          {% assign page_title = page.title | escape %}
+          {% assign page_content = page.content %}
+        {% endif %}
+      {% endif %}
+
+      {% if item.settings.custom_content_heading
+        or item.settings.custom_content_description
+        or page_title
+        and page_content
+      %}
+        <section
+          class="relative"
+          {% if expand_style == 'visible' %}
+            expanded
+          {% endif %}
+        >
+          <div class="product-desc-item-header flex items-center justify-between">
+            <h3 class="m-0 mr-4 font-semibold leading-1.25 body-base lg:body-plus-2">
+              {{ page_title }}
+            </h3>
+            {% render 'icon_arrow_down', icon_class: 'flex-shrink-0' %}
+          </div>
+
+          <div class="product-desc-item-content mce-content">
+            {{ page_content | spz_img }}
+          </div>
+        </section>
+      {% endif %}
+    {% endfor %}
+  </spz-accordion>
+{% endif %}
+
+{% schema %}
+{
+  "name": "product_description",
+  "class": "py-5 lg:mt-15",
+  "templates": ["product"],
+  "limit": 1,
+  "max_blocks": 4,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "open_full_page",
+      "label": {
+        "en-US": "Full page width",
+        "zh-CN": "全屏宽度"
+      },
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "desc",
+      "limit": 1,
+      "allow_delete": false,
+      "name": {
+        "en-US": "Description",
+        "zh-CN": "描述"
+      },
+      "settings": [
+        {
+          "type": "select",
+          "id": "desc_style",
+          "label": {
+            "en-US": "Description style",
+            "zh-CN": "描述风格"
+          },
+          "options": [
+            {
+              "label": {
+                "en-US": "Expandable",
+                "zh-CN": "可展开"
+              },
+              "value": "expand"
+            },
+            {
+              "label": {
+                "en-US": "Always visible",
+                "zh-CN": "一直可见"
+              },
+              "value": "visible"
+            }
+          ],
+          "default": "expand"
+        }
+      ]
+    },
+    {
+      "type": "custom",
+      "limit": 3,
+      "allow_delete": false,
+      "name": {
+        "en-US": "Custom content",
+        "zh-CN": "自定义内容"
+      },
+      "settings": [
+        {
+          "type": "select",
+          "id": "desc_style",
+          "label": {
+            "en-US": "Description style",
+            "zh-CN": "描述风格"
+          },
+          "options": [
+            {
+              "value": "expand",
+              "label": {
+                "en-US": "Expandable",
+                "zh-CN": "可展开"
+              }
+            },
+            {
+              "value": "visible",
+              "label": {
+                "en-US": "Always visible",
+                "zh-CN": "一直可见"
+              }
+            }
+          ],
+          "default": "expand"
+        },
+        {
+          "type": "header",
+          "info": {
+            "en-US": "When configuring text and page at the same time, text content will be displayed first. ",
+            "zh-CN": "同时配置文本、页面时，文本内容将优先展示。"
+          },
+          "content": {
+            "en-US": "Custom content",
+            "zh-CN": "自定义内容"
+          }
+        },
+        {
+          "type": "header",
+          "content": {
+            "en-US": "Text",
+            "zh-CN": "文本"
+          }
+        },
+        {
+          "type": "text",
+          "id": "custom_content_heading",
+          "label": {
+            "en-US": "Title",
+            "zh-CN": "标题"
+          },
+          "default": ""
+        },
+        {
+          "type": "richtext",
+          "id": "custom_content_description",
+          "label": {
+            "en-US": "Description",
+            "zh-CN": "文字"
+          },
+          "default": ""
+        },
+        {
+          "type": "header",
+          "content": {
+            "en-US": "Page",
+            "zh-CN": "页面"
+          }
+        },
+        {
+          "type": "page",
+          "id": "page",
+          "label": {
+            "en-US": "Custom content",
+            "zh-CN": "自定义内容"
+          }
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "product_description",
+      "cname": {
+        "en-US": "Description",
+        "zh-CN": "描述"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "ccategory": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": true,
+      "blocks": [
+        {
+          "type": "desc",
+          "settings": {
+            "desc_style": "expand"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

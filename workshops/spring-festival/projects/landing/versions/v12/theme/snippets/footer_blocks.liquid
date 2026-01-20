@@ -1,0 +1,277 @@
+{% if section.blocks.size > 0 %}
+  {% if section.settings.cart_page_display_footer_widgets or template.type != 13 %}
+    <style>
+      .footer__block{
+        flex-shrink: 0;
+      }
+      .footer__block.accordion .i-spzhtml-accordion-content{
+        overflow: hidden !important;
+      }
+      .footer__block a{
+        color: inherit;
+      }
+      .footer__block__header{
+        position: relative;
+        margin: 0;
+        font-weight: 700;
+        overflow-wrap: break-word;
+      }
+      .footer__block__header__icon{
+        position: absolute;
+        {% if shop.locale == "ar-SA" %}
+          left: 0;
+        {% else %}
+          right: 0;
+        {% endif %}
+        top: 20px;
+        transition: all 300ms;
+        transform: rotate(180deg);
+      }
+      .footer__block > [expanded] .footer__block__header__icon{
+        transform: rotate(0deg);
+      }
+      .footer__block__content{
+        margin: 0;
+        padding: 0 0 20px 0;
+        list-style-type: none;
+      }
+      .footer__block.not-accordion .footer__block__content{
+        padding: 20px 0;
+      }
+      @media (max-width: 959.98px) {
+        .footer__block{
+          line-height: 1.4;
+          text-align: center;
+        }
+        .footer__block-wrap + .footer__block-wrap{
+          border-top: 1px solid var(--color-footer-border);
+        }
+        .footer__block__header{
+          padding: 20px 30px;
+        }
+        .footer__block__content{
+          justify-content: center;
+        }
+      }
+      @media (min-width: 960px) {
+        .footer__blocks{
+          padding-top: 30px;
+          padding-bottom: 48px
+        }
+        .footer__block{
+          max-width: 258px;
+          {% if shop.locale == "ar-SA" %}
+            padding: 24px 0 0 72px;
+          {% else %}
+            padding: 24px 72px 0 0;
+          {% endif %}
+        }
+        .footer__block__header{
+          font-size: calc(var(--type-text-font-size) + 2px);
+        }
+        .footer__block__content{
+          padding: 16px 0 0 0;
+        }
+      }
+      {% comment %} block navigation {% endcomment %}
+      .footer__navigation__item + .footer__navigation__item{
+        padding-top: 18px;
+      }
+      @media (min-width: 960px) {
+        .footer__navigation__item + .footer__navigation__item{
+          padding-top: 10px;
+        }
+      }
+      {% comment %} block contact {% endcomment %}
+      .footer__contact__item{
+        display: flex;
+        align-items: flex-start;
+      }
+      .footer__contact__item + .footer__contact__item,
+      .footer__block__content div + .footer__contact__item-custom{
+        padding-top: 18px;
+      }
+      .footer__contact__item svg{
+        flex-shrink: 0;
+      }
+      .footer__contact__item a{
+        {% if shop.locale == "ar-SA" %}
+          margin-right: 8px;
+        {% else %}
+          margin-left: 8px;
+        {% endif %}
+      }
+      {% comment %} block social {% endcomment %}
+      .footer__block-social .footer__block__content{
+        display: flex;
+        flex-wrap: wrap;
+        margin: -18px -10px 0;
+      }
+      .footer__social__item{
+        display: flex;
+        padding: 18px 10px 0;
+      }
+      @media (min-width: 960px) {
+        .footer__block-social .footer__block__content{
+          margin: -12px -6px 0;
+        }
+        .footer__social__item{
+          padding: 12px 6px 0;
+        }
+      }
+      {% comment %} block payment {% endcomment %}
+      .footer__block-payment .footer__block__content{
+        display: flex;
+        flex-wrap: wrap;
+        margin: -18px -4px 0;
+      }
+      .footer__payment__item{
+        padding: 18px 4px 0;
+      }
+      .footer__payment__item svg{
+        display: flex;
+        width: 38px;
+        height: 24px;
+      }
+      @media (min-width: 960px) {
+        .footer__block-payment .footer__block__content{
+          margin: -8px -4px 0;
+        }
+        .footer__payment__item{
+          padding: 8px 4px 0;
+        }
+      }
+    </style>
+    <div class="footer__blocks">
+      <div class="page-container lg:flex lg:justify-center lg:flex-wrap">
+        {% for block in section.blocks %}
+          {% if block.type contains '//apps' %}
+            <div class="footer__block">
+              {% render block %}
+            </div>
+            {% continue %}
+          {% elsif block.type == 'navigation'  %}
+            {% assign menu = block.settings.menu %}
+            {% assign links = linklists[menu.id].links %}
+            {% assign link_title = linklists[menu.id].title['en-US'] | default: linklists[menu.id].title %}
+            {% assign title = block.settings.title | default: link_title %}
+            {% capture content %}
+              {% for link in links %}
+                <li class="footer__navigation__item">
+                  <a class="no-underline lg:body-plus-1" {% include 'link', link: link %}>
+                    {{ link.title }}
+                  </a>
+                </li>
+              {% endfor %}
+            {% endcapture %}
+            {% include 'footer_block_template', title, content_items_dom: content, has_content: links, block_class: '' %}
+          {% elsif block.type == 'contact_social' %}
+            {% comment %} contact {% endcomment %}
+            {% assign contact_title = block.settings.title %}
+            {% assign phone = block.settings.phone %}
+            {% assign contact_page = block.settings.contact_page %}
+            {% assign chat_link = block.settings.chat_link %}
+            {% assign custom_text = block.settings.custom_text %}
+            {% assign contact_text = block.settings.contact_text %}
+            {% assign chat_text = block.settings.chat_text %}
+            {% assign has_contact_content = false %}
+            {% if phone or contact_text or chat_text or custom_text %}
+              {% assign has_contact_content = true %}
+            {% endif %}
+            {% capture contact_content %}
+              {% if phone or contact_text or chat_text %}
+                <div class="inline-block">
+                  {% if phone %}
+                    <li class="footer__contact__item">
+                      {% include 'icon_phone' %}
+                      <a target="_blank" href="tel:{{ phone }}">{{ phone | escape }}</a>
+                    </li>
+                  {% endif %}
+                  {% if contact_text %}
+                    <li class="footer__contact__item">
+                      {% include 'icon_mail' %}
+                      <a {% include 'link', link: contact_page %}>{{ contact_text }}</a>
+                    </li>
+                  {% endif %}
+                  {% if chat_text %}
+                    <li class="footer__contact__item">
+                      {% include 'icon_message' %}
+                      <a {% include 'link', link: chat_link %}>{{ chat_text }}</a>
+                    </li>
+                  {% endif %}
+                </div>
+              {% endif %}
+              {% if custom_text %}
+                <li class="footer__contact__item-custom mce-content">{{ custom_text }}</li>
+              {% endif %}
+            {% endcapture %}
+            {% comment %} social {% endcomment %}
+            {% assign social_title = 'i18n.general.footer.follow_us' | t %}
+            {% assign facebook = block.settings.facebook %}
+            {% assign twitter = block.settings.twitter %}
+            {% assign pinterest = block.settings.pinterest %}
+            {% assign instagram = block.settings.instagram %}
+            {% assign snapchat = block.settings.snapchat %}
+            {% assign tiktok = block.settings.tiktok %}
+            {% assign tumblr = block.settings.tumblr %}
+            {% assign linkedin = block.settings.linkedin %}
+            {% assign youtube = block.settings.youtube %}
+            {% assign vimeo = block.settings.vimeo %}
+            {% assign has_social = false %}
+            {% if facebook or twitter or pinterest or instagram or snapchat or tiktok or tumblr or linkedin or youtube or vimeo %}
+              {% assign has_social = true %}
+            {% endif %}
+            {% capture social_content %}
+              {% if facebook %}
+                <li class="footer__social__item"><a {% include 'link', link: facebook %} target="_blank" data-track-href="{{ facebook }}" data-track-event="jumpAddress">{% include 'icon_facebook' %}</a></li>
+              {% endif %}
+              {% if twitter %}
+                <li class="footer__social__item"><a {% include 'link', link: twitter %} target="_blank" data-track-href="{{ twitter }}" data-track-event="jumpAddress">{% include 'icon_twitter' %}</a></li>
+              {% endif %}
+              {% if pinterest %}
+                <li class="footer__social__item"><a {% include 'link', link: pinterest %} target="_blank" data-track-href="{{ pinterest }}" data-track-event="jumpAddress">{% include 'icon_pinterest' %}</a></li>
+              {% endif %}
+              {% if instagram %}
+                <li class="footer__social__item"><a {% include 'link', link: instagram %} target="_blank" data-track-href="{{ instagram }}" data-track-event="jumpAddress">{% include 'icon_instagram' %}</a></li>
+              {% endif %}
+              {% if snapchat %}
+                <li class="footer__social__item"><a {% include 'link', link: snapchat %} target="_blank" data-track-href="{{ snapchat }}" data-track-event="jumpAddress">{% include 'icon_snapchat' %}</a></li>
+              {% endif %}
+              {% if tiktok %}
+                <li class="footer__social__item"><a {% include 'link', link: tiktok %} target="_blank" data-track-href="{{ tiktok }}" data-track-event="jumpAddress">{% include 'icon_tiktok' %}</a></li>
+              {% endif %}
+              {% if tumblr %}
+                <li class="footer__social__item"><a {% include 'link', link: tumblr %} target="_blank" data-track-href="{{ tumblr }}" data-track-event="jumpAddress">{% include 'icon_tumblr' %}</a></li>
+              {% endif %}
+              {% if linkedin %}
+                <li class="footer__social__item"><a {% include 'link', link: linkedin %} target="_blank" data-track-href="{{ linkedin }}" data-track-event="jumpAddress">{% include 'icon_linkedin' %}</a></li>
+              {% endif %}
+              {% if youtube %}
+                <li class="footer__social__item"><a {% include 'link', link: youtube %} target="_blank" data-track-href="{{ youtube }}" data-track-event="jumpAddress">{% include 'icon_youtube' %}</a></li>
+              {% endif %}
+              {% if vimeo %}
+                <li class="footer__social__item"><a {% include 'link', link: vimeo %} target="_blank" data-track-href="{{ vimeo }}" data-track-event="jumpAddress">{% include 'icon_vimeo' %}</a></li>
+              {% endif %}
+            {% endcapture %}
+            {% if contact_title or has_contact_content or has_social %}
+              <div class="footer__block-wrap" {{block.shoplaza_attributes}}>
+                {% include 'footer_block_template', title: contact_title, content_items_dom: contact_content, has_content: has_contact_content, block_class: 'footer__block-contact' %}
+                {% if has_social %}
+                  {% include 'footer_block_template', title: social_title, content_items_dom: social_content, has_content: has_social, block_class: 'footer__block-social' %}
+                {% endif %}
+              </div>
+            {% endif %}
+          {% elsif block.type == 'payment' %}
+            {% render 'footer_payments' %}
+          {% elsif block.type == 'languages' %}
+            {% assign title = block.settings.title %}
+            {% capture content %}
+              <div class="plugin__translate-footer"></div>
+            {% endcapture %}
+            {% include 'footer_block_template', title, content_items_dom: content, has_content: true, block_class: '' %}
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+{% endif %}

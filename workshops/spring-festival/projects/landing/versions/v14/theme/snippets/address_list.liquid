@@ -1,0 +1,84 @@
+<div class='page-container py-12 flex flex-col' id="addressList">
+    <div class='title-color text-6 text-center address_title'>{{ 'i18n.customers.address_book.address_book' | t }}</div>
+    <spz-list
+      class='addresses_list'
+      id='addressesList'
+      layout='container'
+      total='count'
+      size='per_page'
+      page-size='40'
+      list='addresses'
+      src='{{ addressUrl }}?per_page=40'
+      @error="SPZ.navigateTo(url='{{ routes.account_login_url }}');"
+    >
+      <template>
+        <div class='address_item_container relative flex flex-col justify-between'>
+            <div class='default_tag' spz-if='${data.is_default}'>
+              {% include 'icon_tick', icon_class: 'default_tag_svg', box_bg: 'transparent', right_color: 'currentColor'  %}
+            </div>
+            <div class='address_item_content flex flex-col'>
+              <div>
+                <span spz-if='${!!data.first_name}'>${data.first_name}</span>
+                <span spz-if='${!!data.last_name}'>${data.last_name}</span>
+              </div>
+              <div spz-if='${!!data.address}'>${data.address}</div>
+              <div spz-if='${!!data.address1}'>${data.address1}</div>
+              <div spz-if="${!!(data.province == 'ALL')}">
+                <span spz-if='${!!data.city}'>${data.city}</span>
+                <span spz-if='${!!data.area}'>${data.area}</span>
+                <span spz-if='${!!data.zip}'>${data.zip}</span>
+              </div>
+              <div spz-if="${!(data.province == 'ALL')}">
+                <span spz-if='${!!data.province}'>${data.province}</span>
+                <span spz-if='${!!data.city}'>${data.city}</span>
+                <span spz-if='${!!data.area}'>${data.area}</span>
+                <span spz-if='${!!data.zip}'>${data.zip}</span>
+              </div>
+              <div spz-if='${!!data.country}'>${data.country}</div>
+              <div spz-if='${!!data.email}'>${data.email}</div>
+              <div spz-if='${!!data.company}'>${data.company}</div>
+              <div spz-if='${!!data.phone}'>
+                ${(function() { 
+                  const phoneAreaCode = '+' + (data.phone_area_code || '').replace(/.*_/ ,""); 
+                  const hasAreaCode = (data.phone || '').startsWith(phoneAreaCode); 
+                  return hasAreaCode ? '' :phoneAreaCode; 
+                  })()} 
+                  ${data.phone}
+              </div>
+            </div>
+            <div class='pt-5'>
+              <span
+                class='cursor-pointer underline'
+                @tap="addressList.toggleClass(class='hidden', force=true);addressEdit.toggleClass(class='hidden', force=false);addressEditForm.init(initialXhr='{{ addressUrl }}/${data.id}', actionXhr='{{ addressUrl }}/${data.id}');addressEdit.scrollTo(position='top');${data.is_default?`edit_address_default.toggleClass(class='hidden_important',force=true)`:`edit_address_default.toggleClass(class='hidden_important',force=false)`}"
+              >
+                {{ 'i18n.customers.address_book.edit' | t }}
+              </span>
+              <span class='px-3 cursor-pointer underline' @tap="addressesDeleteForm.submit(actionXhr='{{ addressUrl }}/${data.id}');">{{ 'i18n.customers.address_book.delete' | t }}</span>
+            </div>
+          </div>
+      </template>
+    </spz-list>
+
+    <div class="address_nav text-center">
+      <button class='add_address body-plus-2 button-primary md:hidden' @tap="addressList.toggleClass(class='hidden', force=true);addressAdd.toggleClass(class='hidden', force=false);addressAdd.scrollTo(position='top');">{{ 'i18n.customers.address_book.add_new_address' | t }}</button>
+    </div>
+
+    <div class="address_empty text-center hidden">
+      <div class="body-plus-4 empty_text">{{ 'i18n.customers.address_book.no_address' | t }}</div>
+      <button class='add_address body-plus-2 button-primary md:hidden' @tap="addressList.toggleClass(class='hidden', force=true);addressAdd.toggleClass(class='hidden', force=false);addressAdd.scrollTo(position='top');">{{ 'i18n.customers.address_book.add_new_address' | t }}</button>
+    </div>
+
+    {% include 'loading', display: false, has_full_mask: true %}
+
+    <button class='add_address_md body-plus-2 button-primary w-full lg:hidden' @tap="addressList.toggleClass(class='hidden', force=true);addressAdd.toggleClass(class='hidden', force=false);addressAdd.scrollTo(position='top');">{{ 'i18n.customers.address_book.add_new_address' | t }}</button>
+
+    <form
+      id="addressesDeleteForm"
+      method="DELETE"
+      confirm-before-submit="{{ 'i18n.customers.address_book.sure_delete' | t }}"
+      is="spz-form"
+      @submitSuccess="addressesList.refresh;"
+      @submitError="theme-toast.showToast(content=event.errors);"
+    ></form>
+</div>
+

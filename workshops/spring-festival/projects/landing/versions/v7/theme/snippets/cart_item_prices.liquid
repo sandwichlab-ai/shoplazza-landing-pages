@@ -1,0 +1,4 @@
+<div class="{{class}} leading-1.25">
+  <spz-currency class="${!!item.final_line_price && (+item.final_line_price < +item.line_price) ? 'color-compare-price line-through {{compare_price_class}}' : 'color-price font-medium {{price_class}}'}" layout="container" value="${item.line_price}"></spz-currency>
+  <spz-currency class="color-price font-medium {{price_class}} {{multi_price_class}}" spz-if="${!!item.final_line_price && (+item.final_line_price < +item.line_price)}" layout="container" value="${item.final_line_price}"></spz-currency>
+</div>

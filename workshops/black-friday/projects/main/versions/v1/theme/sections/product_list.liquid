@@ -1,0 +1,230 @@
+{% include 'card_spacing_css' %}
+
+{% assign collection = collections[section.settings.collection.id] %}
+{% unless collection.id %}
+  {% assign collection =  default_collection %}
+{% endunless %}
+{% assign product_size = collection.products_count %}
+{% assign heading = section.settings.heading | default: collection.title %}
+{% assign mobile_per_columns = section.settings.mobile_per_columns | default: 2 %}
+{% assign desktop_per_columns = section.settings.desktop_per_columns | default: 4 %}
+{% assign pc_rows = section.settings.pc_rows | default: 2 %}
+{% assign mobile_rows = section.settings.mobile_rows | default: 2 %}
+{% assign show_view_more = section.settings.show_view_more %}
+{% assign product_style = section.settings.product_style %}
+{% assign desktop_count = desktop_per_columns | times: pc_rows %}
+{% assign mobile_count = mobile_per_columns | times: mobile_rows %}
+<style>
+  [data-section-id="{{ section.id }}"] .product__list-wrap.product__list-title-hidden .product-snippet__title,
+  [data-section-id="{{ section.id }}"] .product_list-part-hidden .product-snippet__title,
+  [data-section-id="{{ section.id }}"] .product_list-part-hidden .product-snippet__quick-shop-icon,
+  [data-section-id="{{ section.id }}"] .product_list-part-hidden .product-snippet__price-wrapper,
+  [data-section-id="{{ section.id }}"] .product_list-part-hidden .product-snippet__thumbnails {
+    display: none;
+  }
+
+  [data-section-id="{{ section.id }}"] .product_list-part-hidden .product_snippet__label {
+    bottom: 6px;
+    left: 6px;
+    top: auto;
+  }
+
+  @media (max-width: {{ settings.breakpoint | minus: 0.02 }}px) {
+    [data-section-id="{{ section.id }}"] .product_list-part-hidden .product_snippet__label {
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 4px 8px;
+    }
+  }
+</style>
+<div class="product__list-wrap page-container overflow-hidden {% if product_style == 'only' %} product__list-title-hidden {% endif %}">
+  {% if heading %}
+    <h2 class="m-0 title-font type-heading-font-family font-normal leading-1.2 overflow-hidden">{{ heading | escape }}</h2>
+  {% endif %}
+  {% if product_size > 0 %}
+    <div class="md:hidden grid mt-4 grid-cols-{{ desktop_per_columns }} {% if desktop_per_columns < 7 %} gap-x-10 lg:gap-y-11 {% else %} gap-x-6 gap-y-5 product_list-part-hidden {% endif %} mt-7">
+      {% for product in collection.products limit: desktop_count %}
+        {% include 'product', card_product: product, ssrIndex: forloop.index0, s_columns: desktop_per_columns, s_breakpoint: 3, s_common_columns: 4 %}
+      {% endfor %}
+    </div>
+    <div class="lg:hidden grid mt-4 grid-cols-{{ mobile_per_columns }} {% if mobile_per_columns == 1 %} gap-y-4 {% elsif mobile_per_columns == 2 %} gap-x-4 gap-y-6 {% else %} gap-3 product_list-part-hidden {% endif %}">
+      {% for product in collection.products limit: mobile_count %}
+          {% assign sizeRatio = 4 %}
+          {% if mobile_per_columns == 1 %}
+            {% assign sizeRatio = 2 %}
+          {% endif %}
+        {% include 'product', card_product: product, label_type: 'md', ssrIndex: forloop.index0, sizeRatio: sizeRatio %}
+      {% endfor %}
+    </div>
+    {% if show_view_more %}
+      <a href="{{collection.url}}" class="product_list_show_more {% if product_size <= desktop_count %} lg:hidden {% endif %} {% if product_size <= mobile_count %} md:hidden {% endif %} flex justify-center items-center mt-6 cursor-pointer lg:mt-9 text-inherit no-underline">
+        <span class="product_list_show_more-text mr-1 body-plus-2 leading-none">{{ 'i18n.general.view.view_more' | t }}</span>
+        {% include 'icon_view_more', icon_class: 'pt-1' %}
+      </a>
+    {% endif %}
+  {% endif %}
+</div>
+{% schema %}
+{
+  "name": "product_list",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "default": "Products list"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": {
+        "en-US": "Collection",
+        "zh-CN": "专辑"
+      }
+    },
+    {
+      "type": "range",
+      "id": "mobile_per_columns",
+      "label": {
+        "en-US": "Mobile products per row",
+        "zh-CN": "移动端每行商品数量"
+      },
+      "unit": "",
+      "step": 1,
+      "min": 1,
+      "max": 3,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "mobile_rows",
+      "label": {
+        "en-US": "Rows display on mobile",
+        "zh-CN": "移动端商品行数"
+      },
+      "unit": "",
+      "step": 1,
+      "min": 1,
+      "max": 5,
+      "default": 2
+    },
+    {
+      "type": "range",
+      "id": "desktop_per_columns",
+      "label": {
+        "en-US": "Desktop products per row",
+        "zh-CN": "PC端每行商品数量"
+      },
+      "unit": "",
+      "step": 1,
+      "min": 2,
+      "max": 10,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "pc_rows",
+      "label": {
+        "en-US": "Rows display on PC",
+        "zh-CN": "PC端商品行数"
+      },
+      "unit": "",
+      "step": 1,
+      "min": 1,
+      "max": 5,
+      "default": 2
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_more",
+      "label": {
+        "en-US": "Show view more button",
+        "zh-CN": "开启‘View more’按钮"
+      },
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "product_style",
+      "label": {
+        "en-US": "Product style",
+        "zh-CN": "商品风格"
+      },
+      "options": [
+        {
+          "value": "both",
+          "label": {
+            "en-US": "Show price and title",
+            "zh-CN": "展示价格和标题"
+          }
+        },
+        {
+          "value": "only",
+          "label": {
+            "en-US": "Only show price",
+            "zh-CN": "仅展示价格"
+          }
+        }
+      ],
+      "default": "both"
+    },
+    {
+      "type": "spacing",
+      "id": "spacing",
+      "label": {
+        "en-US": "Spacing",
+        "zh-CN": "间距留白"
+      },
+      "pc": {
+        "top": "40",
+        "right": "",
+        "bottom": "40",
+        "left": ""
+      },
+      "mobile": {
+        "top": "20",
+        "right": "",
+        "bottom": "20",
+        "left": ""
+      },
+      "default": {
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        }
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "product_list",
+      "cname": {
+        "zh-CN": "商品列表",
+        "en-US": "Products grid"
+      },
+      "category": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "ccategory": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "icon": "oss/operation/b950c409371f126944b7b9ef9a8db876.svg",
+      "display": true
+    }
+  ]
+}
+{% endschema %}

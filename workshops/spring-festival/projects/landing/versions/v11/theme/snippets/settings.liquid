@@ -1,0 +1,173 @@
+{%- comment -%} 颜色 {%- endcomment -%}
+{% assign color_general_bg = settings.color_general_bg | default: '#FFFFFF' %}
+{% unless color_general_bg contains '#' %}
+  {% assign color_general_bg = color_general_bg | color_to_hex %}
+{% endunless %}
+
+{% assign color_general_text = settings.color_general_text | default: '#292929' %}
+{% unless color_general_text contains '#' %}
+  {% assign color_general_text = color_general_text | color_to_hex %}
+{% endunless %}
+
+{% assign color_menu_item_text = settings.color_menu_item_text | default: '#292929' %}
+{% unless color_menu_item_text contains '#' %}
+  {% assign color_menu_item_text = color_menu_item_text | color_to_hex %}
+{% endunless %}
+
+{% assign color_header_search_text = settings.color_header_search_text | default: '#292929' %}
+{% unless color_header_search_text contains '#' %}
+  {% assign color_header_search_text = color_header_search_text | color_to_hex %}
+{% endunless %}
+
+{% assign color_header_text = settings.color_header_text | default: '#292929' %}
+{% unless color_header_text contains '#' %}
+  {% assign color_header_text = color_header_text | color_to_hex %}
+{% endunless %}
+
+{%- comment -%} 边框颜色 {%- endcomment -%}
+{% assign color_border = settings.color_border | default: '#E6E6E6' %}
+
+{%- comment -%} 圆角 {%- endcomment -%}
+{% assign edges = settings.edges %}
+{% assign buttonEdges = settings.button_edges %}
+
+{%- comment -%} 字体 {%- endcomment -%}
+{% assign type_text_font_family = settings.type_text_font_family %}
+{% assign type_heading_font_family = settings.type_heading_font_family %}
+
+{% comment %} 自是否开启定义内容最大宽度 {% endcomment %}
+{% assign custom_max_width_on = settings.custom_max_width_on %}
+{% comment %} 页面最大宽度 {% endcomment %}
+{% assign page_width = settings.page_width %}
+
+{% comment %} 蒙层标题颜、蒙层文字颜色 {% endcomment %}
+{% if settings.enable_custom_overlay_color %}
+  {% assign color_overlay_title = settings.color_overlay_title %}
+  {% assign color_overlay_text = settings.color_overlay_text %}
+{% else %}
+  {% assign color_overlay_title = settings.color_general_heading_text %}
+  {% assign color_overlay_text = settings.color_general_text %}
+{% endif %}
+
+<style>
+  :root {
+    {% if custom_max_width_on %}
+      --page-width-base: {{ page_width }}px;  
+    {% else %}
+      --page-width-base: 1440px;  
+    {% endif %}
+    --page-width: var(--page-width-base);
+    --page-spacing: 16px;
+
+    {% for s in settings %}
+      {% if s[0] contains 'color_' or s[0] contains '_font_size' %}
+        {% if s[0] and s[1] %}--{{ s[0] | replace: '_', '-' }}: {{ s[1] }}{% if s[0] contains '_size' %}px{% endif %};{% endif %}
+      {% endif %}
+    {% endfor %}
+
+    /* 颜色相关 */
+    --color-body-bg: {{ settings.color_general_bg | default: '#FFFFFF' }};
+    --color-body-bg-80: {{ color_general_bg | color_modify: 'alpha', 0.8 }};
+    --color-product-title-text: {{ settings.color_product_title_text | default: '#292929'}};
+    --color-primary-btn-bg: {{ settings.color_btn_bg | default: '#292929'}};
+    --color-primary-btn-bg-10: {{ settings.color_btn_bg | default: '#292929' | color_modify: 'alpha', 0.1}};
+    --color-primary-btn-text: {{ settings.color_btn_text | default: '#FFFFFF'}};
+
+    --color-quick-shop-btn-bg: {{ settings.color_quick_shop_btn_bg | default: '#FFFFFF'}};
+    --color-quick-shop-btn-icon: {{ settings.color_quick_shop_btn_icon | default: '#000000'}};
+    --color-toggle-btn-bg: {{ settings.color_toggle_btn_bg | default: '#FFFFFF'}};
+    --color-toggle-btn-icon: {{ settings.color_toggle_btn_icon | default: '#000000'}};
+
+    --color-body-text: {{ settings.color_general_text | default: '#292929' }};
+    --color-body-text-50: {{ color_general_text | color_modify: 'alpha', 0.5 }};
+    --color-body-text-60: {{ color_general_text | color_modify: 'alpha', 0.6 }};
+    --color-body-text-70: {{ color_general_text | color_modify: 'alpha', 0.7 }};
+    --color-body-text-75: {{ color_general_text | color_modify: 'alpha', 0.75 }};
+    --color-body-text-80: {{ color_general_text | color_modify: 'alpha', 0.8 }};
+    --color-body-text-85: {{ color_general_text | color_modify: 'alpha', 0.85 }};
+    --color-body-text-90: {{ color_general_text | color_modify: 'alpha', 0.9 }};
+
+    --color-menu-item-text-70: {{ color_menu_item_text | color_modify: 'alpha', 0.7 }};
+    --color-menu-item-text-80: {{ color_menu_item_text | color_modify: 'alpha', 0.8 }};
+    --color-menu-item-text-90: {{ color_menu_item_text | color_modify: 'alpha', 0.9 }};
+    --color-actived-menu-item-bg: {{ settings.color_actived_menu_item_bg | default: 'rgba(198, 156, 109, 1)' }};
+    --color-actived-menu-item-text: {{ settings.color_actived_menu_item_text | default: '#FFFFFF' }};
+
+    --color-header-search-text-50: {{ color_header_search_text | color_modify: 'alpha', 0.5 }};
+
+    --color-header-text-70: {{ color_header_text | color_modify: 'alpha', 0.7 }};
+
+    /* 边框颜色 */
+    --color-border: {{ color_border }};
+    --color-border-35: {{ color_border | color_modify: 'alpha', 0.35 }};
+    --color-border-60: {{ color_border | color_modify: 'alpha', 0.6 }};
+
+    /* 蒙层标题颜色 */
+    --color-overlay-title: {{ color_overlay_title | default: '#292929' }};
+    /* 蒙层文字颜色 */
+    --color-overlay-text: {{ color_overlay_text | default: '#292929' }};
+
+    /* 圆角 */
+    --global-large-border-radius: {% if edges == 'round' %}50px{% else %}2px{% endif %};
+    --global-border-radius: {% if edges == 'round' %}10px{% else %}2px{% endif %};
+    --global-small-border-radius: {% if edges == 'round' %}10px{% else %}2px{% endif %};
+    --global-fixed-border-radius: {% if edges == 'round' %}6px{% else %}2px{% endif %};
+    --btn-border-radius: {% if buttonEdges == 'round' %}50px{% elsif buttonEdges == 'slightly_round' %}4px{% else %}2px{% endif %};
+    --btn-fixed-border-radius: {% if buttonEdges == 'slightly_round' or buttonEdges == 'round' %}4px{% else %}2px{% endif %};
+
+    /* 字体相关 */
+    --font-body-family: {{ type_text_font_family.family }}, {{ type_text_font_family.fallback_families }};
+    --font-body-style: {{ type_text_font_family.style }};
+    --font-body-weight: {{ type_text_font_family.weight }};
+
+    --font-heading-family: {{ type_heading_font_family.family }}, {{ type_heading_font_family.fallback_families }};
+    --font-heading-style: {{ type_heading_font_family.style }};
+    --font-heading-weight: {{ type_heading_font_family.weight }};
+
+    /* 倒计时 */
+    --color-countdown-bg: {{ settings.color_countdown_bg | default: 'rgba(248, 248, 248, 0.8)' }};
+    --color-countdown-time-text: {{ settings.color_countdown_time_text | default: '#EA3F36' }};
+    --color-background-shipping-success: {{ settings.color_background_shipping_success | default: '#E5FFE2' }};
+    --color-text-shipping-success: {{ settings.color_text_shipping_success | default: '#3AAA2E' }};
+    --color-cart-subtotal-bg: {{ settings.color_cart_subtotal_bg | default: '#F6F6F6' }};
+
+    /* mask */
+    --color-mask-bg: rgba(0, 0, 0, 0.3);
+
+    /* 提供给插件 */
+    --breakpoint: {{ settings.breakpoint }};
+
+    /* z-index */
+    --z-index-dropdown: 1000;
+    --z-index-sticky: 1020;
+    --z-index-fixed: 1030;
+    --z-index-modal-backdrop: 1040;
+    --z-index-modal: 1050;
+    --z-index-popover: 1060;
+    --z-index-tooltip: 1070;
+  }
+
+  @media (min-width: 960px) {
+    :root {
+      --page-spacing: {{ settings.content_padding | default: 100 }}px;
+
+      /* 圆角 */
+      --global-small-border-radius: {% if edges == 'round' %}16px{% else %}2px{% endif %};
+    }
+  }
+
+  .type-text-font-family {
+    font-family: var(--font-body-family);
+    font-style: var(--font-body-style);
+    font-weight: var(--font-body-weight);
+  }
+
+  .type-heading-font-family {
+    font-family: var(--font-heading-family);
+    font-style: var(--font-heading-style);
+    font-weight: var(--font-heading-weight);
+  }
+
+  {{ type_text_font_family.font_face }}
+  {{ type_heading_font_family.font_face }}
+</style>

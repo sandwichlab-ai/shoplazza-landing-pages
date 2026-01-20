@@ -1,0 +1,42 @@
+<style>
+  .reset_pw_success_text {
+    margin: 24px 0 40px;
+  }
+  .reset_rs_btn {
+    min-width: 200px;
+    min-height: 42px;
+    text-decoration: none;
+    width: 200px;
+    margin: auto;
+  }
+  .reset_rs_page {
+    margin-top: 74px;
+  }
+</style>
+<div class='page-container text-center reset_rs_page mb-5'>
+  <svg width='64' height='64' xmlns='http://www.w3.org/2000/svg'>
+    <path d="M32 .8C14.769.8.8 14.769.8 32S14.769 63.2 32 63.2 63.2 49.231 63.2 32 49.231.8 32 .8zm0 2.4c15.906 0 28.8 12.894 28.8 28.8S47.906 60.8 32 60.8 3.2 47.906 3.2 32 16.094 3.2 32 3.2z" fill="currentColor"/><path d="M45.899 23.442a1.2 1.2 0 0 1 1.785 1.6l-.088.098-16.978 16.978a1.2 1.2 0 0 1-1.6.087l-.097-.087-9.27-9.27a1.2 1.2 0 0 1 1.6-1.784l.098.087 8.42 8.421 16.13-16.13z" fill="currentColor"/>
+  </svg>
+  <div class='text-base reset_pw_success_text'>{{ 'i18n.customers.successfully_reset.success' | t }}</div>
+  <a class='button-primary reset_rs_btn flex justify-center items-center block' href='{{ routes.root_url }}' data-track='dj.shopNow'>
+    {{ 'i18n.customers.successfully_reset.shop_now' | t }}
+  </a>
+</div>
+{% schema %}
+{
+  "name": "reset_success",
+  "settings": [],
+  "presets": [
+    {
+      "name": "reset_success",
+      "cname": {
+        "en-US": "Reset success",
+        "zh-CN": "重置密码成功"
+      },
+      "category": "导航",
+      "ccategory": "导航",
+      "display": false
+    }
+  ]
+}
+{% endschema %}

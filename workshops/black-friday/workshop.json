@@ -1,0 +1,12 @@
+{
+  "id": "black-friday",
+  "name": "黑五促销",
+  "description": "",
+  "created_at": "2026-01-14T18:12:41.573642",
+  "shop_domain": "bingcheckout",
+  "theme_id": "f8f234fa-9a7d-4cd6-b4ef-0997e5d3ae1e",
+  "project_ids": [
+    "main",
+    "flash-sale"
+  ]
+}

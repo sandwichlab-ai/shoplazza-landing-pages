@@ -1,0 +1,178 @@
+<style>
+  @media (min-width: 960px) {
+    .collection-filter-left {
+      flex-shrink: 0;
+      width: 200px;
+      margin-right: 56px;
+    }
+
+    html[dir="rtl"] .collection-filter-left {
+      margin-left: 56px;
+      margin-right: 0;
+    }
+
+    .collection-filter-left-sticky {
+      overflow: auto;
+      max-height: 80vh;
+    }
+
+    .collection-filter-left .collection_filter_title {
+      padding: 0;
+      margin: 0 0 12px;
+    }
+
+    .collection-filter-left .filter-result-container {
+      margin-bottom: 10px;
+    }
+
+    .collection-filter-left-item {
+      border-top: 1px solid rgba(229, 231, 235);
+    }
+
+    .filter-left-item-header {
+      word-break: break-all;
+      padding: 16px 0;
+      user-select: none;
+    }
+
+    .filter-left-item-header svg {
+      transform: rotate(-90deg);
+      transition: transform .15s;
+    }
+
+    .collection-filter-left-item:not([expanded]) .filter-left-item-header svg {
+      transform: rotate(90deg);
+    }
+
+    .filter-left-item-selector,
+    .filter-item-price-wrapper {
+      padding-bottom: 24px;
+    }
+
+    .collection-filter-left .filter-item-option {
+      word-break: break-all;
+      border: 0;
+      padding: 0;
+    }
+    .collection-filter-left .filter-item-option + .filter-item-option {
+      margin-top: 12px;
+    }
+
+    .collection-filter-left .filter-item-option-checkbox {
+      margin-right: 8px;
+    }
+
+    html[dir="rtl"] .collection-filter-left .filter-item-option-checkbox {
+      margin-left: 8px;
+      margin-right: 0;
+    }
+
+    .collection-filter-left .filter_result_item {
+      padding: 4px;
+      font-size: 12px;
+    }
+
+    .collection-filter-left .filter_result_item svg {
+      margin-left: 8px;
+    }
+
+    html[dir="rtl"] .collection-filter-left .filter_result_item svg {
+      margin-left: 0;
+      margin-right: 8px;
+    }
+
+    .collection-filter-left .filter-result-clear-all-btn {
+      font-size: var(--type-text-font-size);
+    }
+  }
+</style>
+
+<template id="filter-item-header-template">
+  <div class="filter-left-item-header flex items-center justify-between">
+    <span class="flex-1">${data.title}</span>
+    {% include 'icon_arrow_right' %}
+  </div>
+</template>
+
+<template id="filter-item-content-template">
+  <spz-selector class="filter-left-item-selector" layout="container" multiple role="items" @select="collection-filter.apply(values=event.selectedOptions, targetOption=event.targetOption);">
+    <div spz-for="item in data.values" class="filter-item-option flex items-center" option="${item.value}" value="${item.value}" key="item.value">
+      <div class="filter-item-option-checkbox flex-shrink-0 relative border cursor-pointer">
+        {% include 'icon_collection_checkbox', icon_class: 'filter_checkbox_svg' %}
+      </div>
+      <div class="cursor-pointer">
+        <span>${item.label}</span>
+        <span spz-if="${item.count >= 0}">(${item.count})</span>
+      </div>
+    </div>
+  </spz-selector>
+</template>
+
+<template id="filter-item-price-template">
+  <div class="body-plus-2">
+    <div class="text-center">
+      ${({{ 'i18n.collection.collection_detail.highest_price' | t | json }}).replace(/\{\{\s*highest_price\s*\}\}/, `<spz-currency
+        class="inline-block"
+        value="${data.range_max}"
+        layout="container"
+      ></spz-currency
+      >`)}
+    </div>
+    <div class="filter-item-price-wrapper mt-4">
+      <div class="filter-item-price flex items-center">
+        <span class="mr-2">{{ shop.finance_symbol }}</span>
+        <input
+          class="w-full"
+          type="number"
+          placeholder="{{'i18n.collection.collection_detail.from' | t }}"
+          role="price-min"
+          @input-debounced="collection-filter.apply;"
+        >
+      </div>
+      <div class="filter-item-price flex items-center mt-1">
+        <span class="mr-2">{{ shop.finance_symbol }}</span>
+        <input
+          class="w-full"
+          type="number"
+          placeholder="{{'i18n.collection.collection_detail.to' | t }}"
+          role="price-max"
+          @input-debounced="collection-filter.apply;"
+        >
+      </div>
+    </div>
+  </div>
+</template>
+
+<spz-sticky class="md:hidden" layout="logic" position="top" target="collection-filter-left-sticky"></spz-sticky>
+
+<div class="md:hidden collection-filter-left">
+  <div class="collection-filter-left-sticky" id="collection-filter-left-sticky">
+    <spz-filter
+      class="md:hidden lg:pt-5"
+      id="collection-filter"
+      list-id="collection-list"
+      result-id="filter-result"
+      collection-id="{{ collection.id }}"
+      scroll-content-id="collection-filter-left-sticky"
+      layout="container"
+      {% unless pagination_type == 'number' %}
+        scroll-top-before-refresh-list
+      {% endunless %}
+    >
+      <div>
+        <div class='collection_filter_title body-plus-2'>{{ 'i18n.collection.collection_detail.filter' | t }}</div>
+        {% include 'collection_filter_result', id: 'filter-result' %}
+        <spz-accordion layout="container" animate role="content">
+          <section class="collection-filter-left-item" as="default" expanded>
+            <spz-render layout="container" manual template="filter-item-header-template"></spz-render>
+            <spz-render layout="container" manual template="filter-item-content-template"></spz-render>
+          </section>
+          <section class="collection-filter-left-item" as="price" expanded>
+            <spz-render layout="container" manual template="filter-item-header-template"></spz-render>
+            <spz-render layout="container" manual template="filter-item-price-template"></spz-render>
+          </section>
+        </spz-accordion>
+      </div>
+    </spz-filter>
+  </div>
+</div>

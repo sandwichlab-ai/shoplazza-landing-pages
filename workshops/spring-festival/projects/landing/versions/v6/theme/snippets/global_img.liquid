@@ -1,0 +1,25 @@
+<div class="{{image_outer | default: ''}}">
+  {% if image %}
+    <div class="{{image_class | default: ''}}">
+      <spz-img
+        class='{{current_image_class}}'
+        layout='responsive'
+        width='{{ imageWidth | default: images[image].width }}'
+        height='{{ imageHeight | default: images[image].height }}'
+        src='{{ image | img_url }}'
+        alt='{{ images[image].alt | default: heading | escape }}'
+        object-fit='cover'
+        auto-fit
+        object-position="{{image_focal_point | default: section.settings.image_focal_point | default: ''}}"
+        {% if ssrIndex == 0 %}
+          ssr
+          size-ratio="{{ sizeRatio | default: 2 }}"
+        {% endif %}
+      ></spz-img>
+    </div>
+  {% else %}
+    <div class="placeholder-svg {{image_class | default: ''}}">
+      {{ 'image' | placeholder_svg_tag }}
+    </div>
+  {% endif %}
+</div>

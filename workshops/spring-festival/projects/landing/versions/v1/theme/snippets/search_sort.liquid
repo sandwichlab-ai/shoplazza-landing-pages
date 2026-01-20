@@ -1,0 +1,87 @@
+{% stylesheet %}
+  .search-sort-wrap {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: var(--type-text-font-size);
+  }
+  .search-sort-content {
+    position: relative;
+    min-width: 224px;
+    padding-{{inline_start}}: 8px;
+  }
+  .search-dropdown-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    border-radius: 2px;
+    border: 1px solid var(--color-border);
+    cursor: pointer;
+  }
+  .search-dropdown-btn-text {
+    padding-right: 8px;
+  }
+  .search-sort-content .i-spzhtml-dropdown-container {
+    width: 100%;
+  }
+  .search-sort-selector{
+    border-radius: 2px;
+    box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.10);
+  }
+  .search-sort-sel-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    font-size: var(--type-text-font-size);
+  }
+  [selected].search-sort-sel-option {
+    font-weight: 500;
+  }
+  :not([selected]).search-sort-sel-option .icon-search-sort-checked {
+    opacity: 0;
+  }
+  #search-dropdown .i-spzhtml-dropdown-container {
+    background: var(--color-general-bg);
+    color: var(--color-general-text);
+  }
+{% endstylesheet %}
+
+<div class="search-sort-wrap md:hidden">
+  <span class="search-sort-text">{{ 'i18n.search.sort_by' | t }}</span>
+  <div class="search-sort-content">
+    <div id="search-dropdown-btn" class="search-dropdown-btn" @tap="search-dropdown.open">
+      <spz-render id="search-sort-sel-val" layout="container" manual>
+        <span class="search-dropdown-btn-text">{{ sort_sel_label }}</span>
+        <template>
+          <span class="search-dropdown-btn-text">${data}</span>
+        </template>
+      </spz-render>
+      {% include 'icon_arrow_down' %}
+    </div>
+    <spz-dropdown id="search-dropdown" layout="nodisplay" overlay-style="top: 4px;">
+      <spz-selector
+        class="search-sort-selector"
+        layout="container"
+        role="sortBy"
+        @select="search-list.refresh(sort_by=event.selectedOptions, redo=true);search-dropdown.close"
+      >
+        {% for item in search.sorts %}
+          <div
+            class="search-sort-sel-option"
+            option="{{item.name}}"
+            @tap="search-sort-sel-val.rerender(data={{item.label}});"
+            {% if (sort_by_val == nil and item.name == default_sort_val ) or item.name == sort_by_val %}
+              selected
+            {% endif %}
+          >
+            {{ item.label }}
+            {% include 'icon_checked', icon_class: 'icon-search-sort-checked' %}
+          </div>
+        {% endfor %}
+      </spz-selector>
+    </spz-dropdown>
+  </div>
+</div>

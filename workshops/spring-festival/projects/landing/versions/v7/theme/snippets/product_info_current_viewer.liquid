@@ -1,0 +1,16 @@
+{%- comment -%} 当前浏览人数 {%- endcomment -%}
+{% assign minimum_viewers = item.settings.minimum_viewers %}
+{% assign highest_viewers = item.settings.highest_viewers %}
+{% assign maximum_change = item.settings.maximum_change %}
+{% assign custom_text = item.settings.custom_text %}
+{% capture viewCount %}
+  <spz-rng class="inline-block" layout="container" max="{{highest_viewers}}" min="{{minimum_viewers}}" change-range="{{maximum_change}}" interval-seconds="3"></spz-rng>
+{% endcapture %}
+
+{% if minimum_viewers and highest_viewers and minimum_viewers >= 0 and highest_viewers >= 0 and minimum_viewers < highest_viewers %}
+  <div {{block.shoplaza_attributes}} class="flex items-center mt-3 lg:mt-4">
+    {% include 'icon_view', icon_class: "flex-shrink-0" %}
+    <span class="current__viewer-text ml-1 break-all md:body-minus-2">{{ custom_text | replace: '{count}', viewCount }}</span>
+  </div>
+
+{% endif %}

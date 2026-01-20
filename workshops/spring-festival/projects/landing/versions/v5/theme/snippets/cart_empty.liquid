@@ -1,0 +1,7 @@
+<div class="cart-empty flex flex-col items-center text-center {{class}}" {{attr}}>
+  {% include 'icon_empty_cart', icon_class: 'color-body-70' %}
+  <div class="mt-5 color-body-70 font-medium body-plus-4 leading-1.2">{{ 'i18n.bag.general.empty' | t }}</div>
+  <button class="cart-empty-btn button-primary clear flex items-center justify-center text-center mt-5 {{button_class}}"  data-track="cart-continue-shopping" @tap="{% if is_cart_drawer %}cart-drawer-modal.close();{% else %}SPZ.history(type='back', defaultUrl='{{routes.root_url}}');{% endif %}" type="button">
+    {{ 'i18n.bag.general.continue_shopping' | t }}
+  </button>
+</div>

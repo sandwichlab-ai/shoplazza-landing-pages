@@ -1,0 +1,22 @@
+<div id="{{result_id}}" class="flex flex-wrap">
+  <spz-render class="flex" layout="container" as="default" manual>
+    <template>
+      <div class="search-filter-result-item flex items-center mt-2 mr-2 lg:mt-3" role="delete">
+        <span>${data.label}</span>
+        {% include 'icon_close_small' %}
+      </div>
+    </template>
+  </spz-render>
+
+  <spz-render class="flex" layout="container" as="price" manual>
+    <template>
+      <div class="search-filter-result-item flex items-center mt-2 mr-2 lg:mt-3" role="delete" spz-if="${!(data.gte == 0 && data.lte == -1)}">
+        <span spz-if="${data.gte !== 0 && data.lte === -1}">{{ 'i18n.search.more_than' | t }}</span>
+        <spz-currency class="inline-block" value="${data.gte || 0}" layout="container"></spz-currency>
+        <span spz-if="${data.lte && data.lte !== -1}">-</span>
+        <spz-currency class="inline-block" value="${data.lte}" spz-if="${!!data.lte && data.lte !== -1}" layout="container"></spz-currency>
+        {% include 'icon_close_small' %}
+      </div>
+    </template>
+  </spz-render>
+</div>

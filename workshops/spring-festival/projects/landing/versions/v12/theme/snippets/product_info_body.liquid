@@ -1,0 +1,172 @@
+<spz-product-form
+  id="product-info-body"
+  class="product-info-body md:page-container lg:flex-1 lg:w-1/2"
+  layout="container"
+  show-toast
+  product-id="{{product.id}}"
+  variant-id="{{productSelectedVariant.id}}"
+  status="{% if productSelectedVariant %}{% if productSelectedVariant.id == nil %}unavailable{% elsif productSelectedVariant.available %}available{% else %}soldout{% endif %}{% else %}{% if product.available %}available{% else %}soldout{% endif %}{% endif %}"
+  @productChange="product-info-quantity.update(value=event.quantity,max=event.max,min=event.min);{% if enableVariantPriceOnAddToCart %}product-info-btn-price.rerender(data=event);{% endif %}product-detail-featured.rerender(data=event);{% if shop.wholesale_enabled %}product-info-prices-wholesale.rerender(data=event);{% else %}product-info-prices.rerender(data=event);{% endif %}{% unless enable_selected_variants %}product-info-variant-empty-option.toggleClass(class='hidden', force=true);{% endunless %}"
+  @atcError="theme-toast.showToast(content=event.message);"
+  @buyNowError="theme-toast.showToast(content=event)"
+  @productInvalid="product-info-variants.scrollTo(position='center');"
+  {% for opt in product.options %}
+    @option{{ opt.position | append: 'Invalid' }}="product-variant-option{{opt.position}}-error-tip.rerender(data=event);"
+    @option{{ opt.position | append: 'Valid' }}="product-variant-option{{opt.position}}-error-tip.toggleClass(class='hidden', force=true);"
+  {% endfor %}
+>
+  <form>
+    {% if section.blocks.size > 0 %}
+      <div
+        class="product-info-body-inner product-info-body-z-index"
+        id="product-info-body-inner-container"
+      >
+        {% for block in section.blocks %}
+          {% assign outerIndex = forloop.index0 %}
+
+          {% case block.type %}
+            {% when 'label' %}
+              {% assign custom_label_1 = block.settings.label1 %}
+              {% assign custom_label_2 = block.settings.label2 %}
+              {% if custom_label_1 or custom_label_2 %}
+                <div {{ block.shoplaza_attributes }} class="flex mt-2">
+                  {% include 'product_info_label',
+                    label: custom_label_1,
+                    ids: block.settings.ids1
+                  %}
+                  {% include 'product_info_label',
+                    label: custom_label_2,
+                    ids: block.settings.ids2
+                  %}
+                </div>
+              {% endif %}
+
+            {% when 'title' %}
+              {% assign mobile_product_title_style = block.settings.mobile_product_title_style %}
+              <h1
+                class="product-info-title m-0 mb-2 leading-1.25 type-heading-font-family break-words product-title-color {% if mobile_product_title_style == 'one_line' %} md:truncate {% elsif mobile_product_title_style == 'hide' %} md:hidden {% endif %}"
+                {{ block.shoplaza_attributes }}
+              >
+                {{ product.title | escape }}
+              </h1>
+            {% when 'subtitle' %}
+              {% assign subtitle = product.brief %}
+              {% if subtitle %}
+                <p
+                  class="m-0 mt-1 leading-1.2 color-text-default md:body-minus-2 lg:mt-2"
+                  {{ block.shoplaza_attributes }}
+                >
+                  {{ subtitle | escape }}
+                </p>
+              {% endif %}
+            {% when 'price' %}
+              {% if shop.wholesale_enabled %}
+                {% include 'product_info_price_wholesale' %}
+              {% else %}
+                {% include 'product_info_prices' %}
+              {% endif %}
+
+              {% if product.mixed_wholesale %}
+                {% include 'mixed_wholesale_label', class: 'mt-2 lg:mt-3' %}
+              {% endif %}
+              <div class="plugin-discount-wrap empty-hidden" role="[theme-seat-for-plugin]"></div>
+
+            {% when 'sales' %}
+              {% include 'product_info_sales', item: block, item_class: 'mt-2' %}
+            {% when 'sales_and_reviews' %}
+              {% include 'product_info_sales_and_reviews' %}
+            {% when 'variant' %}
+              {% include 'product_info_variants' %}
+            {% when 'qty' %}
+              <div
+                class="{% if settings.product_variant_style == 'dropdown' %} md:flex md:items-center md:justify-between mt-3 {% else %} mt-4 {% endif %} lg:mt-5"
+                {{ block.shoplaza_attributes }}
+              >
+                <div class="leading-1.25 font-semibold lg:body-plus-2">
+                  {{ 'i18n.product.product_detail.qty' | t }}
+                </div>
+                <spz-quantity
+                  class="product-info-qty mt-2 lg:mt-3"
+                  id="product-info-quantity"
+                  name="quantity"
+                  value="1"
+                  min="1"
+                  max="{{ productSelectedVariant.available_quantity | default: product.inventory_quantity }}"
+                  icon-class="product-info-qty-btn clear flex items-center justify-center flex-shrink-0"
+                  input-class="product-info-qty-input clear flex-shrink-0 body-plus-2 text-center"
+                  height="40"
+                  layout="fixed-height"
+                >
+                  {% include 'icon_decrease', attr: 'role="decrease"' %}
+                  {% include 'icon_increase', attr: 'role="increase"' %}
+                </spz-quantity>
+              </div>
+            {% when 'buy_buttons' %}
+              {% include 'product_info_atc',
+                show_buy_btn: block.settings.show_buy_now,
+                show_add_cart_btn: block.settings.show_add,
+                show_paypal_btn: block.settings.show_paypal
+              %}
+            {% when 'info' %}
+              {% include 'product_info_featured',
+                show_sku: block.settings.show_sku,
+                show_weight: block.settings.show_weight,
+                show_barcode: block.settings.show_barcode,
+                show_vendor: block.settings.show_vendor,
+                show_inventory: block.settings.show_inventory
+              %}
+            {% when 'sharing' %}
+              {% include 'product_info_share' %}
+            {% when 'sales_points' %}
+              {% include 'product_info_sale' %}
+            {% when 'free_shipping' %}
+              {% include 'product_info_shipping', item: block %}
+            {% when 'desc' %}
+              {% assign desc_title = 'i18n.product.product_detail.product_description' | t %}
+              {% assign desc_text = product.description | spz_img %}
+              {% render 'product_info_desc',
+                item: block,
+                title: desc_title,
+                description: desc_text
+              %}
+            {% when 'custom' %}
+              {% assign page_data = block.settings.page %}
+
+              {% if block.settings.custom_content_heading
+                or block.settings.custom_content_description
+              %}
+                {% assign title_text = block.settings.custom_content_heading
+                  | default: 'title'
+                  | escape
+                %}
+                {% assign description_text = block.settings.custom_content_description %}
+                {% render 'product_info_desc',
+                  item: block,
+                  title: title_text,
+                  description: description_text
+                %}
+              {% elsif page_data.id %}
+                {% assign page = pages[page_data.id] %}
+                {% assign title_text = page.title | escape %}
+                {% assign description_text = page.content | spz_img %}
+                {% render 'product_info_desc',
+                  item: block,
+                  title: title_text,
+                  description: description_text
+                %}
+              {% endif %}
+            {% when 'current_inventory' %}
+              {% include 'product_info_current_inventory', item: block %}
+            {% when 'current_viewers' %}
+              {% include 'product_info_current_viewer', item: block %}
+            {% else %}
+              {% if block.type contains '//apps' %}
+                {% render block %}
+              {% endif %}
+          {% endcase %}
+        {% endfor %}
+      </div>
+    {% endif %}
+    <div class="plugin__buy_on_others empty-hidden"></div>
+  </form>
+</spz-product-form>

@@ -1,0 +1,106 @@
+{% assign block_size = section.blocks.size %}
+
+{% stylesheet %}
+  [data-section-id={{section.id}}] {
+    position: relative;
+    z-index: 1030;
+    background: var(--color-announcement-bg);
+    color: var(--color-announcement-text);
+  }
+  [data-section-id={{section.id}}].header_mask_open{
+    z-index: unset;
+  }
+
+  .announcement-content {
+    cursor: pointer;
+  }
+
+  .announcement-content[carousel_off] {
+    pointer-events: none;
+  }
+{% endstylesheet %}
+
+{% if block_size > 0 %}
+  <div class="page-container relative">
+    <spz-carousel ssr class="announcement-content md:hidden mx-auto text-center" layout="container" {% if block_size > 1 and section.settings.carousel_on %} loop autoplay delay="5000" {% else %} carousel_off advance-count={{block_size}}{% endif %}>
+      {% for block in section.blocks %}
+        {% if block.settings.text %}
+          <div {{block.shoplaza_attributes}} class="break-all py-2 mce-content">{{block.settings.text}}</div>
+        {% endif %}
+      {% endfor %}
+    </spz-carousel>
+    <spz-carousel ssr class="announcement-content lg:hidden mx-auto text-center" layout="container" {% if block_size > 1 and section.settings.carousel_on %} loop autoplay delay="5000" {% else %} carousel_off {% endif %}>
+      {% for block in section.blocks %}
+        {% assign mb_text = block.settings.mb_text | default: block.settings.text %}
+        {% if mb_text %}
+          <div {{block.shoplaza_attributes}} class="break-all w-full py-2 flex-shrink-0 mce-content">{{mb_text}}</div>
+        {% endif %}
+      {% endfor %}
+    </spz-carousel>
+  </div>
+{% endif %}
+{% schema %}
+{
+  "name": "announcement",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "carousel_on",
+      "label": {
+        "en-US": "Use carousel style",
+        "zh-CN": "启用轮播样式"
+      },
+      "default": "true"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": {
+        "en-US": "Announcement",
+        "zh-CN": "公告"
+      },
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": {
+            "en-US": "Text",
+            "zh-CN": "文字"
+          },
+          "default": "Hassle-free returns. 30-day postage paid returns"
+        },
+        {
+          "type": "richtext",
+          "id": "mb_text",
+          "label": {
+            "en-US": "Mobile text",
+            "zh-CN": "移动端文字"
+          },
+          "default": ""
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "announcement",
+      "cname": {
+        "en-US": "Announcement",
+        "zh-CN": "公告"
+      },
+      "category": {
+        "en-US": "Announcement",
+        "zh-CN": "公告"
+      },
+      "ccategory": {
+        "en-US": "Announcement bar",
+        "zh-CN": "公告"
+      },
+      "display": false,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

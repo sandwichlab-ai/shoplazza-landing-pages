@@ -1,0 +1,23 @@
+<!doctype html>
+<html class="no-js" lang="{{ shop.locale }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+    <title>{{ page_title | default: shop.name }}</title>
+    <meta name="description" content="{{ page_description | default: shop.name | escape }}">
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="shortcut icon" href="{{ shop.favicon }}">
+    {% include 'settings' %}
+    {% include 'theme_css' %}
+    {{ content_for_header }}
+    <script async crossorigin="anonymous" src="{{ shop.cdn_domain }}cuttlefish/v1/spz.min.js"></script>
+  </head>
+  <body class="landing-page template-{{ template.name }}">
+    {%- comment -%} 纯净落地页：无 header、无 footer、无导航 {%- endcomment -%}
+    <main class="landing-content">
+      {{ content_for_layout }}
+    </main>
+    {{ content_for_js }}
+  </body>
+</html>

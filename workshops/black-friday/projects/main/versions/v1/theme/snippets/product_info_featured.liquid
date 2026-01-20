@@ -1,0 +1,60 @@
+<spz-render class="mt-4 lg:mt-5" layout="container" id="product-detail-featured" manual {{ block.shoplaza_attributes }}>
+  {% if productSelectedVariant %}
+    <div class="body-minus-2">
+      {% if show_sku and productSelectedVariant.sku %}
+        <div class="product-detail-featured-item">
+          {{ 'i18n.product.product_detail.sku' | t }} : <span>{{ productSelectedVariant.sku | escape }}</span>
+        </div>
+      {% endif %}
+      {% if show_weight and productSelectedVariant.weight > 0 %}
+        <div class="product-detail-featured-item">
+          {{ 'i18n.product.product_detail.weight' | t }} : <span>{{ productSelectedVariant.weight | escape }}{{ productSelectedVariant.weight_unit | escape }}</span>
+        </div>
+      {% endif %}
+      {% if show_barcode and productSelectedVariant.barcode %}
+        <div class="product-detail-featured-item">
+          {{ 'i18n.product.product_detail.barcode' | t }} : <span>{{ productSelectedVariant.barcode | escape }}</span>
+        </div>
+      {% endif %}
+      {% if show_inventory and productSelectedVariant.available_quantity > 0 %}
+        <div class="product-detail-featured-item">
+          {{ 'i18n.product.product_detail.product_inventory' | t }} : <span>{{ productSelectedVariant.available_quantity | escape }}</span>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+  <template>
+    ${function(){
+      const variantData = data.variant || {{productSelectedVariant | json}};
+      return `
+        <div class="body-minus-2">
+          {% if show_sku %}
+            <div spz-if="${!!(variantData && variantData.sku)}" class="product-detail-featured-item">
+              {{ 'i18n.product.product_detail.sku' | t }} : <span>${variantData && variantData.sku}</span>
+            </div>
+          {% endif %}
+          {% if show_weight %}
+            <div spz-if="${variantData && +variantData.weight > 0}" class="product-detail-featured-item">
+              {{ 'i18n.product.product_detail.weight' | t }} : <span>${variantData && variantData.weight}${variantData && variantData.weight_unit}</span>
+            </div>
+          {% endif %}
+          {% if show_barcode %}
+            <div spz-if="${!!(variantData && variantData.barcode)}" class="product-detail-featured-item">
+              {{ 'i18n.product.product_detail.barcode' | t }} : <span>${variantData && variantData.barcode}</span>
+            </div>
+          {% endif %}
+          {% if show_vendor %}
+            <div spz-if="${!!(data.product && data.product.vendor)}" class="product-detail-featured-item">
+              {{ 'i18n.products.product.vendor' | t }} : <span>${data.product && data.product.vendor}</span>
+            </div>
+          {% endif %}
+          {% if show_inventory %}
+            <div spz-if="${variantData && +variantData.available_quantity > 0}" class="product-detail-featured-item">
+              {{ 'i18n.product.product_detail.product_inventory' | t }} : <span>${variantData && variantData.available_quantity}</span>
+            </div>
+          {% endif %}
+        </div>
+      `
+    }()}
+  </template>
+</spz-render>

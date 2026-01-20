@@ -1,0 +1,293 @@
+{% include 'css_form' %}
+<style>
+  @media (min-width: 960px) {
+    .register-page {
+      width: calc(420px + var(--page-spacing) * 2);
+      padding: 160px 0;
+    }
+  }
+  .register_success_page {
+    padding: 100px var(--page-spacing) !important;
+  }
+  .register-page {
+    padding: 20px var(--page-spacing);
+  }
+  .register_subtitle {
+    opacity: 0.75;
+    margin: 24px 0 20px;
+  }
+  .shop_now_btn {
+    margin-top: 36px;
+    font-size: 16px;
+    padding: 1px 6px;
+    min-height: 42px;
+    width: 100%;
+    text-decoration: none;
+  }
+
+  .register__password-visibility-icon {
+    position: absolute;
+    top: 2px;
+    right: 16px;
+    box-sizing: content-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    padding: 16px;
+    margin-right: -16px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .register__password-visibility-icon:not(.visible) .icon-eye,
+  .register__password-visibility-icon.visible .icon-eyelash {
+    display: none;
+  }
+
+  .register-form__password-input {
+    padding-right: 96px;
+  }
+</style>
+
+{% if shop.locale == 'ar-SA' %}
+  <style>
+    html[dir='rtl'] .register__password-visibility-icon {
+      left: 16px;
+      right: unset;
+      margin-left: -16px;
+      margin-right: 0;
+    }
+
+    html[dir='rtl'] .register-form__password-input {
+      padding-left: 96px;
+      padding-right: 15px;
+    }
+  </style>
+{% endif %}
+
+{% if customer.id %}
+  <div class="page-container text-center register-page register_success_page">
+    <svg width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+      <path d="M32 .8C14.769.8.8 14.769.8 32S14.769 63.2 32 63.2 63.2 49.231 63.2 32 49.231.8 32 .8zm0 2.4c15.906 0 28.8 12.894 28.8 28.8S47.906 60.8 32 60.8 3.2 47.906 3.2 32 16.094 3.2 32 3.2z" fill="currentColor"/><path d="M45.899 23.442a1.2 1.2 0 0 1 1.785 1.6l-.088.098-16.978 16.978a1.2 1.2 0 0 1-1.6.087l-.097-.087-9.27-9.27a1.2 1.2 0 0 1 1.6-1.784l.098.087 8.42 8.421 16.13-16.13z" fill="currentColor"/>
+    </svg>
+    <h4 class="m-0 font-medium mb-4">
+      {{ 'i18n.customers.successfully_registered.success_title' | t }}
+    </h4>
+    <div class="text-base">{{ 'i18n.customers.successfully_registered.success_content' | t }}</div>
+    <a
+      class="button-primary shop_now_btn block flex justify-center items-center"
+      href="{{ routes.root_url }}"
+      data-track="dj.shopNow"
+    >
+      {{ 'i18n.customers.successfully_registered.shop_now' | t }}
+    </a>
+  </div>
+{% else %}
+  <div class="page-container text-center register-page">
+    <h4 class="text-6 text-base">{{ 'i18n.customers.register.register' | t }}</h4>
+    <div class="register_subtitle text-base">{{ 'i18n.customers.register.register_tips' | t }}</div>
+    {% comment %} error tip area {% endcomment %}
+    <spz-render id="form-tips-register" layout="container" manual>
+      <template>
+        <div class="form-tips-text">${data.errors && data.errors[0]}</div>
+      </template>
+    </spz-render>
+
+    <form
+      id="register-form-{{section.id}}"
+      class="form flex flex-col"
+      method="POST"
+      action-xhr="{{ '/api/customers/sign_up' | add_root_url }}"
+      back-to-referrer
+      record-referrer
+      record-referrer-ignore="/account/login,/account/register"
+      custom-validation="change-interact-and-submit"
+      @submitSuccess="theme-toast-success.showToast(content='{{ "i18n.customers.successfully_registered.success" | t }}')"
+      @submitError="form-tips-register.rerender(data=event);"
+    >
+      <div class="form_item">
+        <input
+          class="form_input"
+          id="first_name"
+          type="text"
+          name="first_name"
+          tabindex="1"
+          required
+          maxlength="50"
+          pattern='[^~!@#$%\^&*\(\)_+<>?:"\{\}\/;\[\]]*'
+          autofocus
+        >
+        <label class="form_label" for="first_name">
+          {{ 'i18n.customers.register.first_name' | t }}
+        </label>
+        <div
+          class="form_item form-tips-error"
+          validation-for="first_name"
+          visible-when-invalid="valueMissing"
+          hidden
+        >
+          {% include 'icon_warning' %}
+          {{ 'i18n.customers.tips.first_name_is_required' | t }}
+        </div>
+        <div
+          class="form_item form-tips-error"
+          validation-for="first_name"
+          visible-when-invalid="patternMismatch"
+          hidden
+        >
+          {% include 'icon_warning' %}
+          {{ 'i18n.customers.tips.invalid_characters' | t }}
+        </div>
+      </div>
+      <div class="form_item">
+        <input
+          class="form_input"
+          id="last_name"
+          type="text"
+          name="last_name"
+          tabindex="2"
+          required
+          maxlength="50"
+          pattern='[^~!@#$%\^&*\(\)_+<>?:"\{\}\/;\[\]]*'
+        >
+        <label class="form_label" for="last_name">
+          {{ 'i18n.customers.register.last_name' | t }}
+        </label>
+        <div
+          class="form_item form-tips-error"
+          validation-for="last_name"
+          visible-when-invalid="valueMissing"
+          hidden
+        >
+          {% include 'icon_warning' %}
+          {{ 'i18n.customers.tips.last_name_is_required' | t }}
+        </div>
+        <div
+          class="form_item form-tips-error"
+          validation-for="last_name"
+          visible-when-invalid="patternMismatch"
+          hidden
+        >
+          {% include 'icon_warning' %}
+          {{ 'i18n.customers.tips.invalid_characters' | t }}
+        </div>
+      </div>
+      <div class="form_item">
+        <input
+          class="form_input"
+          id="email"
+          type="text"
+          name="email"
+          tabindex="3"
+          required
+          pattern="[a-zA-Z0-9!#$%&'*+\/=?^_`\{\|\}~\-]+(?:\.[a-zA-Z0-9!#$%&'*+\/=?^_`\{\|\}~\-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?"
+        >
+        <label class="form_label" for="email">{{ 'i18n.customers.register.email' | t }}</label>
+        <div
+          class="form_item form-tips-error"
+          validation-for="email"
+          visible-when-invalid="valueMissing"
+          hidden
+        >
+          {% include 'icon_warning' %}
+          {{ 'i18n.customers.tips.email_is_required' | t }}
+        </div>
+        <div
+          class="form_item form-tips-error"
+          validation-for="email"
+          visible-when-invalid="patternMismatch"
+          hidden
+        >
+          {% include 'icon_warning' %}
+          {{ 'i18n.customers.tips.request_valid_email' | t }}
+        </div>
+      </div>
+      <div class="form_item">
+        <input
+          class="form_input register-form__password-input"
+          id="password"
+          type="password"
+          name="password"
+          tabindex="4"
+          required
+          minlength="6"
+          maxlength="16"
+          pattern="[\s\S]{6,16}"
+        >
+        <label class="form_label" for="password">
+          {{ 'i18n.customers.register.password' | t }}
+        </label>
+        <div
+          class="form_item form-tips-error"
+          validation-for="password"
+          visible-when-invalid="valueMissing"
+          hidden
+        >
+          {% include 'icon_warning' %}
+          {{ 'i18n.customers.tips.password_is_required' | t }}
+        </div>
+        <div
+          class="form_item form-tips-error"
+          validation-for="password"
+          visible-when-invalid="patternMismatch"
+          hidden
+        >
+          {% include 'icon_warning' %}
+          {{ 'i18n.customers.tips.length_is_required' | t }}
+        </div>
+
+        <i
+          class="register__password-visibility-icon"
+          id="register-form-icon-{{section.id}}"
+          @tap="register-form-{{section.id}}.togglePasswordVisibility(name='password');register-form-icon-{{section.id}}.toggleClass(class='visible');"
+        >
+          {% include 'icon_eye' %}
+          {% include 'icon_eyelash' %}
+        </i>
+      </div>
+
+      <div class="form_checkbox-container">
+        <input
+          type="checkbox"
+          id="newsletter"
+          name="newsletter"
+          class="form_checkbox touch-scale"
+          checked
+        >
+        <label class="form_checkbox-label" for="newsletter">{% include 'icon_register_checkbox' %}</label>
+        <label class="form_checkbox-text" for="newsletter">
+          {{ 'i18n.customers.register.subscribe' | t }}
+        </label>
+      </div>
+
+      <button class="form_submit button-primary" type="submit" tabindex="5">
+        {{ 'i18n.customers.register.register' | t }}
+      </button>
+    </form>
+    <div class="footer_text">
+      <span>{{ 'i18n.customers.register.have_account' | t }}</span>
+      <a href="./login" class="footer_text_link">{{ 'i18n.customers.register.login' | t }}</a>
+    </div>
+    {% include 'coupon_tips' %}
+  </div>
+{% endif %}
+{% schema %}
+{
+  "name": "register",
+  "settings": [],
+  "presets": [
+    {
+      "name": "register",
+      "cname": {
+        "en-US": "Register",
+        "zh-CN": "注册"
+      },
+      "category": "导航",
+      "ccategory": "导航",
+      "display": false
+    }
+  ]
+}
+{% endschema %}

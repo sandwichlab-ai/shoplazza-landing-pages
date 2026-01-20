@@ -1,0 +1,18 @@
+${function() {
+  const textArray = ({{ 'i18n.products.general.save' | t | json }}).split(/\{\{\s*save_amount\}\}/);
+  if (textArray.length > 0 && textArray.length < 2) {
+    textArray.push('');
+  }
+  return textArray.map((text, index) => {
+    if (index == 0) {
+      return `<span>${text}</span>`;
+    }
+
+    return `
+      <span class="notranslate whitespace-nowrap">
+        <spz-currency class="inline-block" layout="container" value="${data.total_discount}"></spz-currency>
+      </span>
+      <span>${text}</span>
+    `;
+  }).join('');
+}()}

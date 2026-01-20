@@ -1,0 +1,165 @@
+{% assign search_style = section.settings.search_style | default: 'search_box' %}
+<style>
+  .header__search button,
+  .header__search input{
+    border: none;
+    outline: none;
+  }
+  .header__search-btn,
+  .header__search-icon{
+    background: transparent;
+  }
+  .header__search {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .header__search-btn {
+    padding: 0;
+    margin: 0;
+    font-size: 0;
+    color: inherit;
+    cursor: pointer;
+  }
+  .header__search-form{
+    min-height: 40px;
+  }
+  .header__search-input{
+    font-size: 13px;
+    line-height: 16px;
+    color: var(--color-header-search-text);
+    background-color: var(--color-header-search-bg);
+    caret-color: var(--color-header-search-text);
+    {% if shop.locale == "ar-SA" %}
+      padding: 12px 36px 12px 30px;
+      border-radius: {% if settings.edges == 'round' %}0 6px 6px 0{% else %}0 2px 2px 0{% endif %};
+    {% else %}
+      padding: 12px 30px 12px 36px;
+      border-radius: {% if settings.edges == 'round' %}6px 0 0 6px{% else %}2px 0 0 2px{% endif %};
+    {% endif %}
+  }
+  .header__search-input:not(:placeholder-shown) ~ .header__search-icon-close{
+    display: flex;
+  }
+  .header__search-icon{
+    {% if shop.locale == "ar-SA" %}
+      right: 10px;
+    {% else %}
+      left: 10px;
+    {% endif %}
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-header-search-text-50);
+  }
+  .header__search-icon-close{
+    top: 50%;
+    transform: translateY(-50%);
+    height: 18px;
+    width: 18px;
+    color: #fff;
+    background: #C0C0C0;
+    {% if shop.locale == "ar-SA" %}
+      left: 10px;
+    {% else %}
+      right: 10px;
+    {% endif %}
+  }
+  .header__search-icon:hover,
+  .header__search-icon-close:hover{
+    color: var(--color-header-search-text);
+  }
+  .header__search-submit-btn{
+    padding: 11px 16px;
+    font-size: 14px;
+    line-height: 18px;
+    color: var(--color-header-search-btn-text);
+    background-color: var(--color-header-search-btn-bg);
+    {% if shop.locale == "ar-SA" %}
+      border-radius: {% if settings.edges == 'round' %}6px 0 0 6px{% else %}2px 0 0 2px{% endif %};
+    {% else %}
+      border-radius: {% if settings.edges == 'round' %}0 6px 6px 0{% else %}0 2px 2px 0{% endif %};
+    {% endif %}
+  }
+  @media (max-width: 959.98px) {
+    .header__search-form{
+      width: 100%
+    }
+  }
+  @media (min-width: 960px) {
+    .header__search-form{
+      margin: 18px 0;
+    }
+    .header__search-input{
+      width: 232px;
+      border-radius: {% if settings.edges == 'round' %}var(--global-fixed-border-radius){% else %}2px{% endif %};
+    }
+    .header__desktop[data-layout="left"] .header__search-input{
+      width: 278px;
+    }
+  }
+</style>
+
+{% if shop.attrs.smart_search == 'open' %}
+  <div class="header__search smart-search-block">
+    <button
+      type="button"
+      class="header__search-btn"
+      @tap="{{section_prefix}}-announcement.toggleClass(class='header_mask_open', force=true);smart-search-sidebar.open();"
+    >
+      {% render 'icon_search_large' %}
+    </button>
+  </div>
+{% else %}
+  <div class="header__search" id="{{container_id}}">
+    {% if search_style == 'icon' or is_force_search_icon %}
+      <button
+        type="button"
+        class="header__search-btn"
+        @tap="{{section_prefix}}-announcement.toggleClass(class='header_mask_open', force=true);header_search_sidebar.open()"
+      >
+        {% render 'icon_search_large' %}
+      </button>
+    {% elsif search_style == 'search_box' %}
+      <form
+        id="header_search_form_{{media}}"
+        class="header__search-form relative flex"
+        action="{{ routes.search_url }}"
+        method="get"
+      >
+        <div class="md:flex-1 relative items-stretch">
+          <input
+            {% if settings.search_predictive_on %}
+              @input-debounced="header_search_lightbox.open();header_search_predictive_render-lightbox.rerender(data=event.value, redo=true);"
+            {% endif %}
+            class="header__search-input m-0 w-full type-text-font-family"
+            autocomplete="off"
+            type="text"
+            name="q"
+            placeholder="{{ 'i18n.navigation.general.search_product' | t }}"
+          >
+          <button
+            type="submit"
+            class="header__search-icon absolute m-0 p-0 text-0 type-text-font-family cursor-pointer"
+            tabindex="-1"
+          >
+            {% render 'icon_search' %}
+          </button>
+          <span
+            onclick="header_search_form_{{media}}.reset()"
+            @tap="header_search_lightbox.close();"
+            class="header__search-icon-close hidden items-center justify-center absolute m-0 p-0 type-text-font-family text-0 rounded-full cursor-pointer"
+            tabindex="-2"
+          >
+            {% render 'icon_header_input_close' %}
+          </span>
+        </div>
+        <button
+          type="submit"
+          class="header__search-submit-btn lg:hidden m-0 type-text-font-family"
+        >
+          {{ 'i18n.navigation.general.search_placeholder' | t }}
+        </button>
+      </form>
+    {% endif %}
+  </div>
+{% endif %}

@@ -1,0 +1,70 @@
+<style>
+.fashion_graphic_title {
+    font-size: calc(var(--type-heading-font-size) * .8);
+    margin: 0;
+    line-height: 1.2;
+    font-weight: 400;
+    color: var(--color-overlay-title);
+}
+
+.fashion_graphic_text {
+    color: var(--color-overlay-text);
+    margin-top: 12px;
+    text-align: center;
+    word-break: break-word;
+}
+
+.fashion_graphic_btn {
+    display: inline-block;
+    font-size: calc(var(--type-text-font-size) + 2px);
+    cursor: pointer;
+    text-align: center;
+    /* padding: 8px 24px; */
+}
+
+@media (min-width: {{ settings.breakpoint }}px) {
+    .fashion_graphic_title {
+        font-size: var(--type-heading-font-size);
+    }
+    .fashion_graphic_text {
+        text-align: left;
+    }
+}
+</style>
+
+{% if shop.locale == 'ar-SA' %}
+<style>
+    @media (min-width: {{ settings.breakpoint }}px) {
+        .fashion_graphic_text {
+            text-align: right;
+        }
+    }
+</style>
+{% endif %}
+{% if section.blocks.size > 0 %}
+<div class="{{container_class | default: ''}} flex flex-col justify-center">
+    {% for block in section.blocks %}
+    {% case block.type %}
+        {% when 'heading' %}
+        {% assign heading = block.settings.heading %}
+        {% if heading %}
+            <h4 class="fashion_graphic_title title-color {{heading_class | default: ''}}">{{ heading }}</h4>
+        {% endif %}
+        {% when 'text' %}
+        {% assign text = block.settings.text %}
+        {% if text %}
+            <div class="fashion_graphic_text text-base {{text_class | default: ''}}">{{ text }}</div>
+        {% endif %}
+        {% when 'button' %}
+        {% assign button_text = block.settings.button_text %}
+        {% assign button_link = block.settings.button_link %}
+        {% assign button_style = block.settings.button_style | default: 'primary' %}
+        {% if button_text %}
+            <div class="mt-5 {{btn_class | default: ''}}">
+            <a class="no-underline {% if button_style == 'primary' or button_style == 'primary_button' %} button-primary {% else %} button-secondary {% endif %} fashion_graphic_btn" {% include 'link', link: button_link %}>{{ button_text }}</a>
+            </div>
+        {% endif %}
+    {% endcase %}
+    {% endfor %}
+</div>
+{% endif %}

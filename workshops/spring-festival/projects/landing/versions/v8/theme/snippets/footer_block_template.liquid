@@ -1,0 +1,47 @@
+{% if title or has_content %}
+  <div class="footer__block-wrap">
+    {% comment %} pc {% endcomment %}
+    <div class="footer__block md:hidden {{block_class}}" {{block.shoplaza_attributes}}>
+      {% if title %}
+        <p class="footer__block__header">
+          {{ title | escape }}
+        </p>
+      {% endif %}
+      {% if has_content %}
+        <ul class="footer__block__content">
+          {{content_items_dom}}
+        </ul>
+      {% endif %}
+    </div>
+
+    {% comment %} md {% endcomment %}
+    {% if title and has_content %} {% comment %} accordion {% endcomment %}
+      <spz-accordion layout="container" animate class="footer__block accordion lg:hidden {{block_class}}" {{block.shoplaza_attributes}}>
+        <section {% if section.settings.style == 'visible' %}expanded{% endif %}>
+          <p class="footer__block__header">
+            {{ title | escape }}
+            {% include 'icon_footer_arrow', icon_class: "footer__block__header__icon" %}
+          </p>
+          <div>
+            <ul class="footer__block__content">
+              {{content_items_dom}}
+            </ul>
+          </div>
+        </section>
+      </spz-accordion>
+    {% else %} {% comment %} no accordion {% endcomment %}
+      <div class="footer__block not-accordion lg:hidden {{block_class}}">
+        {% if title %}
+          <p class="footer__block__header">
+            {{ title | escape }}
+          </p>
+        {% endif %}
+        {% if has_content %}
+          <ul class="footer__block__content">
+            {{content_items_dom}}
+          </ul>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+{% endif %}

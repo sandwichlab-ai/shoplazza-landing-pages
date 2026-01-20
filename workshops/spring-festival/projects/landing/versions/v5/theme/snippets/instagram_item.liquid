@@ -1,0 +1,151 @@
+{% assign user_image = item.settings.user_image %}
+{% assign user_name = item.settings.user_name %}
+{% assign date = item.settings.date %}
+{% assign link = item.settings.link %}
+{% assign image = item.settings.image %}
+{% assign text = item.settings.text %}
+{% assign product = all_products[item.settings.product.id] %}
+{% stylesheet  %}
+  @media (min-width: 960px) {
+    .lg\:h-19 { height: 76px; }
+    .lg\:w-\[58px\] { width: 58px; }
+  }
+  
+{% endstylesheet %}
+<div class='ins_body flex flex-col {% if {{enable_carousel}} != true and {{index}} > {{limit}} %} ins_item_hidden {%endif%}'>
+  <div class='ins_item '>
+    <section class='ins_user flex items-center mb-3'>
+      <div class='ins_user-image'>
+        <div class='ins__user-icon w-full h-full'>
+          {% if user_image %}
+            <spz-img
+              class='rounded-full'
+              layout='responsive'
+              width='36'
+              height='36'
+              src='{{ user_image | img_url }}'
+              alt='{{ images[image].alt | default: heading | escape }}'
+              object-fit='cover'
+              object-position='center'
+              auto-fit></spz-img>
+          {% else %}
+            {% include 'icon_user', icon_class: 'w-full h-full rounded-full fill-svg bg-svg' %}
+          {% endif %}
+        </div>
+      </div>
+      <div class='ins_user-info flex flex-col justify-center flex-1 instagram-break-words'>
+        {% if user_name %}
+          <p class='m-0 text-5'>{{ user_name }}</p>
+        {% endif %}
+        {% if date %}
+          <p class='m-0 opacity-50 text-sm '>{{ date }}</p>
+        {% endif %}
+      </div>
+      <a class='ins_user-link text-text-color flex-shrink-0 ml-auto mt-2' {% include 'link', link: link %}>{% include 'icon_ins_camera', icon_class: 'block' %}</a>
+    </section>
+    <section class='ins_img relative overflow-hidden {% unless image %} pb-full {% endunless %}'>
+      {% if image %}
+        <spz-img
+          class='rounded-xl '
+          layout='responsive'
+          width='274'
+          height='274'
+          src='{{ image | img_url }}'
+          object-fit='contain'
+          object-position='top'
+          auto-fit
+          {% if forloop.index0 == 0 %}
+            ssr
+            size-ratio="{% if pc_row == 3 %}3{% else %}4{% endif %}"
+          {% endif %}
+        ></spz-img>
+      {% else %}
+        {{ 'image' | placeholder_svg_tag: ' absolute w-full h-full fill-svg bg-svg' }}
+      {% endif %}
+    </section>
+    <section class='ins_feedback mt-3'>
+      {% if show_likes or show_comments %}
+        <div class='ins_feedback-like flex items-center'>
+          {% if show_likes %}
+            {% include 'icon_likes', icon_class: 'ins_comments-icon flex-shrink-0' %}
+            <span class='body-plus-2 leading-1.3'>
+              <spz-render
+                id='instagram_likes'
+                class='ins_likes'
+                layout='container'>
+                <template>
+                  <span>${function(){ return parseInt(Math.random() * ({{ max_likes }} - {{ min_likes }} + 1)) + {{ min_likes }} }()}</span>
+                </template>
+              </spz-render>
+            </span>
+          {% endif %}
+          {% if show_comments %}
+            {% include 'icon_comments', icon_class: 'ins_comments-icon flex-shrink-0 ml-4' %}
+            <div class='body-plus-2 leading-1.3'>
+              <spz-render
+                id='instagram_comments'
+                class='ins_comments'
+                layout='container'
+                height='24'>
+                <template>
+                  <span>${function(){ return parseInt(Math.random() * ({{ max_comments }} - {{ min_comments }} + 1)) + {{ min_comments }} }()}</span>
+                </template>
+              </spz-render>
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
+      {% if text %}
+        <p class='ins__feedback-content body-plus-2 m-0 mt-1 overflow-hidden leading-1.3'>{{ text }}</p>
+      {% endif %}
+    </section>
+
+  </div>
+  {% if product.id %}
+    <section class="ins__product flex flex-nowrap flex-1 border border-t-0 border-solid border-[#e6e6e6] p-3">
+      <div class="ins__product-image relative tounded-global-fixed overflow-hidden">
+        <spz-img
+          class='w-10 lg:w-[58px] h-14 lg:h-19'
+          layout="responsive"
+          height="76"
+          width="58"
+          object-fit="cover"
+          src='{{ product.image.src | img_url }}'
+          alt="{{ product.image.alt | default: product.title | escape }}"></spz-img>
+      </div>
+      <div class="ins__product-info flex flex-col items-start flex-1 ml-3">
+        {% if shop.wholesale_enabled %}
+          <div class="flex flex-wrap mb-1 lg:mb-3">
+            <div class="inline-flex flex-wrap max-w-full text-text-font-size lg:body-plus-2 leading-1.3 lg:leading-1.1 font-semibold text-price-text-color">
+              <span class="money truncate">{{ product.price_min | money_with_symbol }}</span>
+              {% if product.price_min < product.price_max %}
+                -<span class="money truncate">{{ product.price_max | money_with_symbol }}</span>
+              {% endif %}
+            </div>
+            {% assign retail_price_max = product.retail_price_max | default: product.compare_at_price_max %}
+            {% if retail_price_max > 0 %}
+              &nbsp
+              <span class="text-compare-at-price-color inline-block max-w-full truncate">
+                {{ 'i18n.products.general.retail' | t }}&nbsp<span class="money">{{ retail_price_max | money_with_symbol }}</span>
+              </span>
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="my-1 lg:mt-2 lg:mb-3">
+            {% assign compareAtPrice = product.compare_at_price | times: 1 %}
+            {% assign price = product.price | times: 1 %}
+            <span class="ins__product-info-price text-price-text-color money mr-[6px] font-semibold body-plus-2 leading-1.1">
+              {{ price | money_with_symbol }}
+            </span>
+            {% if compareAtPrice > price %}
+              <del class="money leading-none text-compare-at-price-color">
+                {{ compareAtPrice | money_with_symbol }}
+              </del>
+            {% endif %}
+          </div>
+        {% endif %}
+        <a href="{{ product.url }}" class="primary-btn !border-none no-underline leading-none py-2 px-6 rounded-btn">{{ 'i18n.general.product.buy_it' | t }}</a>
+      </div>
+    </section>
+  {% endif %}
+</div>

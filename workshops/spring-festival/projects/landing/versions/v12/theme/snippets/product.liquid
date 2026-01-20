@@ -1,0 +1,234 @@
+{% comment %}
+  Renders a product card
+
+  Accepts:
+  - card_product: {Object} Product Liquid object
+  - lg_label_type: {String} Desktop label type, Values are "price" and "save". Default is "save" (optional)
+  - md_label_type: {String} Mobile label type, Values are "price" and "save". Default is "save" (optional)
+  - label_type: {String} Value are "pc" and "md"
+
+  Usage:
+  {% include 'product', card_product %}
+{% endcomment %}
+{% capture image_wrap_id %}product_snippet__image_wrap_{{ section.id }}_{{ card_product.id }}_{{label_type}}{% endcapture %}
+{% capture image_carousel_id %}product_snippet__carousel_{{ section.id }}_{{ card_product.id }}_{{label_type}}{% endcapture %}
+{% capture thumbnails_selector_id %}product_snippet__selector_{{ section.id }}_{{ card_product.id }}_{{label_type}}{% endcapture %}
+{% capture href %}
+  {% unless card_product.isMock %}href="{{ card_product.url }}"{% endunless %}
+{% endcapture %}
+{% if card_product.min_price_variant.available %}
+  {% capture min_price_variant_href %}
+    {% unless card_product.isMock %}href="{{ card_product.min_price_variant.url }}"{% endunless %}
+  {% endcapture %}
+{% else %}
+  {% assign min_price_variant_href = href %}
+{% endif %}
+{% assign product_swatches_name = settings.product_swatches_name | join: ',' | downcase | split: "," %}
+{% assign thumbnails = card_product | option_thumbnails: product_swatches_name %}
+
+{% if s_columns != nil %}
+  {% assign sizeRatio = s_columns %}
+
+  {% if s_columns > s_breakpoint %}
+    {% assign sizeRatio = s_common_columns %}
+  {% endif %}
+
+  {% if sm_columns == 1 and sizeRatio > sm_breakpoint %}
+    {% assign sizeRatio = sm_common_columns %}
+  {% endif %}
+{% endif %}
+
+{% snippet 'product', product: card_product %}
+  <div class="product-snippet__img-wrapper relative" id="{{image_wrap_id}}">
+    {% comment %} image {% endcomment %}
+    {% assign card_product_image = card_product.image %}
+    {% assign product_image_hover_on = false %}
+    {% if settings.product_image_hover_on %}
+      {% assign secondary_image = card_product.images | secondary_image %}
+      {% if secondary_image.src %}
+        {% assign product_image_hover_on = true %}
+      {% endif %}
+    {% endif %}
+    {% assign card_product_image_width = card_product.image.width %}
+    {% case settings.product_image_display %}
+      {% when '100%' %}
+        {% assign card_product_image_height = card_product.image.width %}
+      {% when '133.33%' %}
+        {% assign card_product_image_height = card_product.image.width | times: 1.3333 %}
+      {% when '75%' %}
+        {% assign card_product_image_height = card_product.image.width | times: 0.75 %}
+      {% else %}
+        {% assign card_product_image_height = card_product.image.height %}
+    {% endcase %}
+    <a
+      class="product-snippet__img-link relative block overflow-hidden"
+      {{ href }}
+      {% if product_image_hover_on %}has-secondary-image{% endif %}
+    >
+      <spz-img
+        class="product-snippet__img product-snippet__img_main"
+        layout="responsive"
+        width="{{card_product_image_width}}"
+        height="{{card_product_image_height}}"
+        src="{{card_product_image.src | img_url}}"
+        alt="{{card_product_image.alt | escape}}"
+        object-fit="cover"
+        auto-fit
+        {% if ssrIndex == 0 %}
+          ssr
+          size-ratio="{{ sizeRatio | default: 3 }}"
+        {% endif %}
+      ></spz-img>
+      {% unless card_product.isMock %}
+        {% if settings.product_swatches_collection_on and thumbnails.size > 0 %}
+          <spz-carousel
+            class="product-snippet__img product-snippet__img_carousel"
+            id="{{image_carousel_id}}"
+            layout="responsive"
+            width="{{card_product_image_width}}"
+            height="{{card_product_image_height}}"
+            initial-slide="0"
+            slide
+            effect="fade"
+          >
+            {% for item in thumbnails limit: 3 %}
+              <spz-img
+                layout="responsive"
+                width="{{card_product_image_width}}"
+                height="{{card_product_image_height}}"
+                src="{{item.image.src | img_url}}"
+                alt="{{item.image.alt}}"
+                object-fit="cover"
+                auto-fit
+              ></spz-img>
+            {% endfor %}
+          </spz-carousel>
+        {% endif %}
+      {% endunless %}
+
+      {% if product_image_hover_on %}
+        <spz-img
+          class="product-snippet__img-secondary absolute top-0"
+          layout="responsive"
+          width="{{card_product_image_width}}"
+          height="{{card_product_image_height}}"
+          src="{{ secondary_image.src | img_url }}"
+          alt="{{ secondary_image.alt | escape }}"
+          object-fit="cover"
+          auto-fit
+        ></spz-img>
+      {% endif %}
+    </a>
+    {% comment %} quick shop icon {% endcomment %}
+    {% if settings.product_quick_view_on and card_product.available and settings.quick_shop_style == 'icon' %}
+      {% if card_product.isMock %}
+        <button type="button" class="product-snippet__quick-shop-icon" @tap="quick-shop.open;quick-shop-render.render(src='{{ routes.root_url }}api/products/{{card_product.id}}');">
+          {% include 'icon_quickview' %}
+        </button>
+      {% elsif card_product.variants.size > 1 or shop.wholesale_enabled %}
+        <button
+          type="button"
+          class="product-snippet__quick-shop-icon"
+          data-track-product-id="{{card_product.id}}"
+          data-track-position="{{track_position}}"
+          data-track="quick_shop"
+          @tap="quick-shop.open;quick-shop-render.render(src='{{ routes.root_url }}api/products/{{card_product.id}}');"
+        >
+          {% include 'icon_quickview' %}
+        </button>
+      {% else %}
+        {% capture icon_quickview %}{% include 'icon_quickview' %}{% endcapture %}
+        {% include 'product_snippet_atc_single', button_class: 'product-snippet__quick-shop-icon', button_content: icon_quickview %}
+      {% endif %}
+    {% endif %}
+    {% comment %} label {% endcomment %}
+    {% include 'product_snippet_label', card_product, min_price_variant_href, label_class: "md:hidden", label_type: lg_label_type %}
+    {% include 'product_snippet_label', card_product, min_price_variant_href, label_class: "lg:hidden", label_type: md_label_type %}
+  </div>
+
+  {% comment %} mixed wholesale label {% endcomment %}
+  {% if card_product.mixed_wholesale %}
+    {% include 'mixed_wholesale_label', class: "mt-2 lg:mt-3", key: image_wrap_id %}
+  {% endif %}
+
+  {% comment %} title {% endcomment %}
+  <h3 class="product-snippet__title dj_skin_product_list_title m-0 mt-2 p-0 body-base leading-1.25 type-heading-font-family product-title-color {% if settings.hide_mobile_product_title %} md:hidden {% endif %} {% if settings.product_title_style == 'one_line' %} line-clamp-1 {% endif %}">
+    <a class="text-inherit no-underline" {{ href }}>
+      {{ card_product.title | escape }}
+    </a>
+  </h3>
+
+  {% comment %} price {% endcomment %}
+  <a
+    class="product-snippet__price-wrapper flex items-center flex-wrap mt-2 text-inherit no-underline"
+    {{ min_price_variant_href }}
+    {% if shop.wholesale_enabled %}wholesale-enabled{% endif %}
+  >
+    {% if shop.wholesale_enabled %} {% comment %} wholesale{% endcomment %}
+      <div class="product-snippet__price inline-flex flex-wrap overflow-hidden">
+        <span class="money">{{ card_product.price_min | money_with_symbol }}</span>
+        {% if card_product.price_min < card_product.price_max %}
+          -<span class="money">{{ card_product.price_max | money_with_symbol }}</span>
+        {% endif %}
+      </div>
+      {% assign retail_price_max = card_product.retail_price_max | default: card_product.compare_at_price_max %}
+      {% if retail_price_max > 0 %}
+        <span class="product-snippet__compare-at-price flex">
+          &nbsp;{{ 'i18n.products.general.retail' | t }}&nbsp;<span class="money">{{ retail_price_max | money_with_symbol }}</span>
+        </span>
+      {% endif %}
+    {% else %} {% comment %} not wholesale{% endcomment %}
+      <span class="product-snippet__price">
+        {% capture price_dom %}
+          <span class='money'>{{ card_product.price | money_with_symbol }}</span>
+        {% endcapture %}
+        {% if card_product.price_min != card_product.price_max %}
+          {{ 'i18n.products.general.from' | t: price: price_dom }}
+        {% else %}
+          {{ price_dom }}
+        {% endif %}
+      </span>
+      {% if card_product.compare_at_price > card_product.price %}
+        <span class="product-snippet__compare-at-price money">
+          {{ card_product.compare_at_price | money_with_symbol }}
+        </span>
+      {% endif %}
+    {% endif %}
+  </a>
+
+  {% comment %} option thumbnails {% endcomment %}
+  {% unless card_product.isMock %}
+    {% if settings.product_swatches_collection_on and thumbnails.size > 0 %}
+      <spz-selector
+        id="{{thumbnails_selector_id}}"
+        layout="container"
+        class="product-snippet__thumbnails flex items-center flex-wrap mt-2"
+        @mouseover="{{thumbnails_selector_id}}.toggle(option=event.targetOption,value=true);{{image_carousel_id}}.goToSlide(index=event.targetOption);{{image_wrap_id}}.toggleClass(class='show_carousel',force=true)"
+      >
+        {% for item in thumbnails limit: 3 %}
+          <a
+            option="{{ forloop.index0 }}"
+            class="product-snippet__thumbnails-item flex cursor-pointer"
+            href="{{ item.url }}"
+          >
+            <spz-img
+              layout="fixed"
+              width="28"
+              height="28"
+              src="{{ item.image.src | img_url }}"
+              alt="{{ item.image.alt | escape }}"
+              object-fit="cover"
+              auto-fit
+            ></spz-img>
+          </a>
+        {% endfor %}
+        {% if thumbnails.size > 3 %}
+          <a {{ href }} class="product-snippet__thumbnails-item text-xs text-inherit no-underline">+{{ thumbnails.size | minus: 3 }}</a>
+        {% endif %}
+      </spz-selector>
+    {% endif %}
+  {% endunless %}
+
+  {% comment %} quick shop botton {% endcomment %}
+  {% include 'product_snippet_quick_atc' label_type: label_type %}
+{% endsnippet %}

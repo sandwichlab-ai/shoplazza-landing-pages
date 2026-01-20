@@ -1,0 +1,24 @@
+{% capture container_class %}
+  header-submenu {{ containerClass}}
+  {% if isFullscreen %} header-menu-full-screen  lg:pt-8 lg:pb-9 header__three_menu-wrapper header-shadow absolute left-0 right-0 header-bg overflow-x-hidden overflow-y-auto
+  {% else %} header-menu-dropdown {% endif %}
+  {% if hasChildMenu %} has-child-menu {% endif %}
+  {% if hasThirdMenu %} has-third-menu {% endif %}
+{% endcapture %}
+
+{% capture content %}
+  {% if isFullscreen %}
+    <div class="page-container flex w-full header-menu-full-screen-content">
+      {{ children }}
+    </div>
+  {% else %}
+    {{ children }}
+  {% endif %}
+{% endcapture %}
+
+<div
+  class="{{ container_class }}"
+  {% if isFullscreen %} spz-menu-submenu {% endif %}
+>
+{{ content }}
+</div>

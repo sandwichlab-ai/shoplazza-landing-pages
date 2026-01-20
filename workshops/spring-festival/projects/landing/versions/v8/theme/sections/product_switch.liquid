@@ -1,0 +1,290 @@
+{% assign collection = collections[section.settings.collection.id] %}
+{% unless collection.id %}
+  {% assign collection =  default_collection %}
+{% endunless %}
+{% assign products = collection.products %}
+{% assign collection_description = collection.description %}
+{% assign heading = section.settings.heading | default: collection.title %}
+{% assign desc = section.settings.desc | default: collection_description %}
+{% assign show_view_more = section.settings.show_view_more %}
+{% assign per_row = section.settings.per_row %}
+{% assign show_products = section.settings.show_products %}
+{% assign product_size = collection.products_count %}
+{% if product_size and product_size < show_products %}
+  {% assign show_products = product_size %}
+{% endif %}
+
+{% include 'card_spacing_css'  %}
+
+<style>
+  [data-section-id="{{ section.id }}"] .product_switch-arrows-item {
+    width: 44px;
+    height: 44px;
+    background-color: var(--color-body-bg);
+    border: 1px solid #e6e6e6;
+  }
+
+  [data-section-id="{{ section.id }}"] .product_switch-title {
+    font-size: calc(var(--type-heading-font-size) * .8);
+    color: var(--color-general-heading-text);
+  }
+
+  @media (max-width: {{ settings.breakpoint | minus: 0.02 }}px) {
+    [data-section-id="{{ section.id }}"] .product_switch_content > .i-spzhtml-slides-container > .i-spzhtml-slide-item {
+      flex: unset !important;
+      flex-shrink: 0 !important;
+      width: 66.67% !important;
+      padding-right: 16px;
+    }
+  }
+
+  @media (min-width: {{ settings.breakpoint }}px) {
+    [data-section-id="{{ section.id }}"] .product_switch-desc {
+      width: 258px;
+    }
+
+    [data-section-id="{{ section.id }}"] .product_switch_content[data-pc-count="1"] .i-spzhtml-slide-item > * {
+      width: 100%;
+    }
+
+    [data-section-id="{{ section.id }}"] .product_switch_content[data-pc-count="2"] .i-spzhtml-slide-item > * {
+      width: 50%;
+    }
+
+    [data-section-id="{{ section.id }}"] .product_switch_content[data-pc-count="3"] .i-spzhtml-slide-item > * {
+      width: 33.33%;
+    }
+
+    [data-section-id="{{ section.id }}"] .product_switch_content[data-pc-count="4"] .i-spzhtml-slide-item > * {
+      width: 25%;
+    }
+  }
+</style>
+
+{%- comment -%} 阿拉伯语言支持 {%- endcomment -%}
+{% if shop.locale == "ar-SA" %}
+  <style>
+    @media (max-width: {{ settings.breakpoint | minus: 0.02 }}px) {
+      html[dir="rtl"] [data-section-id="{{ section.id }}"] .product_switch_content > .i-spzhtml-slides-container > .i-spzhtml-slide-item {
+        padding-left: 16px;
+        padding-right: 0;
+      }
+    }
+  </style>
+{% endif %}
+
+<div class="page-container">
+  <div class="lg:flex lg:items-center">
+    {% if heading or desc or show_view_more %}
+      <div class="product_switch-desc overflow-hidden flex-shrink-0">
+        <div class="flex justify-between items-center">
+          <h4 class="product_switch-title m-0 type-heading-font-family font-normal leading-1.2 overflow-hidden">{{ heading | escape }}</h4>
+          {% if show_view_more %}
+            <a class="product_switch-view-more-btn lg:hidden flex-shrink-0 inline-block button-secondary ml-5 mr-2 mt-2 p-2 leading-1.1 lg:mt-10{% if settings.button_edges == 'round' or settings.button_edges == 'slightly_round' %} rounded-btn {% else %} rounded {% endif %} no-underline" {% include 'link', link: collection %}>{{ 'i18n.general.view.view_more' | t }}</a>
+          {% endif %}
+        </div>
+        {% if desc %}
+          <p class="m-0 mt-2 body-plus-2 lg:mt-5">{{ desc }}</p>
+        {% endif %}
+        {% if show_view_more %}
+          <a class="md:hidden ml-2 mb-2 inline-block button-secondary p-2 leading-1.1 lg:mt-10 {% if settings.button_edges == 'round' or settings.button_edges == 'slightly_round' %} rounded-btn {% else %} rounded {% endif %} no-underline" {% include 'link', link: collection %}>{{ 'i18n.general.view.view_more' | t }}</a>
+        {% endif %}
+      </div>
+    {% endif %}
+    {% if collection.id %}
+      <spz-carousel
+        ssr
+        class="product_switch_content md:mt-5 lg:flex-1"
+        id="product-switch-{{ section.id }}"
+        effect="scroller"
+        layout="container"
+        data-pc-count="{{per_row}}"
+        visible-count="(min-width:960px) 1, 1.5"
+        advance-count="(min-width:960px) {{per_row}}, 1"
+        initial-slide="0"
+        loop
+        {% if section.settings.enable_auto_change %}
+          autoplay
+          delay="{{ section.settings.change_every | times: 1000  }}"
+        {% endif %}
+        @mounted="product-switch-render-{{ section.id }}.rerender(data=event);"
+        @slideChange="product-switch-render-{{ section.id }}.rerender(data=event);"
+      >
+        {% for product in products limit: show_products %}
+          <div class="lg:pl-10">
+            {% include 'product', card_product: product, ssrIndex: forloop.index0, s_columns: per_row, s_breakpoint: 2, s_common_columns: 3 %}
+          </div>
+        {% endfor %}
+      </spz-carousel>
+    {% endif %}
+  </div>
+  <spz-render
+    class="bg-color-body flex-1 mr-2"
+    id="product-switch-render-{{ section.id }}"
+    layout="container"
+    manual
+  >
+    <template>
+      <div>
+        <div class="flex items-center justify-center mt-6 lg:mt-8" spz-if="${data.total > 1}">
+          <button
+            class="product_switch-arrows-item flex items-center justify-center rounded-full cursor-pointer color-body"
+            @tap="product-switch-{{ section.id }}.goPrev;"
+          >
+            {% include 'icon_chevron_up', attr: 'prev', icon_class: 'flex-shrink-0 rotate--90' %}
+          </button>
+          <span class="mx-5">${data.index + 1}/${data.total}</span>
+          <button
+            class="product_switch-arrows-item flex items-center justify-center rounded-full cursor-pointer color-body"
+            @tap="product-switch-{{ section.id }}.goNext;"
+          >
+            {% include 'icon_chevron_up', attr: 'next', icon_class: 'flex-shrink-0 rotate-90' %}
+          </button>
+        </div>
+      </div>
+    </template>
+  </spz-render>
+</div>
+{% schema %}
+{
+  "name": "product_switch",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "default": "Featured collection"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": {
+        "en-US": "Collection",
+        "zh-CN": "专辑"
+      }
+    },
+    {
+      "type": "textarea",
+      "id": "desc",
+      "label": {
+        "en-US": "Description",
+        "zh-CN": "描述"
+      },
+      "default": ""
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_more",
+      "label": {
+        "en-US": "Show view more button",
+        "zh-CN": "开启‘View more’按钮"
+      },
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "per_row",
+      "label": {
+        "en-US": "Desktop products per row",
+        "zh-CN": "PC端每行商品数量"
+      },
+      "unit": "",
+      "step": 1,
+      "min": 1,
+      "max": 4,
+      "default": 3
+    },
+    {
+      "type": "range",
+      "id": "show_products",
+      "label": {
+        "en-US": "Show products",
+        "zh-CN": "显示商品数量"
+      },
+      "unit": "",
+      "step": 1,
+      "min": 1,
+      "max": 16,
+      "default": 9
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_auto_change",
+      "label": {
+        "en-US": "Auto-change products",
+        "zh-CN": "自动切换商品"
+      },
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "change_every",
+      "label": {
+        "en-US": "Change products every",
+        "zh-CN": "商品切换时间"
+      },
+      "unit": "s",
+      "step": 1,
+      "min": 5,
+      "max": 10,
+      "default": 7
+    },
+    {
+      "type": "spacing",
+      "id": "spacing",
+      "label": {
+        "en-US": "Spacing",
+        "zh-CN": "间距留白"
+      },
+      "pc": {
+        "top": "40",
+        "right": "",
+        "bottom": "40",
+        "left": ""
+      },
+      "mobile": {
+        "top": "20",
+        "right": "",
+        "bottom": "20",
+        "left": ""
+      },
+      "default": {
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        }
+      }
+    }
+  ],
+  "presets": [
+    {
+      "name": "product_switch",
+      "cname": {
+        "en-US": "Products carousel",
+        "zh-CN": "商品轮播"
+      },
+      "category": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "ccategory": {
+        "en-US": "Product",
+        "zh-CN": "商品"
+      },
+      "icon": "oss/operation/cbff8870e3db05817270bcb0e8c52870.svg",
+      "display": true
+    }
+  ]
+}
+{% endschema %}

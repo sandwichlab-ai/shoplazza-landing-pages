@@ -1,0 +1,75 @@
+<div class="page-container cart-items-top-container w-full mt-4">
+  {% include 'cart_countdown' %}
+  <div class="cart__discount-container mt-2 empty-hidden"></div>
+</div>
+
+<spz-render class="page-container cart-items-render" id="cart-items-render" layout="container" manual {% if isBock %}{{ item.shoplaza_attributes }}{% endif %}>
+  <template>
+    <div>
+      <section spz-if="${!!(data.line_items && data.line_items.length > 0)}">
+        <ul class="md:hidden cart-items-header clear mt-4 color-text-default">
+          <li>{{ 'i18n.bag.general.product' | t }}</li>
+          <li>{{ 'i18n.bag.general.qty' | t }}</li>
+          <li class="text-right">{{ 'i18n.bag.general.price' | t }}</li>
+        </ul>
+
+        <ul class="clear cart-items">
+          <li class="cart-item lg:mt-7" spz-for="item in data.line_items" key="item.id">
+            <div class="flex items-start">
+              <a
+                class="cart-item-image"
+                spz-href="${item.product_url}?variant=${item.variant_id}"
+                data-track-type="image"
+                data-track-product_id="${item.variant_id}"
+                data-track="click"
+                data-track-content="product_link"
+                data-track-product-id="${item.product_id}"
+                data-track-position="cart"
+              >
+                <spz-img
+                  class="rounded-global-fixed overflow-hidden"
+                  width="${item.image.width}"
+                  height="${item.image.height}"
+                  layout="responsive"
+                  src="${item.image.src}"
+                  alt="${item.image.alt}"
+                  object-fit="cover"
+                  auto-fit
+                ></spz-img>
+              </a>
+
+              <div class="flex-1 ml-4">
+                <div class="md:flex md:items-start md:justify-between">
+                  {% include 'cart_item_product_info', title_class: 'line-clamp-2 lg:line-clamp-3', variant_class: 'mt-1 lg:mt-2', variant_item_class: 'mt-1', mixedWholesaleLabelClass: 'mt-1' %}
+                  {% include 'cart_item_delete', class: 'lg:hidden cart-item-delete-btn flex-shrink-0 ml-4', actionId: 'cart-render' %}
+                </div>
+
+                <div class="lg:hidden mt-2 cart-qty-minimum-tip" spz-if="${!!item.item_text}">${item.item_text}</div>
+
+                <div class="lg:hidden mt-2">
+                  <div class="flex items-center justify-between">
+                    {% include 'cart_item_prices', class: 'flex flex-wrap items-center mr-1', compare_price_class: 'md:order-1 ml-1 body-minus-2',  price_class: 'font-medium body-plus-2' %}
+                    {% include 'cart_item_qty', class: 'cart-qty', actionId: 'cart-render', item_text_class: 'hidden' %}
+                  </div>
+                  {% include 'discount_applications', type: 'cart', discount_class: 'mt-1 body-minus-2 leading-1.25 color-body-60', discount_applications: 'item.discount_applications', alt: 'item.image.alt || item.product_title', imageWidth: 12, imageHeight: 12, image_class: 'mt-0.5' %}
+                </div>
+              </div>
+            </div>
+            <div class="md:hidden">
+              <div class="flex items-center">
+                {% include 'cart_item_qty', class: 'cart-qty', actionId: 'cart-render', item_text_class: 'hidden' %}
+                {% include 'cart_item_delete', class: 'ml-6', actionId: 'cart-render' %}
+              </div>
+              <div class="mt-1 cart-qty-minimum-tip" spz-if="${!!item.item_text}">${item.item_text}</div>
+            </div>
+            <div class="md:hidden text-right">
+              {% include 'cart_item_prices', multi_price_class: 'mt-1', price_class: 'font-medium body-plus-2' %}
+              {% include 'discount_applications', type: 'cart', discount_class: 'justify-end mt-1 body-minus-2 leading-1.25 color-body-60 text-right', discount_applications: 'item.discount_applications', alt: 'item.image.alt || item.product_title', imageWidth: 12, imageHeight: 12, image_class: 'mt-0.5' %}
+            </div>
+          </li>
+        </ul>
+      </section>
+      {% include 'cart_empty', attr: 'spz-else', button_class: 'cart-continue-shopping body-plus-2' %}
+    </div>
+  </template>
+</spz-render>

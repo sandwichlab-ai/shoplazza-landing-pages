@@ -1,0 +1,41 @@
+{% assign show_copyright = section.settings.show_copyright %}
+{% assign copyright_text = section.settings.additional_copyright_text %}
+{% assign policies_menu = section.settings.policies_menu %}
+{% assign menu_id = policies_menu.id %}
+{% if show_copyright or menu_id or powered_by_link %}
+  <style>
+    .footer__additional__item{
+      padding-top: 12px
+    }
+    .footer__additional__item + .footer__additional__item{
+      padding-left: 20px;
+    }
+    .footer__copyright a[href] {
+      color: inherit;
+      text-decoration: none;
+    }
+  </style>
+
+  {% if shop.locale == 'ar-SA' %}
+    <style>
+      html[dir="rtl"] .footer__additional__item + .footer__additional__item {
+        padding-left: 0;
+        padding-right: 20px;
+      }
+    </style>
+  {% endif %}
+
+  <div class="footer__additional pt-5 pb-8 lg:pt-6 lg:pb-8">
+    <div class="page-container body-minus-1 flex flex-wrap justify-center">
+      {% if show_copyright %}
+        <span class="footer__additional__item">&copy;&nbsp;{{ 'today' | time_tag: format: 'year' }}&nbsp;{{ shop.name }}{% if copyright_text %}&nbsp;{{ copyright_text }}{% endif %}</span>
+      {% endif %}
+      {% for link in linklists[menu_id].links %}
+        <a class="footer__additional__item text-inherit" {% include 'link', link: link %}>{{ link.title }}</a>
+      {% endfor %}
+      {% if powered_by_link %}
+        <div class="footer__additional__item footer__copyright">{{ powered_by_link }}</div>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}

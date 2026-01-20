@@ -1,0 +1,238 @@
+<style>
+  @keyframes scaleImg {
+    0% {
+      opacity: 0.75;
+      transform: scale(1.25);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  .collection_image_container spz-img img {
+    animation: scaleImg 1s ease;
+  }
+</style>
+{% assign img_pc = collection.image %}
+{% assign img_mobile = collection.image %}
+{% assign pc_img_height = section.settings.pc_img_height | append: 'px'  %}
+{% assign md_img_height = section.settings.md_img_height | append: 'px' %}
+{% assign custom_img_height = true %}
+{% for item in section.blocks %}
+  {% if item.settings.collection.id == collection.id %}
+    {% assign img_pc = images[item.settings.img_pc] | default: img_pc %}
+    {% assign img_mobile = images[item.settings.img_mobile] | default: images[item.settings.img_pc] | default: img_pc %}
+    {% assign custom_img_height = item.settings.custom_img_height %}
+    {% if custom_img_height == null %}
+      {% assign custom_img_height = true %}
+    {% endif %}
+    {% if custom_img_height %}
+      {% assign pc_img_height = item.settings.height_pc | append: 'px' %}
+      {% assign md_img_height = item.settings.height_mobile | append: 'px' %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+
+<div class="collection_image_container">
+  {% if img_pc %}
+    <spz-img
+      class="md:hidden"
+      {% if custom_img_height %}
+        height="{{ pc_img_height }}"
+        layout="fixed-height"
+      {% else %}
+        height="{{ img_pc.height }}"
+        width="{{ img_pc.width }}"
+        layout="responsive"
+      {% endif %}
+      src="{{ img_pc | img_url }}"
+      alt="{{ img_pc.alt | default: collection.title | escape }}"
+      object-fit="cover"
+      auto-fit
+      ssr
+      size-ratio="1"
+    ></spz-img>
+  {% endif %}
+  {% if img_mobile %}
+    <spz-img
+      class="lg:hidden"
+      {% if custom_img_height %}
+        height="{{ md_img_height }}"
+        layout="fixed-height"
+      {% else %}
+        height="{{ img_mobile.height }}"
+        width="{{ img_mobile.width }}"
+        layout="responsive"
+      {% endif %}
+      src="{{ img_mobile | img_url }}"
+      alt="{{ img_mobile.alt | default: collection.title | escape }}"
+      object-fit="cover"
+      auto-fit
+      ssr
+      size-ratio="1"
+    ></spz-img>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "collection_image",
+  "templates": ["collection"],
+  "limit": 1,
+  "settings": [
+    {
+      "type": "range",
+      "id": "pc_img_height",
+      "step": 10,
+      "max": 600,
+      "min": 0,
+      "label": {
+        "en-US": "Desktop image height",
+        "zh-CN": "PC端封面高度"
+      },
+      "default": 460,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "md_img_height",
+      "step": 10,
+      "max": 240,
+      "min": 0,
+      "label": {
+        "en-US": "Mobile image height",
+        "zh-CN": "移动端封面高度"
+      },
+      "default": 200,
+      "unit": "px"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "custom_image",
+      "name": {
+        "zh-CN": "自定义封面",
+        "en-US": "Custom image"
+      },
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": {
+            "en-US": "Collection",
+            "zh-CN": "专辑"
+          }
+        },
+        {
+          "type": "paragraph",
+          "content": {
+            "zh-CN": "选择专辑，指定该专辑的封面",
+            "en-US": "Choose the collection that you want to customize the specified image."
+          }
+        },
+        {
+          "type": "image_picker",
+          "resource_type": {
+            "design": {
+              "type": "Banner"
+            }
+          },
+          "id": "img_pc",
+          "label": {
+            "en-US": "Desktop collection image",
+            "zh-CN": "PC端专辑封面"
+          },
+          "info": {
+            "en-US": "Recommended upload image size: 1440px*600px (width*height). If you want to display the image fully, turn off the custom height configuration item.",
+            "zh-CN": "推荐上传图片尺寸：1440px*600px（宽度*高度）。若想要完全展示图片，则关闭自定义高度配置项。"
+          }
+        },
+        {
+          "type": "image_picker",
+          "resource_type": {
+            "design": {
+              "type": "Banner"
+            }
+          },
+          "id": "img_mobile",
+          "label": {
+            "en-US": "Mobile collection image",
+            "zh-CN": "移动端专辑封面"
+          },
+          "info": {
+            "en-US": "Recommended upload image size: 375px:200px (width:height)",
+            "zh-CN": "推荐上传图片尺寸：375px*200px（宽度*高度）"
+          }
+        },
+        {
+          "type": "checkbox",
+          "id": "custom_img_height",
+          "label": {
+            "en-US": "Custom height",
+            "zh-CN": "自定义高度"
+          },
+          "default": true
+        },
+        {
+          "type": "range",
+          "id": "height_pc",
+          "step": 10,
+          "max": 1000,
+          "min": 0,
+          "label": {
+            "en-US": "Desktop collection image height",
+            "zh-CN": "PC端封面高度"
+          },
+          "default": 460,
+          "unit": "px",
+          "visibleOn": "custom_img_height"
+        },
+        {
+          "type": "range",
+          "id": "height_mobile",
+          "step": 10,
+          "max": 500,
+          "min": 0,
+          "label": {
+            "en-US": "Mobile collection image heigh",
+            "zh-CN": "移动端封面高度"
+          },
+          "default": 200,
+          "unit": "px",
+          "visibleOn": "custom_img_height"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "collection_image",
+      "cname": {
+        "en-US": "Collection image",
+        "zh-CN": "专辑封面"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "ccategory": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "blocks": [
+        {
+          "type": "custom_image",
+          "settings": {
+            "collection": "",
+            "img_pc": "",
+            "height_pc": 460,
+            "img_mobile": "",
+            "height_mobile": 200
+          }
+        }
+      ],
+      "display": true
+    }
+  ]
+}
+{% endschema %}

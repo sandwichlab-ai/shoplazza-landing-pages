@@ -1,0 +1,40 @@
+<div id="shipment-tracking-${item.id}" class="hidden mt-5">
+  <div class="mb-4 text-base leading-none">{{ 'i18n.customers.order_details_general.latest_tracking' | t }}</div>
+  <spz-render role="tracking-info-render" manual layout="container" template="shipment-tracking-detail-template"></spz-render>
+</div>
+
+<div class="shipment-tracking-block md:flex-col lg:justify-between lg:items-center">
+  <div class="shipment-tracking-custom-container flex flex-col p-3 mt-4 border {% if settings.edges == 'round' %}rounded{% endif %}" spz-if="${item.showCustomTrackingInfo}">
+    <time datetime="${item.created_at}">
+      ${item.parsedTime.YYYY}-${item.parsedTime.MM}-${item.parsedTime.DD}
+      ${item.parsedTime.HH}:${item.parsedTime.mm}:${item.parsedTime.ss}
+    </time>
+    <a class="mt-2 underline color-body" spz-href="${item.tracking_url}" target="_blank">{{ 'i18n.customers.order_details_general.track_shipment' | t }}</a>
+    <div class="mt-2">${item.tracking_company}&nbsp;${item.tracking_number}</div>
+  </div>
+  <div class="shipment-tracking-buttons">
+    <button
+      id="shipment-tracking-btn-${item.id}"
+      class="clear button-secondary md:ml-4 lg:mr-4 text-base leading-none"
+      role="tracking"
+      tracking-id="${item.tracking_number}"
+      target-id="shipment-tracking-${item.id}"
+      spz-if="${item.showTrackingInfoBtn}"
+      @tap="shipment-tracking-btn-${item.id}.toggleClass(class='is-tracking');shipment-tracking-${item.id}.toggleClass(class='hidden');"
+    >
+      <span role="tracking-info">{{ 'i18n.customers.order_details_general.tracking_info_button' | t }}</span>
+      <span class="hidden" role="fold-tracking-info">
+        {{ 'i18n.customers.order_details_general.fold_tracking_info_button' | t }}
+      </span>
+    </button>
+    <button 
+      class="clear button-primary md:ml-4 lg:mr-4 text-base leading-none"
+      role="confirm_receipt"
+      data-id="${item.id}"
+      spz-if="${!!item.showConfirmReceiptBtn && item.allowed_actions['finish_fulfillment']}"
+    >
+      {{ 'i18n.customers.order_details_general.confirm_receipt_button' | t }}
+    </button>
+  </div>
+</div>
+

@@ -1,0 +1,20 @@
+<div class="product-info-desc mt-4 lg:mt-5 {{ class }}" {{ block.shoplaza_attributes }}>
+  {% assign desc_style = item.settings.desc_style %}
+
+  <spz-accordion layout="container" animate>
+    <section
+      class="product-info-desc-item"
+      {% if desc_style == 'visible' %}
+        expanded
+      {% endif %}
+    >
+      <div class="product-info-desc-item-header flex justify-between break-words">
+        <div class="flex-1 mr-3 lg:body-plus-3">{{ title }}</div>
+        {% render 'icon_arrow_down', icon_class: 'flex-shrink-0' %}
+      </div>
+      <div class="product-info-desc-item-content mce-content">
+        {{ description }}
+      </div>
+    </section>
+  </spz-accordion>
+</div>

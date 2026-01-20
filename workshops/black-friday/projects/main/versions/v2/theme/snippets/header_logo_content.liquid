@@ -1,0 +1,13 @@
+<a class="{% if logo and logo_width > 0 %}image_width block{% else %}header__logo-title{% endif %} {{class}}" href="{{ routes.root_url }}">
+  {% if logo and logo_width > 0 %}
+    <spz-img
+      layout="responsive"
+      width="{{images[logo].width}}"
+      height="{{images[logo].height}}"
+      src="{{ images[logo].src | img_url: '400x' }}"
+      alt="{{ images[logo].alt | escape }}"
+    ></spz-img>
+  {% else %}
+    {{ shop.name | escape }}
+  {% endif %}
+</a>

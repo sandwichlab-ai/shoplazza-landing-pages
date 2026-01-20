@@ -1,0 +1,46 @@
+{% include 'css_form' %}
+{% include 'order_verify_css' %}
+
+{% assign invalid_order_id = 'i18n.customers.order_verify.invalid_order_id' | t %}
+{% assign invalid_email_or_phone = 'i18n.customers.order_verify.invalid_email_or_phone' | t %}
+
+{% if order_shipping_phone == nil %}
+  {% if param_type == 'history' %}
+    {% include 'order_history' %}
+  {% else %}
+    {% include 'order_view' %}
+  {% endif %}
+{% else %}
+  {% if order_shipping_email %}
+    {% include 'order_verify_email' %}
+  {% elsif order_shipping_phone %}
+    {% include 'order_verify_phone' %}
+  {% else %}
+    {% include 'order_verify_email' %}
+  {% endif %}
+{% endif %}
+
+{% schema %}
+  {
+    "name": "order_verify",
+    "settings": [],
+    "presets": [
+      {
+        "name": "order_verify",
+        "cname": {
+          "en-US": "Order lookup",
+          "zh-CN": "查询订单"
+        },
+        "category": {
+          "en-US": "Order",
+          "zh-CN": "订单"
+        },
+        "ccategory": {
+          "en-US": "Order",
+          "zh-CN": "订单"
+        },
+        "display": false
+      }
+    ]
+  }
+{% endschema %}

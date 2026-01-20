@@ -1,0 +1,58 @@
+{% assign force_enabled = false %}
+{% if search_style == 'search_box' and md_enable_sticky %}
+  {% assign force_enabled = true %}
+{% endif %}
+
+{% if search_style == 'icon' or force_enabled %}
+  <style>
+    .header__search_sidebar{
+      height: 100vh;
+      width: 100%;
+      pointer-events: none;
+    }
+    .header__search_sidebar_content{
+      pointer-events: auto;
+      overflow: hidden auto;
+      max-height: 100%;
+      background-color: var(--color-header-bg);
+    }
+    .header__search-modal-form{
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background-color: var(--color-header-bg);
+    }
+    .header__search_sidebar-input{
+      padding: 24px 16px;
+      color: var(--color-header-search-text);
+    }
+    .header__search_sidebar + .i-spzhtml-sidebar-mask{
+      pointer-events: auto;
+    }
+  </style>
+  <spz-sidebar class="header__search_sidebar" id="header_search_sidebar" layout="nodisplay" side="top" @close="{{section_prefix}}-announcement.toggleClass(class='header_mask_open', force=false);">
+    <div class="header__search_sidebar_content">
+      <div class="page-container header__search-modal-form">
+        <form class="flex items-center" action="{{routes.search_url}}" method="get">
+          <button type="submit" class="clear text-0 text-inherit cursor-pointer">
+            {% include 'icon_search_large' %}
+          </button>
+          <input
+            {% if settings.search_predictive_on %}
+              @input-debounced="header_search_predictive_render-sidebar.rerender(data=event.value, redo=true);"
+            {% endif %}
+            class="header__search_sidebar-input flex-1 text-base leading-none type-text-font-family clear"
+            type="text"
+            autocomplete="off"
+            name="q"
+            placeholder="{{ 'i18n.navigation.general.search_product' | t }}"
+          />
+          <button type="reset" class="header__search-modal-close text-0 text-inherit clear cursor-pointer" @tap="header_search_sidebar.close()">
+            {% include 'icon_search_close' %}
+          </button>
+        </form>
+      </div>
+      {% include 'header_search_predictive', media: media, render_id_suffix: '-sidebar' %}
+    </div>
+  </spz-sidebar>
+{% endif %}

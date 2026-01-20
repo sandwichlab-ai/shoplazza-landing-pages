@@ -1,0 +1,318 @@
+{% include 'card_spacing_css' %}
+{% include 'accessories_list_css' %}
+
+{% assign pc_per_row = section.settings.pc_per_row | default: 4 %}
+{% assign md_per_row = section.settings.md_per_row | default: 2 %}
+{% assign tabs = nil %}
+{% assign show_tab = true %}
+{% for block in section.blocks %}
+  {% assign type = block.settings.type | default: 'Ungrouped' %}
+
+  {% if block.settings.number > 0 or block.settings.number == blank %}
+    {% if tabs == nil %}
+      {% assign tabs = tabs | append: type %}
+    {% else %}
+      {% assign tabs = tabs | append: ',' | append: type %}
+    {% endif %}
+  {% endif %}
+{% endfor %}
+{% assign tabs = tabs | split: ',' | uniq %}
+{% assign tabs_count = tabs | size %}
+
+<div class="page-container accessories_container_{{section.id}}">
+  {% if section.settings.title %}
+    <h3 class="mt-0 lg:mb-5 mt-0 mb-8 accessories_title type-heading-font-family break-word text-center">{{ section.settings.title }}</h3>
+  {% endif %}
+  {% comment %} accessories_list {% endcomment %}
+  <spz-tabs class="break-words m-0" layout="container" id="spz-tabs-{{ section.id }}">
+    {% comment %} pc-tabs {% endcomment %}
+    <div class="accessories-list-header md:hidden lg:flex lg:items-center lg:justify-center">
+      <ul class="accessories-list-tabs flex m-0 p-0 hide-scrollbar justify-center text-center {% if tabs_count == 1 %} hidden {% endif %}" role="tabs" data-count="{{ tabs_count }}">
+        {% for tab in tabs %}
+          <li class="accessories-list-tab flex justify-center break-words " role="tab" data-panel="tab-{{ forloop.index }}-{{ section.id }}" {% if forloop.index == 1 %} active {% endif %}>
+            <label class="accessories-list-tab-heading h-full flex items-center relative text-base text-center pointer-events-auto">{{ tab | escape }}</label>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    {% comment %} mobile-tabs {% endcomment %}
+    <div class="relative w-full lg:hidden flex items-center justify-center border border-solid border-line">
+      <select @change="spz-tabs-{{ section.id }}.tabChange(dataId=event.value)" class="accessories_select appearance-none cursor-pointer select-none w-full h-full border-none block px-4 py-[10px] pr-10 leading-1.3">
+        {% for tab in tabs %}
+          <option {% if forloop.index == 1 %} selected {% endif %}  value="tab-{{ forloop.index }}-{{ section.id }}">{{tab}}</li>
+        {% endfor %}
+      </select>
+      {% include 'icon_right', icon_class: "absolute right-4 block pointer-events-none rotate-90" %}
+    </div>
+
+    {% for tab in tabs %}
+      {% assign outerIndex = forloop.index0 %}
+
+      <div class="custom_content md:custom_content2 lg:mt-6 mt-3 pointer-events-none first_selected item_content" role="tabpanel" data-id="tab-{{ forloop.index }}-{{ section.id }}" {% if forloop.index == 1 %} active {% endif %}>
+        {% for block in section.blocks %}
+          {% assign block_type = block.settings.type | default: 'Ungrouped' %}
+          {% assign image = block.settings.image %}
+          {% if block_type == tab %}
+            <div {{block.shoplaza_attributes}} class="accessories_item box-border pointer-events-auto">
+              <a
+                class="relative block accessories_item_img"
+              >
+                {% if image %}
+                    <spz-img
+                      class="rounded-xl"
+                      layout="responsive"
+                      width="375"
+                      height="375"
+                      src="{{ image | img_url }}"
+                      alt="{{ images[image].alt | default: item.settings.heading | escape }}"
+                      object-fit="contain"
+                      auto-fit
+                      {% if outerIndex == 0 and forloop.index0 == 0 %}
+                        ssr
+                        size-ratio="{% if pc_per_row <= 3 %}{{ pc_per_row }}{% else %}4{% endif %}"
+                      {% endif %}
+                    ></spz-img>
+                {% else %}
+                  <div class="placeholder-svg overflow-hidden ">{{ 'image' | placeholder_svg_tag }}</div>
+                {% endif %}
+              </a>
+              <div class="lg:mt-3 mt-2 text-text-color opacity-75">
+                {{block.settings.heading}}
+              </div>
+              <div class="mt-1 body-plus-2">
+                {% if block.settings.number > 0 %}
+                  &times {{block.settings.number}}
+                {% endif %}
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </spz-tabs>
+</div>
+
+{% schema %}
+  {
+    "name": "accessories_list",
+    "max_blocks": 50,
+    "settings": [
+      {
+        "type": "text",
+        "id": "title",
+        "label": {
+          "zh-CN": "标题",
+          "en-US": "Title"
+        },
+        "default": "Accessories list"
+      }, {
+        "type": "range",
+        "id": "pc_per_row",
+        "step": 1,
+        "max": 10,
+        "min": 2,
+        "label": {
+          "en-US": "Desktop contents per row",
+          "zh-CN": "PC端每行内容数量"
+        },
+        "default": 4
+      }, {
+        "type": "select",
+        "id": "md_per_row",
+        "label": {
+          "en-US": "Mobile contents per row",
+          "zh-CN": "移动端每行商品数量"
+        },
+        "options": [
+          {
+            "label": {
+              "zh-CN": "2",
+              "en-US": "2"
+            },
+            "value": 2
+          }, {
+            "label": {
+              "zh-CN": "3",
+              "en-US": "3"
+            },
+            "value": 3
+          }
+        ],
+        "default": 2
+      }, {
+        "type": "spacing",
+        "id": "spacing",
+        "label": {
+          "en-US": "Spacing",
+          "zh-CN": "间距留白"
+        },
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        },
+        "default": {
+          "pc": {
+            "top": "40",
+            "right": "",
+            "bottom": "40",
+            "left": ""
+          },
+          "mobile": {
+            "top": "20",
+            "right": "",
+            "bottom": "20",
+            "left": ""
+          }
+        }
+      }
+    ],
+    "blocks": [
+      {
+        "type": "accessories",
+        "name": {
+          "en-US": "accessory item",
+          "zh-CN": "配件"
+        },
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": {
+              "en-US": "Image",
+              "zh-CN": "图片"
+            }
+          }, {
+            "type": "text",
+            "id": "heading",
+            "label": {
+              "en-US": "Heading",
+              "zh-CN": "标题"
+            },
+            "default": "Product title"
+          }, {
+            "type": "text",
+            "id": "number",
+            "label": {
+              "en-US": "Number",
+              "zh-CN": "数量"
+            },
+            "props": {
+              "type": "number",
+              "min": 0
+            },
+            "default": 1
+          }, {
+            "type": "text",
+            "id": "type",
+            "label": {
+              "en-US": "Type",
+              "zh-CN": "类型"
+            },
+            "default": "New",
+            "info": {
+              "en-US": "When the type is configured, the accessories is only displayed in the corresponding type tab",
+              "zh-CN": "当配置类型后，配件仅在对应的类型tab中展示"
+            }
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "accessories_list",
+        "cname": {
+          "en-US": "Accessories list",
+          "zh-CN": "配件清单"
+        },
+        "category": {
+          "en-US": "Image with text",
+          "zh-CN": "图文"
+        },
+        "ccategory": {
+          "en-US": "Image with text",
+          "zh-CN": "图文"
+        },
+        "display": true,
+        "blocks": [
+          {
+            "type": "accessories",
+            "settings": {
+              "image": "",
+              "heading": "Product title",
+              "number": 1,
+              "type": "New"
+            }
+          },
+          {
+            "type": "accessories",
+            "settings": {
+              "image": "",
+              "heading": "Product title",
+              "number": 1,
+              "type": "New"
+            }
+          },
+          {
+            "type": "accessories",
+            "settings": {
+              "image": "",
+              "heading": "Product title",
+              "number": 1,
+              "type": "New"
+            }
+          },
+          {
+            "type": "accessories",
+            "settings": {
+              "image": "",
+              "heading": "Product title",
+              "number": 1,
+              "type": "New"
+            }
+          }, {
+            "type": "accessories",
+            "settings": {
+              "image": "",
+              "heading": "Product title",
+              "number": 1,
+              "type": "Hot"
+            }
+          }, {
+            "type": "accessories",
+            "settings": {
+              "image": "",
+              "heading": "Product title",
+              "number": 1,
+              "type": "Hot"
+            }
+          }, {
+            "type": "accessories",
+            "settings": {
+              "image": "",
+              "heading": "Product title",
+              "number": 1,
+              "type": "Hot"
+            }
+          }, {
+            "type": "accessories",
+            "settings": {
+              "image": "",
+              "heading": "Product title",
+              "number": 1,
+              "type": "Hot"
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

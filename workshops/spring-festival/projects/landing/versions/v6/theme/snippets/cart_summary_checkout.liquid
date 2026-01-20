@@ -1,0 +1,11 @@
+<button
+  type="button"
+  class="{{class}} button-primary relative flex-shrink-0 w-full mt-4 body-plus-2 leading-1.2"
+  data-track="checkout-submit,click"
+  data-track-content="checkout"
+  data-track-source="checkout"
+  @tap="{{actionId}}.checkout;"
+>
+  <span>{{ 'i18n.bag.general.check_out' | t }}</span>
+  {% include 'loading', class: 'absolute inset-0 flex', display: true %}
+</button>

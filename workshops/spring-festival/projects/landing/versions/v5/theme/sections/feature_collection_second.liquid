@@ -1,0 +1,427 @@
+{% include 'card_spacing_css', is_update_page_container: false %}
+{% assign collection1 = collections[section.settings.collection1.id] %}
+{% assign collection_image = section.settings.collection_image %}
+{% assign src_alt = '' %}
+{% if collection_image %}
+  {% assign src_alt = images[collection_image].alt | default: '' %}
+{% else %}
+  {% assign collection_image = collection1.image.src %}
+  {% assign src_alt = collection1.image.alt %}
+{% endif %}
+{% assign per_row = section.settings.per_row | default: 2 %}
+{% assign md_per_row = per_row %}
+{% if md_per_row > 2 %}
+  {% assign md_per_row = 2.5 %}
+{% endif %}
+{% assign per_row_spacing = per_row | minus: 1 %}
+
+{% assign title = collection1.title | default: 'Example Collection Title' %}
+{% assign limit = section.settings.limit %}
+{% assign products = collection1.products %}
+{% assign mobile_spacing_left = section.settings.spacing.mobile.left | default: section.settings.spacing.pc.left | default: 0 %}
+{% assign mobile_spacing_right = section.settings.spacing.mobile.right | default: section.settings.spacing.pc.right | default: 0 %}
+
+{% assign offset = 0 %}
+{%- comment -%} 找专辑中第一个可获得商品 {%- endcomment -%}
+{% for item in products %}
+  {% if item.available %}
+    {% assign product = item %}
+    {% assign offset = forloop.index0 %}
+    {% break %}
+  {% endif %}
+{% endfor %}
+
+{% if section.settings.show_more %}
+  {% assign product_num = per_row | times: 4 %}
+{% else %}
+  {% assign product_num = per_row %}
+{% endif %}
+{% if collection1.id %}
+  {% assign products_count = collection1.products_count | minus: offset %}
+  {% if product_num >= products_count %}
+    {% assign product_num = products_count %}
+  {% endif %}
+{% endif %}
+
+
+<style>
+  [data-section-id="{{ section.id }}"] .product-snippet__price-wrapper,
+  [data-section-id="{{ section.id }}"] .product-snippet__title {
+    display: none;
+  }
+  [data-section-id="{{ section.id }}"] .product_snippet__label {
+    position: absolute;
+    top: auto;
+    {% if shop.locale == "ar-SA" %}
+      right: 6px;
+    {% else %}
+      left: 6px;
+    {% endif %}
+    bottom: 6px;
+  }
+  .slick-{{ section.id }} > .i-spzhtml-slides-container > .i-spzhtml-slide-item {
+    padding: 0 5px;
+  }
+  .slick-{{ section.id }}.slick-2 > .i-spzhtml-slides-container > .i-spzhtml-slide-item {
+    width: 50%;
+  }
+  .slick-{{ section.id }}.slick-3 > .i-spzhtml-slides-container > .i-spzhtml-slide-item {
+    width: 33.33%;
+  }
+  @media (max-width: 959.98px) {
+    .feature__primary-content {
+      height: 460px;
+    }
+    .slick-{{ section.id }}.slick-3 > .i-spzhtml-slides-container > .i-spzhtml-slide-item {
+      width: 40%;
+    }
+  }
+
+  @media (min-width: 960px) {
+    .slick-{{ section.id }} {
+      margin: 0 -5px;
+    }
+    .feature__primary-content {
+      width: 38%;
+    }
+    .feature__primary-content[data-layout = 'left'] {
+      margin-left: 122px;
+      order: 1;
+    }
+    .feature__primary-content[data-layout = 'right'] {
+      margin-right: 122px;
+    }
+    .feature__content-desc {
+      padding-left: 144px;
+      margin-top: 108px;
+      margin-bottom: 52px;
+    }
+    .feature__content-desc[data-layout = 'left'] {
+      padding-left: 144px;
+    }
+    .feature__content-desc[data-layout = 'right'] {
+      padding-right: 144px;
+    }
+    .lg\:w-\[47\%\] {
+      width: 47%;
+    }
+    .lg\:min-h-\[132px\] {
+      min-height: 132px;
+    }
+  }
+</style>
+
+<div class="feature-{{section.id}} feature_container lazyload">
+  <div class="lg:overflow-hidden lg:flex lg:justify-between direction_ltr_self">
+    <div
+      class="
+        feature__primary-content relative lg:mb-15 flex-shrink-0 overflow-hidden rounded-global-small
+        {% if section.settings.layout == 'left' %}
+          lg:rounded-l-none
+        {% endif %}
+        {% if section.settings.layout == 'right' %}
+          lg:rounded-r-none
+        {% endif %}
+      "
+      data-layout="{{section.settings.layout}}"
+    >
+      <a class="block lg:box-border h-full lg:absolute lg:inset-0 object-cover" {% include 'link', link: collection1 %}>
+        {% if collection_image %}
+          <spz-img
+            class="lg:h-full"
+            src='{{ collection_image | img_url }}'
+            alt='{{ src_alt | default: heading | escape }}'
+            layout="responsive"
+            width="375"
+            height="460"
+            object-fit="cover"
+            auto-fit
+            ssr
+            size-ratio="2"
+          ></spz-img>
+        {% else %}
+          {{ 'image' | placeholder_svg_tag: 'fill-svg bg-svg h-full w-full absolute object-cover' }}
+        {% endif %}
+      </a>
+    </div>
+    <div class="lg:w-[47%] lg:flex-1 lg:shrink-0 md:flex md:flex-col-reverse md:mt-4">
+      <div class="feature__content-desc md:px-4 mt-1 break-words {% if section.blocks.size <= 0 %} lg:min-h-[132px] {% endif %} box-border" data-layout="{{section.settings.layout}}">
+        {% if section.blocks.size > 0 %}
+          {% for block in section.blocks %}
+            {% case block.type %}
+              {% when 'heading' %}
+              {% assign heading = block.settings.heading %}
+              {% if heading %}
+                <h4 {{ block.shoplaza_attributes }} class="m-0 mt-3 title-font type-heading-font-family font-normal leading-1.2">
+                  <a class="text-inherit no-underline" {% include 'link', link: collection1 %}>{{ heading | escape }}</a>
+                </h4>
+              {% endif %}
+              {% when 'text' %}
+              {% assign text = block.settings.text %}
+              {% if text %}
+                <p {{ block.shoplaza_attributes }} class="m-0 body-plus-2 mt-3">{{ text | escape }}</p>
+              {% endif %}
+              {% when 'button' %}
+              {% assign button_text = block.settings.button_text %}
+              {% if button_text %}
+                <a
+                  {{ block.shoplaza_attributes }}
+                  class="inline-block mt-5 px-6 py-2 type-text-font-family body-plus-2 no-underline rounded-btn {% if block.settings.button_style == 'primary_button' %} button-primary {% else %} button-secondary box-border border border-solid border-btn-bg bg-btn-text-color text-btn-bg lg:hover:text-btn-text-color lg:hover:bg-btn-bg lg:hover:border-btn-bg {% endif %}"
+                  {% include 'link', link: collection1 %}>{{ button_text | escape }}</a>
+              {% endif %}
+            {% endcase %}
+          {% endfor %}
+        {% endif %}
+      </div>
+      <div class="relative group overflow-hidden">
+        <spz-carousel
+          ssr
+          class="slick-{{section.id}} slick-{{per_row}}"
+          {% if product_num > per_row %}
+            loop
+          {% endif %}
+          visible-count="(min-width:960px) {{per_row}}, {{md_per_row}}"
+          layout="container"
+          initial-slide="0"
+          {% if section.settings.show_more %} controls {% else %} disabled-scroller {% endif %}
+          id="gallery-roll-carousel-{{ section.id }}">
+          {% if collection1.id %}
+            {% for item in products offset: offset limit: product_num %}
+              {% include 'product', card_product: item %}
+            {% endfor %}
+          {% else %}
+            {% for item in (1..product_num) %}
+              {% include 'product', card_product: default_product %}
+            {% endfor %}
+          {% endif %}
+          {% if section.settings.show_more %}
+            {% include 'icon_chevron_up', attr: 'pre' %}
+            {% include 'icon_chevron_up', attr: 'next' %}
+          {% endif %}
+        </spz-carousel>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% schema %}
+  {
+    "name": "feature_collection_second",
+    "max_blocks": 3,
+    "settings": [
+      {
+        "type": "collection",
+        "id": "collection1",
+        "label": {
+          "en-US": "Collection",
+          "zh-CN": "专辑"
+        }
+      },
+      {
+        "type": "image_picker",
+        "id": "collection_image",
+        "label": {
+          "en-US": "Collection cover image",
+          "zh-CN": "专辑封面"
+        }
+      },
+      {
+        "type": "select",
+        "id": "layout",
+        "label": {
+          "en-US": "Layout",
+          "zh-CN": "布局"
+        },
+        "options": [
+          {
+            "value": "left",
+            "label": {
+              "en-US": "Product left",
+              "zh-CN": "商品在左"
+            }
+          }, {
+            "value": "right",
+            "label": {
+              "en-US": "Product right",
+              "zh-CN": "商品在右"
+            }
+          }
+        ],
+        "default": "right"
+      },
+      {
+        "type": "range",
+        "id": "per_row",
+        "label": {
+          "en-US": "Products per row",
+          "zh-CN": "每行商品数量"
+        },
+        "unit": "",
+        "step": 1,
+        "min": 2,
+        "max": 3,
+        "default": 2
+      }, {
+        "type": "checkbox",
+        "id": "show_more",
+        "label": {
+          "en-US": "Show more products",
+          "zh-CN": "展示更多商品"
+        },
+        "default": "true"
+      }, {
+        "type": "spacing",
+        "id": "spacing",
+        "label": {
+          "en-US": "Spacing",
+          "zh-CN": "间距留白"
+        },
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        },
+        "default": {
+          "pc": {
+            "top": "40",
+            "right": "",
+            "bottom": "40",
+            "left": ""
+          },
+          "mobile": {
+            "top": "20",
+            "right": "",
+            "bottom": "20",
+            "left": ""
+          }
+        }
+      }
+    ],
+    "blocks": [
+      {
+        "type": "heading",
+        "name": {
+          "en-US": "Heading",
+          "zh-CN": "标题"
+        },
+        "limit": 1,
+        "settings": [
+          {
+            "type": "text",
+            "id": "heading",
+            "label": {
+              "en-US": "Heading",
+              "zh-CN": "标题"
+            },
+            "default": "Featured collection"
+          }
+        ]
+      }, {
+        "type": "text",
+        "name": {
+          "en-US": "Text",
+          "zh-CN": "文字"
+        },
+        "limit": 1,
+        "settings": [
+          {
+            "type": "textarea",
+            "id": "text",
+            "label": {
+              "en-US": "Text",
+              "zh-CN": "文字"
+            },
+            "default": ""
+          }
+        ]
+      }, {
+        "type": "button",
+        "name": {
+          "en-US": "Button",
+          "zh-CN": "按钮"
+        },
+        "limit": 1,
+        "settings": [
+          {
+            "type": "text",
+            "id": "button_text",
+            "label": {
+              "en-US": "Button",
+              "zh-CN": "按钮"
+            },
+            "default": "Shop now"
+          }, {
+            "type": "select",
+            "id": "button_style",
+            "label": {
+              "en-US": "Button style",
+              "zh-CN": "按钮样式"
+            },
+            "options": [
+              {
+                "value": "primary_button",
+                "label": {
+                  "en-US": "Primary button",
+                  "zh-CN": "主要按钮"
+                }
+              }, {
+                "value": "secondary_button",
+                "label": {
+                  "en-US": "Secondary button",
+                  "zh-CN": "次要按钮"
+                }
+              }
+            ],
+            "default": "secondary_button"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "feature_collection_second",
+        "cname": {
+          "en-US": "Featured collection 2",
+          "zh-CN": "推荐专辑2"
+        },
+        "category": {
+          "en-US": "Collection",
+          "zh-CN": "专辑"
+        },
+        "ccategory": {
+          "en-US": "Collection",
+          "zh-CN": "专辑"
+        },
+        "icon": "oss/operation/e900ecfba2345a83595b9309653785a7.svg",
+        "display": true,
+        "blocks": [
+          {
+            "type": "heading",
+            "settings": {
+              "heading": "Featured collection"
+            }
+          }, {
+            "type": "text",
+            "settings": {
+              "text": ""
+            }
+          }, {
+            "type": "button",
+            "settings": {
+              "button_text": "Shop now",
+              "button_style": "secondary_button"
+            }
+          }
+        ]
+      }
+    ]
+  }
+{% endschema %}

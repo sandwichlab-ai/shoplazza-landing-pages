@@ -1,0 +1,36 @@
+{% if collection.description %}
+  <style>
+    .collection_description{
+      color: var(--color-body-text-75);
+    }
+  </style>
+  <div class='collection_description page-container mce-content body-minus-1 lg:body-plus-2 lg:pt-8 md:pt-4'>
+    {{ collection.description | spz_img }}
+  </div>
+{% endif %}
+{% schema %}
+{
+  "name": "collection_desc",
+  "templates": ["collection"],
+  "limit": 1,
+  "settings": [],
+  "presets": [
+    {
+      "name": "collection_desc",
+      "cname": {
+        "en-US": "Collection description",
+        "zh-CN": "专辑描述"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "ccategory": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": true
+    }
+  ]
+}
+{% endschema %}

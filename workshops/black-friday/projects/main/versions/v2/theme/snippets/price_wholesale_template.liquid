@@ -1,0 +1,74 @@
+
+<style>
+  .price-wholesale {
+    overflow-y: hidden;
+    overflow-x: auto;
+    background: #F9F9FA;
+  }
+
+  .price-wholesale-item:nth-child(n + 2) {
+    margin-left: 8px;
+  }
+
+  .price-wholesale-item .money {
+    color: var(--color-price-text);
+  }
+
+  .price-wholesale-item.highlight .money {
+    color: var(--color-save-price-text)
+  }
+</style>
+<template id="{{template_id}}">
+  ${function() {
+    {% comment %} 多变体商品-当前选择变体 {% endcomment %}
+    const currentSelectVariant = data.variant;
+    {% comment %} 无变体商品异步-默认变体数据 {% endcomment %}
+    const defaultVariant = (data.product && data.product.variants && data.product.variants[0]);
+    {% comment %} 无变体商品商详页同步-默认变体数据 {% endcomment %}
+    const productVariant = {{productSelectedVariant | json}};
+
+    const variantData = currentSelectVariant || defaultVariant || productVariant;
+    const wholesalePrice = variantData.wholesale_price || [];
+    const wholesaleQuantity = +data.quantity || 0;
+    let hasHighlight = false;
+
+    return `
+      <div class="w-full">
+        <div spz-if="${wholesalePrice.length>0}" class="price-wholesale flex w-full p-4 md:py-3 hide-scrollbar {% if settings.edges == 'round' %}rounded{% endif %}">
+          ${wholesalePrice.map((item, index) => {
+            const nextWholesale = wholesalePrice[index + 1] || {};
+            let isHighlight = false;
+            let quantity_html = '';
+            if(wholesalePrice.length > (index + 1)){
+              quantity_html = item.min_quantity + "-" + (nextWholesale.min_quantity - 1);
+              if( wholesaleQuantity < +nextWholesale.min_quantity && !hasHighlight ){
+                isHighlight = true;
+                hasHighlight = true;
+              };
+            }else{
+              quantity_html = ">=" + item.min_quantity;
+              if( !hasHighlight ){
+                isHighlight = true;
+                hasHighlight = true;
+              };
+            };
+            return `
+              <div class="price-wholesale-item flex-grow flex-shrink-0 ${isHighlight ? 'highlight' : '' }">
+                <spz-currency class="text-2xl md:text-base leading-1.4 font-semibold" value="${item.price || ''}" layout="container"></spz-currency>
+                <div class="opacity-70 mt-1 md:text-xs">
+                  <span>${quantity_html}</span>
+                  {{ 'i18n.products.general.pieces' | t }}
+                </div>
+              </div>
+            `
+          }).join('')}
+        </div>
+        {% if whole_price_min_to_max %}
+          <div spz-else class="mr-2 md:mx-4 text-2xl leading-1.2 font-semibold color-price product-info__header_price">
+            {{whole_price_min_to_max}}
+          </div>
+        {% endif %}
+      </div>
+    `;
+  }()}
+</template>

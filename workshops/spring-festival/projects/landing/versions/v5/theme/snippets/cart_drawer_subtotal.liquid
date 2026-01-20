@@ -1,0 +1,22 @@
+<spz-render id="cart-drawer-subtotal-render" layout="container" manual {{ item.shoplaza_attributes }}>
+  <template>
+    <section class="py-4">
+      {% include 'cart_free_shipping' %}
+      {% include 'cart_drawer_summary' %}
+
+      <spz-observer
+        layout="logic"
+        id="cart-drawer-summary-sticky-observer"
+        target="cart-drawer-subtotal-render"
+        root-container="cart-drawer-content"
+        @visible="cart-drawer-summary-sticky-render.toggleClass(class='visible', force=false);cart-drawer-summary-sticky-compensation-container.toggleClass(class='visible', force=false)"
+        @invisible="cart-drawer-summary-sticky-render.toggleClass(class='visible', force=true);cart-drawer-summary-sticky-compensation-container.toggleClass(class='visible', force=true)"
+      ></spz-observer>
+      <spz-observer
+        layout="logic"
+        target="cart-drawer-content"
+        @childUpdated="cart-drawer-summary-sticky-observer.restart"
+      ></spz-observer>
+    </section>
+  </template>
+</spz-render>

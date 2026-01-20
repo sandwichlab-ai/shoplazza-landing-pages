@@ -1,0 +1,414 @@
+<style>
+/* 春节大促落地页 */
+.sf-landing {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #8B0000 0%, #DC143C 50%, #FF4500 100%);
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+/* 顶部横幅 */
+.sf-banner {
+  background: rgba(0,0,0,0.3);
+  padding: 12px 20px;
+  text-align: center;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.sf-banner-text {
+  color: #FFD700;
+  font-weight: 700;
+}
+
+/* 装饰元素 */
+.sf-lanterns {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  font-size: 48px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* 主内容区 */
+.sf-hero {
+  position: relative;
+  min-height: calc(100vh - 50px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.sf-hero-content {
+  max-width: 600px;
+  position: relative;
+  z-index: 1;
+}
+
+/* 年份标识 */
+.sf-year-badge {
+  display: inline-block;
+  background: #FFD700;
+  color: #8B0000;
+  padding: 8px 24px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(255,215,0,0.4);
+}
+
+/* 主标题 */
+.sf-title {
+  margin: 0 0 16px 0;
+  line-height: 1.1;
+}
+
+.sf-title-main {
+  display: block;
+  font-size: 64px;
+  font-weight: 900;
+  color: #FFD700;
+  text-shadow: 3px 3px 0 #8B0000, 0 0 30px rgba(255,215,0,0.5);
+  letter-spacing: 8px;
+}
+
+.sf-title-sub {
+  display: block;
+  font-size: 36px;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 8px;
+  letter-spacing: 4px;
+}
+
+/* 副标题 */
+.sf-subtitle {
+  font-size: 18px;
+  color: rgba(255,255,255,0.9);
+  margin: 0 0 40px 0;
+  letter-spacing: 2px;
+}
+
+/* 折扣展示 */
+.sf-discount {
+  margin-bottom: 40px;
+}
+
+.sf-discount-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(0,0,0,0.3);
+  padding: 20px 40px;
+  border-radius: 16px;
+  border: 2px solid #FFD700;
+}
+
+.sf-discount-num {
+  font-size: 72px;
+  font-weight: 900;
+  color: #FFD700;
+  line-height: 1;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.sf-discount-text {
+  text-align: left;
+}
+
+.sf-discount-off {
+  font-size: 28px;
+  font-weight: 700;
+  color: #FFD700;
+}
+
+.sf-discount-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+}
+
+/* 倒计时 */
+.sf-countdown {
+  margin-bottom: 40px;
+}
+
+.sf-countdown-title {
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+  margin-bottom: 12px;
+  letter-spacing: 2px;
+}
+
+.sf-timer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.sf-timer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sf-timer-num {
+  background: rgba(0,0,0,0.4);
+  border: 2px solid #FFD700;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 28px;
+  font-weight: 700;
+  min-width: 60px;
+  color: #FFD700;
+}
+
+.sf-timer-label {
+  font-size: 12px;
+  margin-top: 4px;
+  color: rgba(255,255,255,0.7);
+}
+
+.sf-timer-sep {
+  font-size: 28px;
+  font-weight: 700;
+  color: #FFD700;
+  margin-top: 12px;
+}
+
+/* 特色标签 */
+.sf-features {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.sf-feature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.15);
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 14px;
+}
+
+.sf-feature-icon {
+  font-size: 18px;
+}
+
+/* CTA 按钮 */
+.sf-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #FFD700;
+  color: #8B0000;
+  text-decoration: none;
+  padding: 20px 56px;
+  border-radius: 50px;
+  font-size: 20px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 30px rgba(255,215,0,0.4);
+}
+
+.sf-cta:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(255,215,0,0.6);
+  background: #FFF8DC;
+}
+
+/* 底部提示 */
+.sf-note {
+  margin-top: 24px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.7);
+}
+
+.sf-note strong {
+  color: #FFD700;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .sf-title-main {
+    font-size: 42px;
+    letter-spacing: 4px;
+  }
+  .sf-title-sub {
+    font-size: 24px;
+  }
+  .sf-discount-num {
+    font-size: 48px;
+  }
+  .sf-timer-num {
+    font-size: 22px;
+    min-width: 50px;
+    padding: 10px 12px;
+  }
+  .sf-cta {
+    padding: 16px 40px;
+    font-size: 18px;
+  }
+  .sf-lanterns {
+    font-size: 32px;
+  }
+}
+</style>
+
+<section class="sf-landing" data-project="landing" data-version="v2">
+  <!-- 顶部横幅 -->
+  <div class="sf-banner">
+    <span class="sf-banner-text">🧧 2026 春节大促 · 龙年送福 · 全场特惠 🧧</span>
+  </div>
+
+  <!-- 装饰灯笼 -->
+  <div class="sf-lanterns">
+    <span>🏮</span>
+    <span>🧧</span>
+    <span>🏮</span>
+    <span>🧧</span>
+    <span>🏮</span>
+  </div>
+
+  <!-- 主内容区 -->
+  <div class="sf-hero">
+    <div class="sf-hero-content">
+      <div class="sf-year-badge">🐉 龙年大吉 2026</div>
+
+      <h1 class="sf-title">
+        <span class="sf-title-main">春节大促</span>
+        <span class="sf-title-sub">新春特惠 福利来袭</span>
+      </h1>
+
+      <p class="sf-subtitle">全场商品低至3折 · 满额再减 · 好礼相送</p>
+
+      <!-- 折扣展示 -->
+      <div class="sf-discount">
+        <div class="sf-discount-box">
+          <span class="sf-discount-num">50%</span>
+          <div class="sf-discount-text">
+            <div class="sf-discount-off">OFF</div>
+            <div class="sf-discount-desc">最高立减五折</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 倒计时 -->
+      <div class="sf-countdown">
+        <div class="sf-countdown-title">距离活动结束还有</div>
+        <div class="sf-timer">
+          <div class="sf-timer-item">
+            <span class="sf-timer-num" id="sf-days">07</span>
+            <span class="sf-timer-label">天</span>
+          </div>
+          <span class="sf-timer-sep">:</span>
+          <div class="sf-timer-item">
+            <span class="sf-timer-num" id="sf-hours">23</span>
+            <span class="sf-timer-label">时</span>
+          </div>
+          <span class="sf-timer-sep">:</span>
+          <div class="sf-timer-item">
+            <span class="sf-timer-num" id="sf-minutes">59</span>
+            <span class="sf-timer-label">分</span>
+          </div>
+          <span class="sf-timer-sep">:</span>
+          <div class="sf-timer-item">
+            <span class="sf-timer-num" id="sf-seconds">59</span>
+            <span class="sf-timer-label">秒</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 特色标签 -->
+      <div class="sf-features">
+        <div class="sf-feature">
+          <span class="sf-feature-icon">🎁</span>
+          <span>满299减50</span>
+        </div>
+        <div class="sf-feature">
+          <span class="sf-feature-icon">🚚</span>
+          <span>全场包邮</span>
+        </div>
+        <div class="sf-feature">
+          <span class="sf-feature-icon">🧧</span>
+          <span>新春红包</span>
+        </div>
+      </div>
+
+      <a href="/collections/all" class="sf-cta">
+        🛒 立即抢购
+      </a>
+
+      <p class="sf-note">
+        🔥 已有 <strong>5,288</strong> 人参与抢购
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // 隐藏 header/footer
+  document.querySelectorAll('[data-section-type="header"], [data-section-type="announcement"], footer, .footer, [class*="footer"], header, .header, [class*="header"]').forEach(el => {
+    el.style.display = 'none';
+  });
+
+  // 春节倒计时 - 到正月十五
+  function updateCountdown() {
+    const now = new Date();
+    const endDate = new Date('2026-02-12T23:59:59'); // 正月十五
+    const diff = endDate - now;
+
+    if (diff <= 0) {
+      document.querySelectorAll('.sf-timer-num').forEach(el => el.textContent = '00');
+      return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById('sf-days').textContent = days.toString().padStart(2, '0');
+    document.getElementById('sf-hours').textContent = hours.toString().padStart(2, '0');
+    document.getElementById('sf-minutes').textContent = minutes.toString().padStart(2, '0');
+    document.getElementById('sf-seconds').textContent = seconds.toString().padStart(2, '0');
+  }
+
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
+</script>
+
+{% schema %}
+{
+  "name": "page_detail",
+  "templates": ["page"],
+  "limit": 1,
+  "settings": [],
+  "presets": [
+    {
+      "name": "page_detail",
+      "cname": {
+        "zh-CN": "春节大促",
+        "en-US": "Spring Festival Sale"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": true,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

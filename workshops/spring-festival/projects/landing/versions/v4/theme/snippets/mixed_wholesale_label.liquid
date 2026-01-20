@@ -1,0 +1,28 @@
+<style>
+  .mixed_wholesale_label {
+    padding: 2px 4px;
+  }
+
+  .mixed_wholesale_tooltip .i-spzhtml-tooltip-arrow:before,
+  .mixed_wholesale_tooltip .i-spzhtml-tooltip-inner {
+    background: var(--color-body-bg);
+    color: var(--color-body-text);
+  }
+
+  .mixed_wholesale_tooltip {
+    max-width: 100%;
+    border-radius: 4px;
+    box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.1), 0px 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  @media (min-width: 960px) {
+    .mixed_wholesale_tooltip {
+      max-width: 450px;
+    }
+  }
+</style>
+<div class="{{class}} mixed_wholesale_label inline-flex color-custom-label-text bg-custom-label text-xs rounded" id="mixed-{{key}}">
+  {{'i18n.general.product.mixed_lot' | t }}
+</div>
+<spz-tooltip layout="logic" content="{{ 'i18n.general.product.mixed_lot_tips' | t: count: shop.mixed_rules.quantity | escape }}" interact="hover" for="mixed-{{key}}" placement="bottom" overlay-class="mixed_wholesale_tooltip">
+</spz-tooltip>

@@ -1,0 +1,69 @@
+<section class="page-container lg:flex lg:justify-end" {% if isBlock %} {{ item.shoplaza_attributes }} {% endif %}>
+  <div class="cart-subtotal-outer-container md:w-full mt-4" id="cart-subtotal-outer-container">
+    {% assign postage_free_amount = settings.postage_free_amount | market_rate_exchange %}
+    {% if settings.free_shipping_tip and postage_free_amount > 0 %}
+      <spz-render class="cart-subtotal-free-shipping" id="cart-subtotal-free-shipping" layout="container" manual>
+        <template>
+          <div>
+            <div spz-if="${!!(data.line_items && data.line_items.length > 0)}">
+              {% include 'cart_free_shipping' %}
+            </div>
+          </div>
+        </template>
+      </spz-render>
+    {% endif %}
+
+    <div class="cart-subtotal-content">
+      <div class="cart-summary-checkout mb-1"></div>
+      <div class="cart-summary" id="cart-summary">
+        {% assign coupon_code_block = '{
+          "name": "Discount Code Input Box",
+          "type": "shoplazza://apps/publicapp/blocks/cart_coupon_code/479160278987061111",
+          "settings": {
+            "product_tpl_id": "product-snippet-template",
+            "toast_id": "theme-toast",
+            "cart_id": "cart-render"
+          }
+        }' | parse_json %}
+        {% render coupon_code_block %}
+
+        {% for item in section.blocks %}
+          {% case item.type %}
+            {% when 'payment_detail' %}
+              <div {% if isBock %}{{ item.shoplaza_attributes }}{% endif %}>
+                <spz-render class="cart-subtotal-render" id="cart-subtotal-render" layout="container" manual>
+                  <template>
+                    <div>
+                      {% include 'cart_payment_detail' %}
+                      <spz-observer
+                        id="cart-summary-sticky-observer"
+                        layout="logic"
+                        target="cart-subtotal-outer-container"
+                        @visible="cart-summary-sticky-container.hideSticky;"
+                        @invisible="cart-summary-sticky-container.showSticky;"
+                      ></spz-observer>
+                      <spz-observer
+                        layout="logic"
+                        target="cart-content"
+                        @childUpdated="cart-summary-sticky-observer.restart"
+                      ></spz-observer>
+                    </div>
+                  </template>
+                </spz-render>
+              </div>
+            {%  when 'checkout_button' %}
+              <div {% if isBock %}{{ item.shoplaza_attributes }}{% endif %}>
+                {% include 'cart_checkout_button' %}
+              </div>
+            {% else %}
+              {% if item.type contains '//apps' %}
+                <div {% if isBock %}{{ item.shoplaza_attributes }}{% endif %}>
+                  {% render item %}
+                </div>
+              {% endif %}
+          {% endcase %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>

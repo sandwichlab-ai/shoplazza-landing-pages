@@ -1,0 +1,233 @@
+{{ 'component_smart_search.css' | shoplaza_asset_url | stylesheet_tag }}
+
+<spz-sidebar
+  id="smart-search-sidebar"
+  class="smart-search-sidebar"
+  layout="nodisplay"
+  side="right"
+  impr
+  data-aid="smart_search.."
+  @close="{{section_prefix}}-announcement.toggleClass(class='header_mask_open', force=false);"
+>
+  <spz-search id="smart-search" class="smart-search-wrap" layout="container">
+    <div style="height: 100%;">
+      <div class="smart-search-cancel">
+        <span @tap="smart-search-sidebar.close();">
+          {% render 'icon_modal_close' %}
+        </span>
+      </div>
+      <div class="page-container smart-search-content">
+        <spz-render
+          role="form"
+          layout="container"
+          manual
+        >
+          <template>
+            <div class="smart-search-header">
+              <div class="go-back-block" @tap="smart-search-sidebar.close();">
+                <svg
+                  class="icon-go-back"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M6.82793 11.5757C6.59361 11.8101 6.59361 12.19 6.82792 12.4243L16.1915 21.7879C16.3087 21.905 16.4986 21.905 16.6158 21.7879L17.6915 20.7121C17.8087 20.595 17.8087 20.405 17.6915 20.2879L9.40376 12.0001L17.6917 3.71214C17.8089 3.59498 17.8089 3.40503 17.6917 3.28787L16.616 2.21214C16.4988 2.09498 16.3089 2.09498 16.1917 2.21213L6.82793 11.5757Z" fill="#202020"/>
+                </svg>
+              </div>
+
+              <form
+                id="smart-search-form"
+                class="smart-search-form"
+                method="GET"
+                is="spz-form"
+                @submit="smart-search.handleSearchSubmit(value=event.q);"
+              >
+                <div class="smart-search-input-content">
+                  {% render 'icon_search' %}
+                  <input
+                    class="smart-search-input"
+                    type="search"
+                    name="q"
+                    spz-if="${data.isOpenAutoThink}"
+                    @input-debounced="smart-search.handleFormInput(keyword=event.value);"
+                    autocorrect="off"
+                    autocomplete="off"
+                    autocapitalize="off"
+                    spellcheck="false"
+                  >
+                  <input
+                    class="smart-search-input"
+                    type="search"
+                    name="q"
+                    spz-else
+                  >
+                  <spz-carousel
+                    class="hot-keyword-carousel"
+                    spz-if="${data.isOpenFindKeyword}"
+                    layout="container"
+                    loop
+                    autoplay
+                    delay="3000"
+                    direct="vertical"
+                    @slideEnd="smart-search.handleFindKeyword(index=event.index);"
+                  >
+                    <span
+                      class="hot-keyword line-clamp-1"
+                      spz-for="(item,index) in data.findKeywordList"
+                      key="index"
+                      >${item}</span
+                    >
+                  </spz-carousel>
+
+                  <button
+                    class="smart-search-reset-btn"
+                    type="reset"
+                    @tap="smart-search-form.clear();smart-search.handleFormInput(keyword='');"
+                  >
+                    {% render 'icon_header_input_close', icon_class: 'icon-smart-search-reset' %}
+                  </button>
+                </div>
+                <button
+                  type="submit"
+                  class="smart-search-submit-btn button-primary"
+                >
+                  {{ 'i18n.navigation.general.search_placeholder' | t }}
+                </button>
+              </form>
+            </div>
+          </template>
+        </spz-render>
+
+        <spz-render
+          id="history-render"
+          role="history"
+          layout="container"
+          manual
+        >
+          <template>
+            <div
+              class="recently-history search-keyword-block"
+              spz-if="${data.isShowHistory}"
+            >
+              <div class="recently-history-header search-keyword-header">
+                <div class="recently-history-title search-keyword-title">Recently searched</div>
+                <span @tap="smart-search.handleClearHistory();">
+                  {% render 'icon_delete' %}
+                </span>
+              </div>
+
+              <ul
+                class="recently-history-list search-keyword-list"
+              >
+                <li
+                  class="recently-history-item search-keyword-item"
+                  spz-for="(item,index) in data.historyList"
+                  key="index"
+                  data-track="click"
+                  data-track-aid="smart_search.2.${item}"
+                  @tap="smart-search.handleHistory(value='${item}');"
+                >
+                  <span class="line-clamp-1">${item}</span>
+                </li>
+              </ul>
+            </div>
+          </template>
+        </spz-render>
+
+        <spz-render
+          id="hot-keyword-render"
+          role="hotkeyword"
+          layout="container"
+          manual
+        >
+          <template>
+            <div
+              class="hot-search search-keyword-block"
+              spz-if="${data.isShowHotKeyword}"
+            >
+              <div class="hot-search-header search-keyword-header">
+                <div class="hot-search-title search-keyword-title">Hot searches</div>
+                <span @tap="smart-search.handleRefreshHot();">
+                  {% render 'icon_refresh' %}
+                </span>
+              </div>
+              <ul class="hot-search-list search-keyword-list">
+                <li
+                  spz-for="(item,index) in data.originData.hotKeywordList"
+                  key="index"
+                  class="hot-search-item search-keyword-item"
+                  data-track="click"
+                  data-track-aid="smart_search.${item.type=='user_keyword'?3:4}.${item.word}"
+                  @tap="smart-search.handleHotKeyword(word='${item.word}',query_type='${item.type}',url='${item.urlObj.url}');"
+                >
+                  <div class="hot-search-item-content">
+                    <spz-img
+                      class="hot-img"
+                      spz-if="${!!item.icon}"
+                      src="${item.icon}"
+                      layout="fixed"
+                      width="20"
+                      height="20"
+                      object-fit="contain"
+                      alt="icon"
+                    >
+                    </spz-img>
+                    <div
+                      class="upload-img"
+                      spz-if="${!!item.pic}"
+                    >
+                      <spz-img
+                        class="hot-img"
+                        src="${item.pic}"
+                        layout="fixed"
+                        width="20"
+                        height="20"
+                        alt="icon"
+                      >
+                      </spz-img>
+                    </div>
+                    <span class="line-clamp-1">${item.word}</span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </template>
+        </spz-render>
+
+        {% render 'loading', class: 'smart-search-loading', display: false, has_full_mask: false %}
+        <spz-render
+          id="think-result-render"
+          class="think-result-render hide-scrollbar"
+          role="thinkresult"
+          layout="container"
+          manual
+        >
+          <template>
+            <div
+              class="keyword-result-block hide-scrollbar"
+            >
+              <div class="keyword-result-title">Results</div>
+              <div
+                class="keyword-result-list"
+              >
+                <div
+                  spz-for="(item,index) in data.originData.thinkResult"
+                  key="index"
+                  class="keyword-result-item"
+                  data-track="click"
+                  data-track-aid="smart_search.5.${item.word}"
+                  @tap="smart-search.handleThinkResult(word=${item.word});"
+                >
+                  {% render 'icon_search' %}
+                  <div class="keyword-text">${item.highlightHtml}</div>
+                </div>
+              </div>
+            </div>
+          </template>
+        </spz-render>
+      </div>
+    </div>
+  </spz-search>
+</spz-sidebar>

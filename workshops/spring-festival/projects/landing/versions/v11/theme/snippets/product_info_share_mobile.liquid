@@ -1,0 +1,26 @@
+{% assign share_title = product.title %}
+{% assign share_permalink = product.url %}
+{% assign share_image = product.image.src %}
+
+<spz-tooltip class="lg:hidden" layout="logic" interact="click" for="{{for}}" placement="bottomRight" overlay-class="{{overlayClass}}" dir="{% if shop.locale == 'ar-SA' %}rtl{% else %}ltr{% endif %}">
+  <ul class="product-info-share-list clear">
+    <li>
+      <a target="_blank" data-track="social_share" href="//www.facebook.com/sharer.php?u={{ shop.url | append: share_permalink }}" class="share-facebook">
+        {% include 'icon_sharing_facebook' %}
+        <span>Facebook</span>
+      </a>
+    </li>
+    <li>
+      <a target="_blank" data-track="social_share" href="//twitter.com/share?text={{ share_title | url_param_escape }}&amp;url={{ shop.url | append: share_permalink }}" class="share-twitter">
+        {% include 'icon_sharing_twitter' %}
+        <span>Twitter</span>
+      </a>
+    </li>
+    <li>
+      <a target="_blank" data-track="social_share" href="//pinterest.com/pin/create/button/?url={{ shop.url | append: share_permalink }}&amp;media={{ share_image | img_url: '1024x1024' }}&amp;description={{ share_title | url_param_escape }}" class="share-pinterest">
+        {% include 'icon_sharing_pinterest' %}
+        <span>Pinterest</span>
+      </a>
+    </li>
+  </ul>
+</spz-tooltip>

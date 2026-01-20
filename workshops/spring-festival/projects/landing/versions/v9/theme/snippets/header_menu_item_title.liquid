@@ -1,0 +1,9 @@
+<a class="flex items-start {{class}}" {% include 'link', link: link %}>
+  <span>{{ link.title | escape }}</span>
+  {%- comment -%} Menu tag {%- endcomment -%}
+  {% assign title = link.title | upcase %}
+  {% assign menu_tag = menu_tags[title] %}
+  {% if menu_tag and menu_tag.label %}
+    <span class="header__menu-item-tag" style="color: {{ menu_tag.color }}; background: {{ menu_tag.bg }};">{{ menu_tag.label | escape }}</span>
+  {% endif %}
+</a>

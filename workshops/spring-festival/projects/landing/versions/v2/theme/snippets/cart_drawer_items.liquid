@@ -1,0 +1,40 @@
+<spz-render id="cart-drawer-items-render" layout="container" manual {{ item.shoplaza_attributes }}>
+  <template>
+    <div>
+      <ul class="clear overflow-hidden" spz-if="${!!(data.line_items && data.line_items.length > 0)}">
+        <li class="flex items-start py-4" spz-for="item in data.line_items" key="item.id">
+          <a
+            class="cart-drawer-item-image"
+            spz-href="${item.product_url}?variant=${item.variant_id}"
+            data-track-type="image"
+            data-track-product_id="${item.variant_id}"
+            data-track="click"
+            data-track-content="product_link"
+            data-track-product-id="${item.product_id}"
+            data-track-position="cart"
+          >
+            <spz-img
+              class="rounded-global-fixed overflow-hidden"
+              width="${item.image.width}"
+              height="${item.image.height}"
+              layout="responsive"
+              src="${item.image.src}"
+              alt="${item.image.alt}"
+              object-fit="cover"
+              auto-fit
+            ></spz-img>
+          </a>
+
+          <div class="flex-1 px-4">
+            {% include 'cart_item_product_info', title_class: 'line-clamp-2', variant_class: 'mt-1', variant_item_class: 'mt-0.5', mixedWholesaleLabelClass: 'mt-1' %}
+            {% include 'cart_item_qty', class: 'cart-drawer-item-qty-container mt-3', item_text_class: 'cart-drawer-item-text' %}
+            {% include 'cart_item_prices', class: 'flex items-center justify-end flex-row-reverse mt-3', compare_price_class: 'ml-1 body-minus-2' %}
+            {% include 'discount_applications', type: 'cart_drawer', discount_class: 'mt-1 body-minus-2 leading-1.25 color-body-60', discount_applications: 'item.discount_applications', alt: 'item.image.alt || item.product_title', imageWidth: 12, imageHeight: 12, image_class: 'mt-0.5' %}
+          </div>
+
+          {% include 'cart_item_delete', class: 'flex-shrink-0 cart-drawer-item-delete-btn relative', actionId: actionId %}
+        </li>
+      </ul>
+    </div>
+  </template>
+</spz-render>

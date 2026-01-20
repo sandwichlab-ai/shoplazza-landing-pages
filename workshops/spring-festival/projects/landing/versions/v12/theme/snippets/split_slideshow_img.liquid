@@ -1,0 +1,20 @@
+<div
+  class="relative w-full {{container_class}} {% unless section.settings.full_page %} rounded-global-small overflow-hidden {% endunless %} {% unless section.settings.slide_style == 'magazine' %} {% if item.settings.img_indent %} md:p-[30px] md:pb-0 lg:px-[50px] lg:py-15 {% endif %} {% endunless %}"
+  slide_style="{{slide_style}}"
+>
+  <spz-img
+    class="split_slideshow_spz_img w-full h-full object-cover lazyload {% if item.settings.img_indent %} image-indent-border-radius {% endif %}"
+    layout='responsive'
+    width='36'
+    height='36'
+    src='{{ img.src | img_url }}'
+    alt='{{ img.alt | default: heading | escape }}'
+    object-fit='cover'
+    object-position='{{item.settings.img_position}}'
+    auto-fit
+    {% if forloop.index0 == 0 %}
+      ssr
+      size-ratio="{{ sizeRatio }}"
+    {% endif %}
+  ></spz-img>
+</div>

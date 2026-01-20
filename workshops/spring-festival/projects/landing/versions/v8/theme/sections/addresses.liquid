@@ -1,0 +1,41 @@
+{% include 'addresses_css' %}
+{% include 'css_form' %}
+{% assign addressUrl = '/api/customers/addresses' | add_root_url %}
+{% assign addressAddTitle = 'i18n.customers.add_new_address.add_new_address' | t %}
+{% assign addressAddMethod = 'POST' %}
+{% assign addressAddUrl = '/api/customers/addresses' | add_root_url %}
+{% assign addressAddButton = 'i18n.customers.add_new_address.add_new_address_btn' | t %}
+{% assign addressEditTitle = 'i18n.customers.edit_address.edit_address' | t %}
+{% assign addressEditMethod = 'PATCH' %}
+{% assign addressEditButton = 'i18n.customers.edit_address.update_address' | t %}
+<div>
+  {% include 'address_list' %}
+  {% include 'address_form', id: 'addressAdd', title: addressAddTitle, url: addressAddUrl, method: addressAddMethod, button: addressAddButton, pre: 'add' %}
+  {% include 'address_form', id: 'addressEdit', title: addressEditTitle, method: addressEditMethod, form_id: 'addressEditForm', items: 'address', button: addressEditButton, pre:'edit' %}
+</div>
+
+{% schema %}
+{
+  "name": "addresses",
+  "settings": [],
+  "presets": [
+    {
+      "name": "addresses",
+      "cname": "地址簿",
+      "cname": {
+        "en-US": "Addresses",
+        "zh-CN": "地址簿"
+      },
+      "category": {
+        "en-US": "Addresses",
+        "zh-CN": "地址簿"
+      },
+      "ccategory": {
+        "en-US": "Addresses",
+        "zh-CN": "地址簿"
+      },
+      "display": false
+    }
+  ]
+}
+{% endschema %}

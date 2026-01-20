@@ -1,0 +1,176 @@
+<spz-script layout="logic" id="search-script" scope="{{section_prefix}}-{{section.id}}" @resetAnchor="search-filter-modal-anchor.reset(activeValue=event.data.activeValue);">
+  const searchContainer = document.getElementById('search-container');
+  let updatingSearchTerms = false;
+  let currentAnchorActiveValue = '';
+
+  function updateSearchTerms() {
+    updatingSearchTerms = true;
+    return Promise.resolve({});
+  }
+
+  function updateEmptyStatus(data) {
+    if (!searchContainer || !updatingSearchTerms) {
+      return;
+    }
+    
+    const requestData = data.requestData.data?.filters || []
+    const hasPrice = requestData.some(item=> item.param_name == "filter.v.price")
+    const showFilter = requestData.some(item=> item.param_name != "filter.v.price" && item.values?.length > 0 )
+
+    if ((hasPrice && data.total > 0) || (requestData.length > 0 && showFilter)) {
+      searchContainer.removeAttribute('empty');
+    } else {
+      searchContainer.setAttribute('empty', '');
+    }
+
+    updatingSearchTerms = false;
+
+    return Promise.resolve({});
+  }
+
+  function setAnchorActiveValue(activeValue) {
+    currentAnchorActiveValue = activeValue;
+    return Promise.resolve({});
+  }
+
+  function resetAnchor() {
+    return Promise.resolve({activeValue: currentAnchorActiveValue});
+  }
+
+  exportFunction('updateEmptyStatus', updateEmptyStatus);
+  exportFunction('updateSearchTerms', updateSearchTerms);
+  exportFunction('setAnchorActiveValue', setAnchorActiveValue);
+  exportFunction('resetAnchor', resetAnchor);
+</spz-script>
+
+<spz-script layout="logic" type="application/javascript">
+  const TAG = 'spz-custom-search-one-click';
+  const ONE_CLICK_NAME = 'data-one-click-name';
+
+  class SpzCustomSearchOneClick extends SPZ.BaseElement {
+    static deferredMount() {
+      return false;
+    }
+
+    constructor(element) {
+      super(element);
+
+      this.clickedUniqueNames_ = [];
+
+      this.container_ = null;
+    }
+
+    isLayoutSupported(layout) {
+      return layout == SPZCore.Layout.LOGIC;
+    }
+
+    buildCallback() {
+      const scopeId = this.element.getAttribute('container');
+      this.container_  = SPZCore.Dom.scopedQuerySelector(document.body, `#${scopeId}`) || document.body;
+
+      this.initActions_();
+    }
+
+    initActions_() {
+      SPZUtils.Event.listen(this.container_, 'click', (e) => {
+        const target = SPZCore.Dom.closestAncestorElementBySelector(
+          e.target,
+          `[${ONE_CLICK_NAME}]`
+        );
+
+        if (!target) {
+          return;
+        }
+
+        const name = target.getAttribute(ONE_CLICK_NAME);
+        if (!this.clickedUniqueNames_.includes(name)) {
+          this.clickedUniqueNames_.push(name);
+        }
+        target.setAttribute('hidden', '');
+      });
+
+      this.registerAction('resetStatus', () => {
+        this.resetStatus_();
+      });
+    }
+
+    resetStatus_() {
+      const elements = SPZCore.Types.toArray(
+        SPZCore.Dom.scopedQuerySelectorAll(this.container_, `[${ONE_CLICK_NAME}]`)
+      );
+
+      elements.forEach((el) => {
+        const name = el.getAttribute(ONE_CLICK_NAME);
+        if (this.clickedUniqueNames_.includes(name)) {
+          el.setAttribute('hidden', '');
+        }
+      });
+    }
+  }
+
+   SPZ.defineElement(TAG, SpzCustomSearchOneClick);
+</spz-script>
+
+<spz-script layout="logic" type="application/javascript">
+  const TAG = 'spz-custom-search-input-refresh-list';
+  const FILTER_PREFIX = 'filter.';
+  const SORT_BY = 'sort_by';
+
+  class SpzCustomSearchInputRefreshList extends SPZ.BaseElement {
+    static deferredMount() {
+      return false;
+    }
+
+    constructor(element) {
+      super(element);
+
+      this.target_ = null;
+    }
+
+    isLayoutSupported(layout) {
+      return layout == SPZCore.Layout.LOGIC;
+    }
+
+    buildCallback() {
+      const listId = this.element.getAttribute('list-id');
+
+      SPZCore.Dom.waitForChild(
+        document.body,
+        () => !!document.getElementById(listId),
+        () => {
+          this.initialize_();
+        }
+      );
+    }
+
+    initialize_() {
+      const listId = this.element.getAttribute('list-id');
+      this.target_ = SPZCore.Dom.scopedQuerySelector(document.body, `#${listId}`);
+
+      this.registerAction('refresh', (invocation) => {
+        const {keyword = ''} = invocation?.args || {};
+        const qs = (location.search || '')
+          .split(/[\?&]/g)
+          .filter((item) => item);
+        const emptyFilterItems = qs.map((item) => item.split(/=/)[0])
+          .filter((item) => item.startsWith(FILTER_PREFIX))
+          .reduce((memo, key) => {
+            memo[key] = [];
+            return memo;
+          }, {}) || {};
+        const sortBy = qs.filter((item) => item.split(/=/)[0] === SORT_BY)
+          .reduce((memo, pair) => {
+            const kv = pair.split(/=/);
+            memo[kv[0]] = kv[1];
+            return memo;
+          }, {}) || {};
+
+        SPZ.whenApiDefined(this.target_).then((apis) => {
+          apis.refresh?.({...emptyFilterItems, ...sortBy, keyword}, true);
+        });
+      });
+    }
+  }
+
+   SPZ.defineElement(TAG, SpzCustomSearchInputRefreshList);
+</spz-script>

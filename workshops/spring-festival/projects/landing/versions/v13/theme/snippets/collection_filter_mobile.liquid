@@ -1,0 +1,142 @@
+{% capture modal_title %}
+  {% if show_filter and show_sort %}
+    {{'i18n.collection.collection_detail.filter_and_sort' | t}}
+  {% elsif show_filter %}
+    {{'i18n.collection.collection_detail.filter' | t}}
+  {% elsif show_sort %}
+    {{'i18n.collection.collection_detail.sort' | t}}
+  {% endif %}
+{% endcapture %}
+
+{% if product_total != 0 %}
+  {% if show_filter or show_sort %}
+    <spz-filter
+      class='lg:hidden flex-1 overflow-hidden relative'
+      id='filter-mobile'
+      list-id='collection-list'
+      result-id='filter-result-mobile'
+      collection-id='{{ collection.id }}'
+      content-id='filter-sidebar'
+      layout='container'
+    >
+    </spz-filter>
+    <spz-sidebar 
+      id='filter-sidebar' 
+      class='lg:hidden flex flex-col filter-mobile-sidebar' 
+      hidden 
+      layout='nodisplay' 
+      side='bottom' 
+      disable-unmount 
+      @close='filter-menu-mobile-content.reset;'>
+      <div class='filter-mobile-header body-plus-4 flex items-center justify-center flex-shrink-0 relative'>
+        <span>{{ modal_title }}</span>
+        <i @tap='filter-sidebar.close;' class='filter-mobile-close'>
+          {% include 'icon_modal_close' %}
+        </i>
+      </div>
+      <div class="flex-1 overflow-hidden relative">
+        <spz-nested-menu 
+          id='filter-menu-mobile-content' 
+          class="flex flex-col" layout='fill' side='right'>
+          <div class="filter-menu-inner-container w-full">
+            {% if show_filter %}
+              <div role="content">
+                <spz-render layout='container' manual as='default'>
+                  <template>
+                    <div>
+                      <div class="filter-item-header body-plus-2 relative flex justify-between items-center" spz-nested-submenu-open>
+                        <span class="filter-item-text">${data.title}</span>
+                        {% include 'icon_arrow_right' %}
+                      </div>
+        
+                      <div class='filter-mobile-item-header body-plus-2 flex' spz-nested-submenu>
+                        <div class='filter-nested-submenu'>
+                          <div class='nest-submenu-header uppercase flex items-center' spz-nested-submenu-close>
+                            {% include 'icon_arrow_right' %}
+                            <span class="filter-item-text">${data.title}</span>
+                          </div>
+                          <spz-selector layout='container' multiple role="items">
+                            <div spz-for='(item,index) in data.values' class='filter-item-option flex items-center' option='${item.value}' key='index'>
+                              <div class='filter-item-option-checkbox md:shrink-0 relative border cursor-pointer'>
+                                {% include 'icon_collection_checkbox', icon_class: 'filter_checkbox_svg' %}
+                              </div>
+                              <div class='cursor-pointer'>
+                                <span>${item.label}</span>
+                                <span spz-if='${item.count >= 0}'>(${item.count})</span>
+                              </div>
+                            </div>
+                          </spz-selector>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </spz-render>
+                <spz-render layout='container' manual as='price'>
+                  <template>
+                    <div>
+                      <div class='filter-item-header body-plus-2 flex justify-between items-center' spz-nested-submenu-open>
+                        <span class="filter-item-text">${data.title}</span>
+                        {% include 'icon_arrow_right' %}
+                      </div>
+                      <div class='filter-mobile-item-header body-plus-2' spz-nested-submenu>
+                        <div class='filter-nested-submenu'>
+                          <div class='nest-submenu-header uppercase flex items-center' spz-nested-submenu-close>
+                            {% include 'icon_arrow_right' %}
+                            <span class="filter-item-text">${data.title}</span>
+                          </div>
+                          <div class='filter_price text-center'>
+                            ${({{ 'i18n.collection.collection_detail.highest_price' | t | json }}).replace(/\{\{\s*highest_price\s*\}\}/, `<spz-currency
+                              class='inline-block'
+                              value='${data.range_max}'
+                              layout='container'
+                            ></spz-currency
+                            >`)}
+                          </div>
+                          <div class='filter-item-price-container'>
+                            <div class='filter-item-price flex items-center'>
+                              <span>{{ shop.finance_symbol }}</span>
+                              <input
+                                class='w-full body-minus-2'
+                                type='number'
+                                placeholder='{{'i18n.collection.collection_detail.from' | t }}'
+                                role="price-min"
+                              >
+                            </div>
+                            <div class='filter-item-price flex items-center'>
+                              <span>{{ shop.finance_symbol }}</span>
+                              <input
+                                class='w-full body-minus-2'
+                                type='number'
+                                placeholder='{{'i18n.collection.collection_detail.to' | t }}'
+                                role="price-max"
+                                >
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </spz-render>
+              </div>
+            {% endif %}
+            {% include 'collection_filter_sort', isChange: true %}
+          </div>
+        </spz-nested-menu>
+      </div>
+      <div class='filter-mobile-footer w-full flex justify-between'>
+        <button class='button-secondary' type='button' @tap="filter-menu-mobile-content.reset;" role="clearAll">{{ 'i18n.collection.collection_detail.clear_all' | t }}</button>
+        <button class='button-primary' @tap='filter-mobile.apply;filter-sidebar.close;' type='button'>{{ 'i18n.collection.collection_detail.apply' | t }}</button>
+      </div>
+    </spz-sidebar>
+
+    <div class='lg:hidden'>
+      <button class='filter_mobile_btn' type='button' @tap='filter-sidebar.open;'>
+        {% include 'icon_filter' %}
+        <span>{{ modal_title }}</span>
+      </button>
+      {% if show_filter %}
+        {% include 'collection_filter_result', id: 'filter-result-mobile' %}
+      {% endif %}
+    </div>
+  {% endif %}
+{% endif %}

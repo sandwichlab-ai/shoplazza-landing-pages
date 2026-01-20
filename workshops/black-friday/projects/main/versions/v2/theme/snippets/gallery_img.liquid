@@ -1,0 +1,35 @@
+{% assign image = item.settings.image %}
+{% assign link = item.settings.link %}
+
+{% assign sizeRatio = s_columns %}
+
+{% if s_columns > s_breakpoint %}
+  {% assign sizeRatio = s_common_columns %}
+{% endif %}
+
+{% if sm_columns == 1 and sizeRatio > sm_breakpoint %}
+  {% assign sizeRatio = sm_common_columns %}
+{% endif %}
+
+<div class='gallery_img relative overflow-hidden'>
+  <a class="relative block rounded-global overflow-hidden {% unless image %} pb-full {% endunless %}" {% include 'link', link: link %}>
+    {% if image %}
+      <spz-img
+        class='rounded-xl'
+        layout='responsive'
+        width='{{ images[image].width }}'
+        height='{{ images[image].height }}'
+        src='{{ image | img_url }}'
+        object-fit='contain'
+        object-position='top'
+        auto-fit
+        {% if forloop.index0 < 2 %}
+          ssr
+          size-ratio="{{ sizeRatio | default: 2 }}"
+        {% endif %}
+      ></spz-img>
+    {% else %}
+      {{ 'image' | placeholder_svg_tag: 'absolute w-full h-full fill-svg bg-svg' }}
+    {% endif %}
+  </a>
+</div>

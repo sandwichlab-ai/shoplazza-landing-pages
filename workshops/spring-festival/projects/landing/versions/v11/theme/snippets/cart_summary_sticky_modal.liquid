@@ -1,0 +1,35 @@
+<spz-sidebar class="{{prefix_class}}-summary-sticky-modal {{class}}" id="{{prefix_class}}-summary-sticky-modal" layout="nodisplay" side="bottom" hidden {% if prefix_class == 'cart-drawer' %} @open="cart-drawer-modal.toggleClass(class='deepen', force=true);" @beforeClose="cart-drawer-modal.toggleClass(class='deepen', force=false);" {% elsif prefix_class == 'cart' %} @open="top-button.toggleClass(class='hidden', force=true);" @close="top-button.toggleClass(class='hidden', force=false);" {% endif %}>
+  <div class="{{prefix_class}}-summary-sticky-modal-inner relative">
+    <div class="flex justify-end">
+      <button class="{{prefix_class}}-summary-sticky-modal-close clear flex p-2 cursor-pointer" @tap="{{prefix_class}}-summary-sticky-modal.close();" type="button">
+        {% include 'icon_cart_modal_close' %}
+      </button>
+    </div>
+
+    <ul class="clear w-full mt-3 leading-1.25 color-body-70" spz-if="${!!(data.discount_applications && data.discount_applications.length > 0)}">
+      <li class="flex items-center justify-between">
+        <span>{{ 'i18n.bag.general.subtotal' | t }}:</span>
+        <span class="notranslate ml-2 whitespace-nowrap">
+          <spz-currency class="inline-block" layout="container" value="${data.line_price}"></spz-currency>
+        </span>
+      </li>
+      <li class="flex items-center justify-between mt-2" spz-for="(discount_application,index) in data.discount_applications">
+        <span>${discount_application.title}:</span>
+        <span class="notranslate ml-2 whitespace-nowrap">
+          <span>-</span><spz-currency class="inline-block" layout="container" value="${discount_application.discount_amount}"></spz-currency>
+        </span>
+      </li>
+    </ul>
+
+    <div class="flex items-start justify-between mt-2 font-medium body-plus-2 leading-1.25">
+      <span>{{ 'i18n.bag.general.total' | t }}:</span>
+      <div class="flex items-center">
+        <spz-currency class="color-price" container-class="plugin__bundle__cart__total-price" layout="container" value="${data.total_price}"></spz-currency>
+        {% include 'tax_included', class: "ml-1 color-body-70 body-minus-2" %}
+      </div>
+    </div>
+    {% assign checkoutBtnClass = prefix_class | append: '-checkout-btn mt-4' %}
+    {% include 'cart_summary_checkout', actionId: actionId, class: checkoutBtnClass %}
+    <div class="mt-2 body-minus-2 color-body-70 text-center">{{ 'i18n.bag.general.tax_shipping_info' | t }}</div>
+  </div>
+</spz-sidebar>

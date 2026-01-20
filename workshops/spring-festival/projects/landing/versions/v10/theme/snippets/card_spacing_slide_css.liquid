@@ -1,0 +1,19 @@
+{% stylesheet %}
+  .main-content > .card-split-spacing {
+    padding-top: 0;
+    padding-bottom: 20px;
+  }
+  .main-content > [data-section-type] ~ .card-split-spacing {
+    padding-top: 20px;
+  }
+
+  @media (min-width: 960px) {
+    .main-content > .card-split-spacing {
+      padding-top: 0;
+      padding-bottom: 40px;
+    }
+    .main-content > [data-section-type] ~ .card-split-spacing {
+      padding-top: 40px;
+    }
+  }
+{% endstylesheet %}

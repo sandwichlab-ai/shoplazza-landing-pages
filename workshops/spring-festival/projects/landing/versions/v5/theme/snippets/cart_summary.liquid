@@ -1,0 +1,39 @@
+<div class="cart-summary" id="cart-summary">
+  <div class="flex justify-between font-medium body-plus-2 leading-1.25">
+    <span>{{ 'i18n.bag.general.total' | t }}:</span>
+    <div class="flex items-center">
+      <spz-currency container-class="plugin__bundle__cart__total-price" layout="container" value="${data.total_price}"></spz-currency>
+      {% include 'tax_included', class: "ml-1 color-body-70 body-minus-2" %}
+    </div>
+  </div>
+
+  <div class="cart-summary-discount-list flex flex-col items-end" id="cart-summary-discount-list" spz-if="${data.total_discount > 0}">
+    <div class="cart-summary-discount-btn lg:hidden" spz-if="${data.discount_applications && data.discount_applications.length <= 0}">
+      <span class="leading-1.2 body-minus-2">
+        {% include 'cart_item_discount_price' %}
+      </span>
+    </div>
+    <div class="cart-summary-discount-btn lg:hidden" @tap="cart-summary-discount-list.toggleClass(class='open')" spz-else>
+      <span class="leading-1.2 body-minus-2">
+        {% include 'cart_item_discount_price' %}
+      </span>
+      {% include 'icon_arrow_down', icon_class: 'flex-shrink-0' %}
+    </div>
+
+    <ul class="clear w-full mt-1 leading-1.25 color-body-70" spz-if="${data.discount_applications && data.discount_applications.length > 0}">
+      <li class="plugin__bundle__cart__save md:hidden empty-hidden flex items-center justify-between mb-2"></li>
+      <li class="flex items-center justify-between ${index > 0 ? 'mt-2' : ''}" spz-for="(discount_application,index) in data.discount_applications">
+        <span>${discount_application.title}:</span>
+        <span class="notranslate ml-2 whitespace-nowrap">
+          <span>-</span><spz-currency class="inline-block" layout="container" value="${discount_application.discount_amount}"></spz-currency>
+        </span>
+      </li>
+    </ul>
+  </div>
+  <div class="plugin__bundle__cart__save md:hidden empty-hidden flex items-center justify-between mb-2" spz-else></div>
+
+  <div class="cart-invalid-msg mt-4" spz-if="${!!data.invalid_msg}">${data.invalid_msg}</div>
+
+  {% include 'cart_summary_checkout', class: 'cart-summary-checkout-btn', actionId: 'cart-render' %}
+  <div class="mt-2 body-minus-2 color-body-70 text-center">{{ 'i18n.bag.general.tax_shipping_info' | t }}</div>
+</div>

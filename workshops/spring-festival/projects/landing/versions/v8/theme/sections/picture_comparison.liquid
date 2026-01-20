@@ -1,0 +1,448 @@
+{% assign pre_comparison_image = section.settings.pre_comparison_picture %}
+{% assign post_comparison_image = section.settings.post_comparison_picture %}
+{% assign text_alignment = section.settings.text_alignment %}
+{% assign drag_bar_init_position = section.settings.drag_bar_init_position | default: '50' |  append: '%'  %}
+{% if section.settings.drag_cursor_icon %}
+	{% assign drag_cursor_icon_url = section.settings.drag_cursor_icon | img_url %} 
+{% else %}
+	{% assign drag_cursor_icon_url = 'icon_drag_cursor.svg' | shoplaza_asset_url %} 
+{% endif %}
+
+<style>
+	[data-section-id="{{ section.id }}"] .comparion-render-wrapper {
+		height: 100% !important;
+	}
+	[data-section-id="{{ section.id }}"] .comparison-sub-heading {
+		font-size: calc(var(--type-text-font-size) + 2px);
+		color: var(--color-body-text);
+	}
+
+	[data-section-id="{{ section.id }}"] .comparison-heading p {
+		margin: 0;
+	}
+	[data-section-id="{{ section.id }}"] .comparison-heading {
+		color: var(--color-general-heading-text);
+		font-size: calc(var(--type-heading-font-size) * 1.33);
+		margin-top: 0;
+		margin-bottom: 40px;
+	}
+	[data-section-id="{{ section.id }}"] .comparison-sub-heading p {
+		margin: 0;
+	}
+	[data-section-id="{{ section.id }}"] .picture-comparison-wrapper {
+		height: 620px;
+	}
+	[data-section-id="{{ section.id }}"] .picture-comparison__before-image {
+		background: url({{ section.settings.pre_comparison_picture | img_url }}) no-repeat right center;
+		background-size: cover;
+	}
+
+	[data-section-id="{{ section.id }}"] .picture-comparison__after-image-wrapper {
+		position: absolute;
+		right: 0;
+		top:0;
+		width: 100%;
+		height: 100%;
+		border-left: 1px solid #FFF;
+		clip-path: inset(0 0 0 calc(var(--width-{{ section.id }}, {{ drag_bar_init_position }})));
+		overflow: hidden;
+	}
+	[data-section-id="{{ section.id }}"] .picture-comparison__after-image-border {
+		position: absolute;
+		right: 0;
+		top:0;
+		width: calc(100% - var(--width-{{ section.id }}, {{ drag_bar_init_position }}));
+		height: 100%;
+		border-left: 1px solid #fff;
+		z-index: 1;
+	}
+	[data-section-id="{{ section.id }}"] .after-image-overlay {
+		background: rgba(0, 0, 0, 0.1);
+	}
+	[data-section-id="{{ section.id }}"] .picture-comparison__after-image {
+		position: absolute;
+		right: 0;
+		top:0;
+		background: url({{ section.settings.post_comparison_picture | img_url }}) no-repeat right center;
+		background-size: cover;
+		width: 100%;	
+	}
+	
+	[data-section-id="{{ section.id }}"] .pre-comparison-text {
+		color: var(--color-body-text);
+		font-size: 18px;
+		padding-right: 40px;
+		left: 40px;
+		{% if section.settings.comparison_text_position == "top" %}
+			top: 40px;
+		{% elsif section.settings.comparison_text_position == "bottom"%}
+			bottom: 40px;
+		{% endif %}
+	}
+
+	[data-section-id="{{ section.id }}"] .pre-comparison-text p {
+		margin: 0;
+	}
+
+	[data-section-id="{{ section.id }}"] .post-comparison-text {
+		color: var(--color-body-text);
+		padding-left: 40px;
+		font-size: 18px;
+		right: 40px;
+		{% if section.settings.comparison_text_position == "top" %}
+			top: 40px;
+		{% elsif section.settings.comparison_text_position == "bottom"%}
+			bottom: 40px;
+		{% endif %}
+	}
+
+	[data-section-id="{{ section.id }}"] .post-comparison-text p {
+		margin: 0;
+	}
+
+	[data-section-id="{{ section.id }}"] input {
+		width: 100%;
+	}
+	[data-section-id="{{ section.id }}"] .picture-comparison-container {
+		padding-top: 80px;
+		padding-bottom: 80px;
+	}
+	[data-section-id="{{ section.id }}"] .picture-comparison-container .range-input-wrapper {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		top: 0;
+		z-index: 999;
+	}
+
+	[data-section-id="{{ section.id }}"] .picture-comparison-container input[type=range] { 
+		position: absolute;
+		top: -2px;
+		outline: none; 
+		appearance: none;
+		-webkit-appearance: none;
+		height: 0;
+	} 
+
+	[data-section-id="{{ section.id }}"] .picture-comparison-container input[type=range]::-webkit-slider-runnable-track {
+		height: 0;
+	}
+
+	[data-section-id="{{ section.id }}"] .picture-comparison-container input[type=range]::-webkit-slider-thumb { 
+		position: absolute;
+		left: calc(var(--width-{{ section.id }}, {{ drag_bar_init_position }}) - 16px);
+		cursor: pointer;
+		appearance: none;
+		-webkit-appearance: none; 
+		height: 620px;
+		width: 28px; 
+		background: none;
+		background-image: url({{ drag_cursor_icon_url }});
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: 100%, auto, contain;
+		box-shadow: none;
+	} 
+
+	/* Compatible with Firefox browser */
+	[data-section-id="{{ section.id }}"] .picture-comparison-container input[type=range]::-moz-range-track {
+		height: 0;
+		position: relative;
+	}
+	/* Identify Firefox */
+	@-moz-document url-prefix() {
+		[data-section-id="{{ section.id }}"] .picture-comparison-container input[type=range]{ 
+			width: calc(100% + 28px);
+  		left: -16px;
+			top: 50%;
+		}
+	}
+
+
+	[data-section-id="{{ section.id }}"] .picture-comparison-container input[type=range]::-moz-range-thumb {
+		cursor: pointer;
+		appearance: none;
+		-moz-appearance: none;
+		height: 620px;
+		width: 28px;
+		background: none;
+		background-image: url({{ drag_cursor_icon_url }});
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: 100%, auto, contain;
+		border: none;
+		border-radius: 0;
+		box-shadow: none;
+	}
+
+	@media (max-width: {{ settings.breakpoint }}px) {
+		[data-section-id="{{ section.id }}"] .picture-comparison-container {
+			padding-top: 40px;
+			padding-bottom: 40px;
+		}
+		[data-section-id="{{ section.id }}"] .picture-comparison-wrapper {
+			height: 175px;
+		}
+		[data-section-id="{{ section.id }}"] .comparison-sub-heading {
+			font-size: calc(var(--type-text-font-size) + 2px) ;
+		}
+		[data-section-id="{{ section.id }}"] .comparison-heading {
+			font-size: calc(var(--type-heading-font-size) * 0.93); 
+		
+		}
+
+		/* firefox dom */
+		@-moz-document url-prefix() {
+			[data-section-id="{{ section.id }}"] .picture-comparison-container input[type=range] { 
+				width: calc(100% + 14px);
+				left: -9px;
+			} 
+		}
+		[data-section-id="{{ section.id }}"] .picture-comparison-container input[type=range]::-webkit-slider-thumb {  
+			left: calc(var(--width-{{ section.id }}, {{ drag_bar_init_position }}) - 9px);
+			height: 175px;
+			width: 14px;
+		} 
+
+		[data-section-id="{{ section.id }}"] .picture-comparison-container input[type=range]::-moz-range-thumb {  
+			left: calc(var(--width-{{ section.id }}, {{ drag_bar_init_position }}) - 9px);
+			height: 175px;
+			width: 14px;		
+		} 
+
+		[data-section-id="{{ section.id }}"] .pre-comparison-text {
+			font-size: 12px;
+			padding-right: 16px;
+			left: 16px;
+			{% if section.settings.comparison_text_position == "top" %}
+				top: 16px;
+			{% elsif section.settings.comparison_text_position == "bottom"%}
+				bottom: 16px;
+			{% endif %}
+		}
+
+		[data-section-id="{{ section.id }}"] .post-comparison-text {
+			font-size: 12px;
+			padding-left: 16px;
+			right: 16px;
+			{% if section.settings.comparison_text_position == "top" %}
+				top: 16px;
+			{% elsif section.settings.comparison_text_position == "bottom"%}
+				bottom: 16px;
+			{% endif %}
+		}
+	}  
+
+</style>
+
+<div class="page-container picture-comparison-container">
+	{% if section.settings.sub_heading %}
+		<div class="text-center break-words comparison-sub-heading mb-4 text-{{ text_alignment }}">{{ section.settings.sub_heading }}</div>
+	{% endif %}
+	{% if section.settings.heading %}
+		<h2 class="text-center comparison-heading break-words text-{{ text_alignment }}">{{ section.settings.heading }}</h2>
+	{% endif %}
+	<spz-render manual layout="container" class="comparion-render-wrapper" id="comparion_render-{{ section.id }}">
+    <div class="picture-comparison-wrapper relative w-full" id="comparison_range_wrapper">
+      <div class="range-input-wrapper">
+        <input type="range" value="{{ section.settings.drag_bar_init_position | default: 50 }}" id="range" min="0" max="100" step="1" @input-smooth="comparion_render-{{ section.id }}.rerender(data=event.value)" /> 
+      </div>
+				<div class="flex relative w-full h-full">
+					{% if pre_comparison_image %}
+						<div class="picture-comparison__before-image w-full h-full"></div>
+					{% else %}
+						{{ 'image' | placeholder_svg_tag: 'absolute inset-0 w-full h-full fill-svg bg-svg' }}
+					{% endif %}
+				<div class="absolute break-words pre-comparison-text">{{ section.settings.pre_comparison_text }}</div>
+			</div>
+			<div class="picture-comparison__after-image-wrapper">
+				{% if post_comparison_image %}
+					<div class="picture-comparison__after-image w-full h-full"></div>
+				{% else %}
+					{{ 'image' | placeholder_svg_tag: 'absolute inset-0 w-full h-full fill-svg bg-svg' }}
+				{% endif %}
+				<div class="absolute break-words right-0 bottom-0 post-comparison-text">{{ section.settings.post_comparison_text }}</div>
+			</div>
+			<div class="picture-comparison__after-image-border {% unless post_comparison_image %} after-image-overlay {% endunless %}"></div>
+    </div>
+    <template>
+      ${(()=>{
+        return `
+					<div class="picture-comparison-wrapper" id="wrapper" style="--width-{{ section.id }}: ${data}%">
+						<div class="range-input-wrapper">
+							<input type="range" min="0" max="100" step="1" @input-smooth="comparion_render-{{ section.id }}.rerender(data=event.value)" />
+						</div>
+						<div class="relative w-full h-full">
+							{% if pre_comparison_image %}
+								<div class="picture-comparison__before-image w-full h-full"></div>
+							{% else %}
+								{{ 'image' | placeholder_svg_tag: 'absolute inset-0 w-full h-full fill-svg bg-svg' }}
+							{% endif %}
+							<div class="absolute break-words left-0 bottom-0 pre-comparison-text">{{ section.settings.pre_comparison_text }}</div>
+						</div>
+						<div class="picture-comparison__after-image-wrapper">			
+							{% if post_comparison_image %}
+								<div class="picture-comparison__after-image w-full h-full"></div>
+							{% else %}
+								{{ 'image' | placeholder_svg_tag: 'absolute inset-0 w-full h-full fill-svg bg-svg' }}
+							{% endif %}
+							<div class="absolute break-words right-0 bottom-0 post-comparison-text">{{ section.settings.post_comparison_text }}</div>
+						</div>
+						<div class="picture-comparison__after-image-border {% unless post_comparison_image %} after-image-overlay {% endunless %}"></div>
+					</div>
+        `;
+      })()}
+    </template>
+  </spz-render>
+</div>
+{% schema %}
+	{
+		"name": "picture_comparison",
+		"settings": [
+			{
+				"type": "richtext",
+				"id": "heading",
+				"label": {
+					"en-US": "Title",
+					"zh-CN": "标题"
+				}
+			},
+			{
+				"type": "richtext",
+				"id": "sub_heading",
+				"label": {
+					"en-US": "Subtitle",
+					"zh-CN": "副标题"
+				}
+			},
+			{
+				"type": "select",
+				"id": "text_alignment",
+				"label": {
+					"en-US": "Text alignment",
+					"zh-CN": "文字对齐方式"
+				},
+				"options": [
+					{
+						"value": "left",
+						"label": {
+							"en-US": "Left",
+							"zh-CN": "居左"
+						}
+					},
+					{
+						"value": "center",
+						"label": {
+							"en-US": "Center",
+							"zh-CN": "居中"
+						}
+					}
+				],
+				"default": "center"
+			},
+			{
+				"type": "image_picker",
+				"id": "pre_comparison_picture",
+				"label": {
+					"en-US": "Pre-comparison pictures",
+					"zh-CN": "对比前图片"
+				}
+			},
+			{
+				"type": "image_picker",
+				"id": "post_comparison_picture",
+				"label": {
+					"en-US": "Post-comparison pictures",
+					"zh-CN": "对比后图片"
+				},
+				"info": {
+          "en-US": "Dimensions must remain the same as the pre-comparison picture", 
+          "zh-CN": "尺寸必须与对比前图片保持一致"
+        }
+			},
+			{
+				"type": "select",
+				"id": "comparison_text_position",
+				"label": {
+					"en-US": "Comparison text position",
+					"zh-CN": "对比文本位置"
+				},
+				"options": [
+					{
+						"value": "top",
+						"label": {
+							"en-US": "Top",
+							"zh-CN": "顶部"
+						}
+					},
+					{
+						"value": "bottom",
+						"label": {
+							"en-US": "Bottom",
+							"zh-CN": "底部"
+						}
+					}
+				],
+				"default": "bottom"
+			},
+			{
+				"type": "richtext",
+				"id": "pre_comparison_text",
+				"label": {
+					"en-US": "Pre-comparison text",
+					"zh-CN": "对比前文本"
+				},
+				"default": "Before"
+			},
+			{
+				"type": "richtext",
+				"id": "post_comparison_text",
+				"label": {
+					"en-US": "Post-comparison text",
+					"zh-CN": "对比后文本"
+				},
+				"default": "After"
+			},
+			{
+				"type": "range",
+				"id": "drag_bar_init_position",
+				"label": {
+					"en-US": "Initial position of the drag bar",
+					"zh-CN": "拖动条初始位置"
+				},
+				"unit": "%",
+				"step": 1,
+				"min": 1,
+				"max": 100,
+				"default": 50
+			},
+			{
+				"type": "image_picker",
+				"id": "drag_cursor_icon",
+				"label": {
+					"en-US": "Drag cursor icon",
+					"zh-CN": "拖动光标图标"
+				}
+			}
+		],
+		"presets": [
+			{
+				"name": "picture_comparison",
+				"cname": {
+					"zh-CN": "图片对比",
+					"en-US": "Picture comparison"
+				},
+				"category": {
+					"en-US": "Picture comparison",
+					"zh-CN": "图片对比"
+				},
+				"ccategory": {
+					"en-US": "Picture comparison",
+					"zh-CN": "图片对比"
+				},
+				"display": true,
+				"blocks": []
+			}
+		]
+	}
+{% endschema %}

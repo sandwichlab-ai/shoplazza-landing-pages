@@ -1,0 +1,207 @@
+{% capture icon_arrow_right %}
+  {% include 'icon_arrow_right', icon_class: 'header__drawer_next_icon ml-3 flex-shrink-0' %}
+{% endcapture %}
+{% capture icon_arrow_left %}
+  {% include 'icon_header_arrow_left', icon_class: 'mr-3' %}
+{% endcapture %}
+<style>
+  .header__drawer{
+    width: 330px;
+    top: 0;
+    bottom: 0;
+    max-width: 100vw !important;
+    line-height: 1.4;
+  }
+  .header__drawer,
+  .header__drawer + .i-spzhtml-sidebar-mask{
+    pointer-events: auto;
+  }
+  .header__drawer a{
+    color: inherit;
+    text-decoration: none;
+  }
+  .header__drawer_header{
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    height: 62px;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .header__drawer_close{
+    width: 62px;
+    position: absolute;
+    top: 0;
+    {% if shop.locale == "ar-SA" %}
+      left: 0;
+    {% else %}
+      right: 0;
+    {% endif %}
+    bottom: 0;
+    opacity: 0.7;
+  }
+  .header__drawer_footer{
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    border-top: 1px solid rgba(230,230,230,0.6);
+    padding: 16px 20px;
+  }
+  .header__drawer_prev{
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border);
+    padding: 16px 20px;
+    background-color: var(--color-body-bg);
+  }
+  .header__drawer [spz-nested-submenu]:not([child-open]){
+    overflow: hidden auto;
+    max-height: 100%;
+  }
+  .header__drawer_menu_item{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 22px;
+    {% if shop.locale == "ar-SA" %}
+      margin-right: 20px;
+      padding: 16px 0 16px 20px;
+    {% else %}
+      margin-left: 20px;
+      padding: 16px 20px 16px 0;
+    {% endif %}
+    border-bottom: 1px solid var(--color-border);
+    cursor: pointer;
+  }
+  .header__drawer_menu_item a:not([spz-nested-submenu-open]){
+    flex: 1
+  }
+  .header_drawer_menu .header_drawer_menu_first{
+    overflow: hidden auto;
+  }
+  .header_drawer_menu[child-open] .header_drawer_menu_first{
+    overflow: unset !important;
+  }
+  {% if shop.locale == "ar-SA" %}
+    .header_drawer_menu svg{
+      transform: rotate(180deg);
+    }
+  {% endif %}
+</style>
+<spz-sidebar
+  id="header_drawer"
+  class="header__drawer {% if nav_text_uppercase %} uppercase {% endif %} flex flex-col bg-color-body"
+  side="right"
+  layout="nodisplay"
+  @close="{{section_prefix}}-announcement.toggleClass(class='header_mask_open', force=false);"
+>
+  <div class="header__drawer_header flex-shrink-0 relative flex bg-color-body">
+    <i class="header__drawer_close flex-center cursor-pointer" @tap="header_drawer.close()">
+      {% include 'icon_modal_close' %}
+    </i>
+  </div>
+  <div class="flex-1 relative overflow-hidden">
+    <spz-nested-menu class="header_drawer_menu flex flex-col" layout="fill" side="right" id="menu-drawer">
+      <ul class="header_drawer_menu_first flex-1 hide-scrollbar">
+        {% assign menu_id = section.settings.menu.id %}
+        {% if menu_id %}
+          {% assign firstLinks = linklists[menu_id].links %}
+          {% for firstLink in firstLinks %}
+            {% assign firstLinkTitle = firstLink.title | escape %}
+            {% assign secondLinks = linklists[firstLink.id].links %}
+            <li>
+              <div {% if secondLinks %}spz-nested-submenu-open{% endif %} class="header__drawer_menu_item">
+                {% include 'header_menu_item_title', link: firstLink, class: '' %}
+                {% if secondLinks %}
+                  {{icon_arrow_right}}
+                {% endif %}
+              </div>
+              {% if secondLinks %}
+                  <ul class="clear" spz-nested-submenu>
+                    <li class="header__drawer_prev" spz-nested-submenu-close>
+                      {{icon_arrow_left}}
+                      <span class="flex-1 underline">{{ firstLinkTitle }}</span>
+                    </li>
+                    {% for secondLink in secondLinks %}
+                      {% assign secondLinkTitle = secondLink.title | escape %}
+                      {% assign thirdLinks = linklists[secondLink.id].links %}
+                      <li>
+                        <div {% if thirdLinks %}spz-nested-submenu-open{% endif %} class="header__drawer_menu_item">
+                          {% include 'header_menu_item_title', link: secondLink, class: '' %}
+                          {% if thirdLinks %}
+                            {{icon_arrow_right}}
+                          {% endif %}
+                        </div>
+                        {% if thirdLinks %}
+                          {% assign thirdLinkTitle = thirdLink.title | escape %}
+                          <ul class="clear" spz-nested-submenu>
+                            <li class="header__drawer_prev" spz-nested-submenu-close>
+                              {{icon_arrow_left}}
+                              <span class="flex-1 underline">{{ secondLinkTitle }}</span>
+                            </li>
+                            {% for thirdLink in thirdLinks %}
+                              {% assign thirdLinkTitle = thirdLink.title | escape %}
+                              <li>
+                                <div class="header__drawer_menu_item">
+                                  {% include 'header_menu_item_title', link: thirdLink, class: '' %}
+                                </div>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+              {% endif %}
+            </li>
+          {% endfor %}
+        {% endif %}
+          <div class="header__drawer_plugins">
+          {% comment %} 插件：语言切换和货币切换 {% endcomment %}
+          {% for block in section.blocks %}
+            {% if block.type contains '//apps' %}
+              <div class="{% unless mb_plugin_currency_and_translate == 'drawer' %} hidden {% endunless %} px-5 my-10">
+                {% render block %}
+              </div>
+              {% continue %}
+            {% endif %}
+          {% endfor %}
+          <div class="empty-hidden {% unless mb_plugin_currency_and_translate == 'drawer' %} hidden {% endunless %} plugin__translate-header px-5 my-10"></div>
+          <div class="empty-hidden {% unless mb_plugin_currency_and_translate == 'drawer' %} hidden {% endunless %} plugin__currency px-5 my-10"></div>
+        </div>
+      </ul>
+
+      {% capture account_menu_list %} 
+        {% for link in linklists.account_menu.links -%}
+          {% if link.type == 'api_request' %}
+            <li class="header__drawer_menu_item">
+              <form action-xhr="{{ link.url }}" method="POST" refresh-when-submit-success>
+                <button class="clear" type="submit">{{link.title}}</button>
+              </form>
+            </li>
+          {% else %}
+            <li class="header__drawer_menu_item"><a href="{{ link.url}}">{{ link.title }}</a></li>
+          {% endif %}
+        {%- endfor %}
+      {% endcapture %}
+      {%- comment -%} account {%- endcomment -%}
+      {% if customer.id %}
+        <div spz-nested-submenu-open class="header__drawer_footer flex items-center justify-between bg-color-body cursor-pointer">
+          <span class="flex-1">{{ 'i18n.general.breadcrumbs.my_account' | t }}</span>
+          {{icon_arrow_right}}
+        </div>
+        <ul class="clear" spz-nested-submenu>
+          <li class="header__drawer_prev" spz-nested-submenu-close>
+            {{icon_arrow_left}}
+            <span class="flex-1 underline">{{ 'i18n.general.breadcrumbs.my_account' | t }}</span>
+          </li>
+          {{account_menu_list}}
+        </ul>
+      {% else %}
+        {{account_menu_list}}
+      {% endif %}
+    </spz-nested-menu>
+  </div>
+</spz-sidebar>

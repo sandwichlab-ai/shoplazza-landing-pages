@@ -1,0 +1,10 @@
+{% comment %}
+  Renders a tag attr
+
+  Accepts:
+  - link: {Liquid Link Object}
+
+  Usage:
+  {% include 'link', link: link %}
+{% endcomment %}
+{% if link.target == '_blank' %} target="_blank" {% endif %} {% if link.url %} href="{{ link.url }}" {% endif %}

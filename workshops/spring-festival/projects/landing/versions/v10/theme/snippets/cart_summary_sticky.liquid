@@ -1,0 +1,43 @@
+<spz-sticky class="lg:hidden cart-summary-sticky-container" id="cart-summary-sticky-container" layout="container" position="bottom" bottom-compensation-container-class="lg:hidden" hidden>
+  <spz-render class=" cart-summary-sticky-render p-4" id="cart-summary-sticky-render" layout="container" manual>
+    <template>
+      <div>
+        {% include 'cart_free_shipping', class: 'mb-4' %}
+
+        <div class="cart-invalid-msg mb-4" spz-if="${!!data.invalid_msg}">${data.invalid_msg}</div>
+
+        <div class="flex items-center justify-between">
+          <div class="flex flex-col items-start">
+            <div class="flex flex-wrap items-center">
+              <div class="flex font-medium body-plus-2 leading-1.25 lg:items-center lg:justify-between">
+                <span class="color-body-70">{{ 'i18n.bag.general.total' | t }}:&nbsp;</span>
+                <spz-currency container-class="plugin__bundle__cart__total-price" layout="container" value="${data.total_price}"></spz-currency>
+              </div>
+              {% include 'tax_included', class: "ml-1 color-body-70 body-minus-2" %}
+            </div>
+
+            <div spz-if="${data.total_discount > 0}">
+              <div class="cart-summary-discount-btn" spz-if="${!!(data.discount_applications && data.discount_applications.length <= 0)}">
+                <span class="leading-1.2 body-minus-2">
+                  {% include 'cart_item_discount_price' %}
+                </span>
+              </div>
+              <div class="cart-summary-discount-btn" @tap="cart-summary-sticky-modal.open;" spz-else>
+                <span class="leading-1.2 body-minus-2">
+                  {% include 'cart_item_discount_price' %}
+                </span>
+                {% include 'icon_arrow_down', icon_class: 'flex-shrink-0' %}
+              </div>
+
+              {% include 'cart_summary_sticky_modal', prefix_class: 'cart', actionId: 'cart-render' %}
+            </div>
+          </div>
+
+          {% include 'cart_summary_checkout', actionId: 'cart-render', class: 'cart-summary-sticky-checkout-btn' %}
+        </div>
+
+        <div class="mt-2 body-minus-2 color-body-70 text-right">{{ 'i18n.bag.general.tax_shipping_info' | t }}</div>
+      </div>
+    </template>
+  </spz-render>
+</spz-sticky>

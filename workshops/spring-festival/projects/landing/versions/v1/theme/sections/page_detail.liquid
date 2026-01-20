@@ -1,0 +1,453 @@
+{% comment %} 根据页面 URL 选择不同的渲染方式 {% endcomment %}
+{% assign is_hello_world = false %}
+{% if page.url contains 'hello-world' %}
+  {% assign is_hello_world = true %}
+{% endif %}
+{% if page.handle == 'hello-world' %}
+  {% assign is_hello_world = true %}
+{% endif %}
+{% if is_hello_world %}
+  {{ 'hello-world.css' | asset_url | stylesheet_tag }}
+  <section class="hello-world" data-section-id="{{ section.id }}">
+    <div class="hello-world__container">
+      <div class="hello-world__content">
+        <div class="hello-world__icon">👋</div>
+        <h1 class="hello-world__title">{{ page.title | default: 'Hello World!' }}</h1>
+        <p class="hello-world__subtitle">Welcome to Shoplazza AI Page Builder</p>
+        <div class="hello-world__message">
+          This is a custom page template created by Claude Code.
+          It demonstrates the complete workflow of creating, pushing, and testing custom pages on Shoplazza.
+        </div>
+        <p class="hello-world__timestamp">
+          Page rendered at: <span id="hello-world-time"></span>
+        </p>
+        <script>
+          document.getElementById('hello-world-time').textContent = new Date().toLocaleString();
+        </script>
+        <a href="/" class="hello-world__button">Back to Home</a>
+      </div>
+    </div>
+  </section>
+  <script>
+    // 隐藏 header 和 footer，打造纯净落地页
+    document.querySelectorAll('[data-section-type="header"], [data-section-type="announcement"], [data-section-type="footer"], .breadcrumbs, footer, .footer, [class*="footer"]').forEach(el => {
+      el.style.display = 'none';
+    });
+    // 让 hello-world 占满全屏
+    document.querySelector('.hello-world').style.minHeight = '100vh';
+  </script>
+{%- comment -%} PROJECT:main {%- endcomment -%}
+{%- elsif page.handle == 'main' or page.url contains 'main' -%}
+  <style>
+/* Black Friday Landing Page - Inline CSS */
+.bf-landing {
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* 倒计时条 */
+.bf-countdown-bar {
+  background: linear-gradient(90deg, #ff0000, #ff4444);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.bf-countdown-text {
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.bf-timer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bf-timer-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bf-timer-num {
+  background: #000;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 20px;
+  font-weight: 700;
+  min-width: 48px;
+  text-align: center;
+}
+
+.bf-timer-label {
+  font-size: 10px;
+  margin-top: 4px;
+  opacity: 0.9;
+}
+
+.bf-timer-sep {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+/* 主内容区 */
+.bf-hero {
+  min-height: calc(100vh - 60px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background:
+    radial-gradient(ellipse at top, #1a1a1a 0%, #000 50%),
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(255,255,255,0.02) 10px,
+      rgba(255,255,255,0.02) 20px
+    );
+}
+
+.bf-hero-content {
+  text-align: center;
+  max-width: 600px;
+}
+
+.bf-badge {
+  display: inline-block;
+  background: #ff0000;
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.bf-title {
+  margin: 0 0 16px 0;
+  line-height: 1;
+}
+
+.bf-title-black {
+  display: block;
+  font-size: 72px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  color: #fff;
+  text-shadow: 0 0 40px rgba(255,255,255,0.3);
+}
+
+.bf-title-friday {
+  display: block;
+  font-size: 72px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, #ff0000, #ff6b6b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bf-subtitle {
+  font-size: 20px;
+  color: #888;
+  margin: 0 0 32px 0;
+  letter-spacing: 2px;
+}
+
+/* 折扣展示 */
+.bf-discount-box {
+  margin-bottom: 32px;
+}
+
+.bf-discount-item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  background: linear-gradient(135deg, #ff0000, #cc0000);
+  padding: 16px 32px;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(255,0,0,0.3);
+}
+
+.bf-discount-num {
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.bf-discount-label {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+/* 特性列表 */
+.bf-features {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+
+.bf-feature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.bf-feature-icon {
+  font-size: 20px;
+}
+
+/* CTA 按钮 */
+.bf-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  color: #000;
+  text-decoration: none;
+  padding: 20px 48px;
+  border-radius: 50px;
+  font-size: 18px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 40px rgba(255,255,255,0.2);
+}
+
+.bf-cta:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(255,255,255,0.3);
+}
+
+.bf-cta-arrow {
+  transition: transform 0.3s ease;
+}
+
+.bf-cta:hover .bf-cta-arrow {
+  transform: translateX(4px);
+}
+
+/* 紧迫感提示 */
+.bf-urgency {
+  margin-top: 24px;
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.bf-urgency strong {
+  color: #ff0000;
+}
+
+.bf-urgency-dot {
+  width: 8px;
+  height: 8px;
+  background: #00ff00;
+  border-radius: 50%;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .bf-title-black,
+  .bf-title-friday {
+    font-size: 48px;
+  }
+
+  .bf-discount-num {
+    font-size: 40px;
+  }
+
+  .bf-features {
+    gap: 16px;
+  }
+
+  .bf-feature {
+    font-size: 12px;
+  }
+
+  .bf-cta {
+    padding: 16px 36px;
+    font-size: 16px;
+  }
+}
+</style>
+
+<section class="bf-landing" data-project="main" data-version="v3">
+  <!-- 顶部倒计时条 -->
+  <div class="bf-countdown-bar">
+    <span class="bf-countdown-text">BLACK FRIDAY 限时特惠</span>
+    <div class="bf-timer">
+      <div class="bf-timer-item">
+        <span class="bf-timer-num" id="bf-hours">23</span>
+        <span class="bf-timer-label">时</span>
+      </div>
+      <div class="bf-timer-sep">:</div>
+      <div class="bf-timer-item">
+        <span class="bf-timer-num" id="bf-minutes">59</span>
+        <span class="bf-timer-label">分</span>
+      </div>
+      <div class="bf-timer-sep">:</div>
+      <div class="bf-timer-item">
+        <span class="bf-timer-num" id="bf-seconds">59</span>
+        <span class="bf-timer-label">秒</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 主内容区 -->
+  <div class="bf-hero">
+    <div class="bf-hero-content">
+      <div class="bf-badge">限时优惠</div>
+      <h1 class="bf-title">
+        <span class="bf-title-black">BLACK</span>
+        <span class="bf-title-friday">FRIDAY</span>
+      </h1>
+      <p class="bf-subtitle">年度最大折扣 · 全场低至3折</p>
+
+      <div class="bf-discount-box">
+        <div class="bf-discount-item">
+          <span class="bf-discount-num">70%</span>
+          <span class="bf-discount-label">OFF</span>
+        </div>
+      </div>
+
+      <div class="bf-features">
+        <div class="bf-feature">
+          <span class="bf-feature-icon">🚚</span>
+          <span>全场包邮</span>
+        </div>
+        <div class="bf-feature">
+          <span class="bf-feature-icon">💳</span>
+          <span>分期免息</span>
+        </div>
+        <div class="bf-feature">
+          <span class="bf-feature-icon">🔄</span>
+          <span>30天退换</span>
+        </div>
+      </div>
+
+      <a href="/collections/all" class="bf-cta">
+        立即抢购
+        <span class="bf-cta-arrow">→</span>
+      </a>
+
+      <p class="bf-urgency">
+        <span class="bf-urgency-dot"></span>
+        已有 <strong>2,847</strong> 人参与抢购
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // 隐藏 header/footer
+  document.querySelectorAll('[data-section-type="header"], [data-section-type="announcement"], footer, .footer, [class*="footer"]').forEach(el => {
+    el.style.display = 'none';
+  });
+
+  // 倒计时
+  function updateCountdown() {
+    const now = new Date();
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+    const diff = endOfDay - now;
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    document.getElementById('bf-hours').textContent = hours.toString().padStart(2, '0');
+    document.getElementById('bf-minutes').textContent = minutes.toString().padStart(2, '0');
+    document.getElementById('bf-seconds').textContent = seconds.toString().padStart(2, '0');
+  }
+
+  setInterval(updateCountdown, 1000);
+  updateCountdown();
+</script>
+{%- comment -%} END:main {%- endcomment -%}
+{%- comment -%} PROJECT:flash-sale {%- endcomment -%}
+{%- elsif page.handle == 'flash-sale' or page.url contains 'flash-sale' -%}
+  {{ 'landing-flash-sale.css' | asset_url | stylesheet_tag }}
+
+<section class="landing-page landing-flash-sale" data-project="flash-sale" data-version="v1">
+  <div class="landing-container">
+    <div class="landing-content">
+      <h1 class="landing-title">限时秒杀</h1>
+      <p class="landing-subtitle">您的副标题</p>
+      <div class="landing-description">在这里添加描述内容...</div>
+      <a href="#" class="landing-cta">立即购买</a>
+    </div>
+  </div>
+</section>
+
+<script>
+  // 隐藏 header/footer，纯净落地页
+  document.querySelectorAll('[data-section-type="header"], [data-section-type="announcement"], footer, .footer, [class*="footer"]').forEach(el => {
+    el.style.display = 'none';
+  });
+</script>
+{%- comment -%} END:flash-sale {%- endcomment -%}
+{% else %}
+  <div class="page-container my-14">
+    {% if page.title %}<h3 class="type-heading-font-family text-8 m-0 text-center color-heading">{{ page.title | escape }}</h3>{% endif %}
+    {% if page.content %}<div class="mce-content mt-10 break-words">{{ page.content | spz_img }}</div>{% endif %}
+  </div>
+{% endif %}
+{% schema %}
+{
+  "name": "page_detail",
+  "templates": ["page"],
+  "limit": 1,
+  "settings": [],
+  "presets": [
+    {
+      "name": "page_detail",
+      "cname": {
+        "zh-CN": "自定义页面",
+        "en-US": "Custom page"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "ccategory": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": true,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

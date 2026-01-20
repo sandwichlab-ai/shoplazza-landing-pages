@@ -1,0 +1,6 @@
+<header class="cart-header-wrapper md:hidden page-container flex items-start justify-between" {% if isBock %}{{ item.shoplaza_attributes }}{% endif %}>
+  <h4 class="cart-title m-0 type-heading-font-family title-color">{{ 'i18n.bag.general.cart' | t }}</h4>
+  <button class="cart-header-continue-shopping-btn clear" type="button" @tap="SPZ.history(type='back', defaultUrl='{{routes.root_url}}');">
+    {{ 'i18n.bag.general.continue_shopping' | t }}
+  </button>
+</header>

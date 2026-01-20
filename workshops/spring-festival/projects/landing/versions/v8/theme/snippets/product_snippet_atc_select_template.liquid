@@ -1,0 +1,23 @@
+<button {{attr}} id="${form_id}-button" type="button" class="product_snippet__atc_select_btn product-snippet__quick-shop-btn select button-secondary">{{'i18n.product.product_detail.add_to_cart' | t}}</button>
+
+<spz-tooltip layout="logic" for="${form_id}-button" id="${form_id}__tooltip" interact="click" no-arrow placement="bottomLeft" overlay-class="product_snippet__atc_tooltip">
+  <spz-product-form
+    product-id="${data.id}"
+    layout="container"
+    id="${form_id}"
+    @atcSuccess="${form_id}__tooltip.close();${form_id}__form.clear;"
+    @atcError="${form_id}__tooltip.close();${form_id}__form.clear;theme-toast.showToast(content=event.message);"
+    hidden
+  >
+    <form is="spz-form" id="${form_id}__form">
+      <div class="product_snippet__atc_tooltip_content">
+        <input type="radio" name="variant_id" value="" checked>
+        <label disabled>{{'i18n.products.product.choose_an_option' | t}}</label>
+        <input spz-for="variant in data.variants" type="radio" id="${form_id}__${variant.id}" name="variant_id" value="${variant.id}" @change="${form_id}.addToCart">
+        <label spz-for="variant in data.variants" for="${form_id}__${variant.id}">
+          ${variant.title}/<spz-currency value="${variant.price}" layout="container" container-class="product-snippet__price"></spz-currency>{% if shop.wholesale_enabled == false %}<spz-currency value="${variant.compare_at_price}" layout="container" container-class="product-snippet__compare-at-price" spz-if="${(+variant.compare_at_price)>(+variant.price)}"></spz-currency>{% endif %}
+        </label>
+      </div>
+    </form>
+  </spz-product-form>
+</spz-tooltip>

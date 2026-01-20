@@ -1,0 +1,72 @@
+{% comment %}
+  Renders card_spacing_css
+
+  Accepts:
+  - section.settings.spacing: {Settings spacing Object}.
+  - is_update_page_container: {Boolean} settings spacing whether update page container class. Default: false (optional)
+
+  Usage:
+  {% include 'card_spacing_css' %}
+{% endcomment %}
+{% if is_update_page_container == nil %}
+  {% assign is_update_page_container = true %}
+{% endif %}
+{% assign spacing_config = section.settings.spacing %}
+{% assign pc_top = section.settings.spacing.pc.top %}
+{% assign pc_bottom = section.settings.spacing.pc.bottom %}
+{% assign mobile_top = section.settings.spacing.mobile.top %}
+{% assign mobile_bottom = section.settings.spacing.mobile.bottom %}
+
+{% if spacing_config == nil %}
+  {% assign pc_top = 40 %}
+  {% assign pc_bottom = 40 %}
+  {% assign mobile_top = 20 %}
+  {% assign mobile_bottom = 20 %}
+{% endif %}
+
+{% assign pc_top = pc_top | default: 0 %}
+{% assign pc_bottom = pc_bottom | default: 0 %}
+{% assign pc_left = section.settings.spacing.pc.left | default: 0 %}
+{% assign pc_right = section.settings.spacing.pc.right | default: 0 %}
+{% assign mobile_top = mobile_top | default: pc_top %}
+{% assign mobile_bottom = mobile_bottom | default: pc_bottom %}
+{% assign mobile_left = section.settings.spacing.mobile.left | default: pc_left %}
+{% assign mobile_right = section.settings.spacing.mobile.right | default: pc_right %}
+{% assign custom_max_width_on = settings.custom_max_width_on | default: false %}
+{% stylesheet %}
+  [data-section-id="{{section.id}}"] {
+    padding-top: {{pc_top}}px;
+    padding-bottom: {{pc_bottom}}px;
+    padding-right: {{pc_right}}px;
+    padding-left: {{pc_left}}px;
+  }
+  @media (max-width: 959.98px) {
+    [data-section-id="{{section.id}}"] {
+      padding-top: {{mobile_top}}px;
+      padding-bottom: {{mobile_bottom}}px;
+      padding-right: {{mobile_right}}px;
+      padding-left: {{mobile_left}}px;
+    }
+  }
+  {% if is_update_page_container %}
+    {% if custom_max_width_on %}
+      [data-section-id="{{section.id}}"] {
+        --page-width: calc({{ settings.page_width }}px - {{pc_right}}px - {{pc_left}}px);
+      }
+      @media (max-width: 959.98px) {
+        [data-section-id="{{section.id}}"] {
+          --page-width: calc({{ settings.page_width }}px - {{mobile_right}}px - {{mobile_left}}px);
+        }
+      }
+    {% else %}
+      [data-section-id="{{section.id}}"] {
+        --page-width: calc(var(--page-width-base) - {{pc_right}}px - {{pc_left}}px);
+      }
+      @media (max-width: 959.98px) {
+        [data-section-id="{{section.id}}"] {
+          --page-width: calc(var(--page-width-base) - {{mobile_right}}px - {{mobile_left}}px);
+        }
+      }
+    {% endif %}
+  {% endif %}
+{% endstylesheet %}

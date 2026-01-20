@@ -1,0 +1,75 @@
+{% if show_add_cart_btn or show_buy_btn or show_paypal_btn %}
+  {% assign status_lan = 'i18n.product.product_detail.sold_out' | t %}
+
+  {% if productSelectedVariant %}
+    {% if productSelectedVariant.available %}
+      {% assign status_lan = 'i18n.product.product_detail.add_to_cart' | t %}
+    {% endif %}
+  {% elsif product.available %}
+    {% assign status_lan = 'i18n.product.product_detail.add_to_cart' | t %}
+  {% endif %}
+
+  <div class="product-info__btn mt-4 lg:mt-5" {{ block.shoplaza_attributes }}>
+    {% if show_add_cart_btn %}
+      <button
+        class="relative {% if show_buy_btn %} button-secondary {% else %} button-primary {% endif %} flex items-center justify-center w-full body-plus-2 leading-1.25 type-text-font-family rounded-btn product-info_atc_btn"
+        type="button"
+        role="addToCart"
+        data-track="click"
+        data-track-content="add_to_cart"
+        data-track-source="add_to_cart"
+      >
+        <span role="content">{{ status_lan }}</span>
+        {% if enableVariantPriceOnAddToCart %}
+          <spz-render
+            id="product-info-btn-price"
+            layout="container"
+            template="product-info-btn-price-template"
+            manual
+          >
+            {% if productSelectedVariant.price and enable_selected_variants %}
+              <div class="flex"><span class="product_price_before"></span><span class="money">{{ productSelectedVariant.price | money_with_symbol }}</span></div>
+            {% endif %}
+          </spz-render>
+          {% include 'button_price', button_price_id: 'product-info-btn-price-template' %}
+        {% endif %}
+        {% include 'loading', class: 'absolute inset-0 flex', display: true %}
+      </button>
+    {% endif %}
+
+    {% if show_buy_btn %}
+      <button
+        class="relative button-primary w-full body-plus-2 leading-1.25 type-text-font-family rounded-btn mt-2 lg:mt-3 product-info_atc_btn"
+        role="buyNow"
+        type="button"
+        data-track="click"
+        data-track-content="checkout"
+        data-track-source="buy_now">
+        <span role="content">{{ 'i18n.product.product_detail.buy_now' | t }}</span>
+        {% include 'loading', class: 'absolute inset-0 flex', display: true %}
+      </button>
+    {% endif %}
+
+    {% if show_paypal_btn and shop.payment_settings.paypal_express_enabled and shop.payment_settings.paypal_js %}
+      <spz-paypal
+        class="paypal-loading mt-3 rounded-btn"
+        id="paypal-express-button-container"
+        variant="#product-info-variants"
+        quantity="#product-info-quantity"
+        product-id="{{ product.id }}"
+        variant-id="{{ productSelectedVariant.id }}"
+        product-form="#product-info-body"
+        role="paypal"
+        layout="fixed-height"
+        height="52"
+        paypal-js="{{ shop.payment_settings.paypal_js }}"></spz-paypal>
+    {% endif %}
+
+    <div class="product-info__out_stock mt-2 text-center text-sm leading-1.3 opacity-70 lg:mt-3 hidden">
+      {{ 'i18n.product.product_detail.out_of_stock' | t }}
+    </div>
+    <div class="product-info__unavailable mt-2 text-center text-sm leading-1.3 opacity-70 lg:mt-3 hidden">
+      {{ 'i18n.product.product_detail.product_unavailable' | t }}
+    </div>
+  </div>
+{% endif %}

@@ -1,0 +1,182 @@
+{% include 'order_detail_css' %}
+{% include 'order_detail_tracking_template' %}
+
+{% assign orderLang = 'i18n.customers.order' | t %}
+{% assign generalLang = 'i18n.customers.order_details_general' | t %}
+{% assign CURRENCY_CODE = order.order_info.currency_code %}
+
+{% assign backHref = routes.root_url %}
+{% assign backText = 'i18n.general.breadcrumbs.shop' | t %}
+{% if customer.id %}
+  {% assign backHref = routes.account_order_url %}
+  {% assign backText = orderLang.order %}
+{% endif %}
+
+{% assign SHIPMENT = 'shipment' %}
+{% assign RETURN = 'return' %}
+
+<div class="page-container order-detail-back-bar">
+  <a class="order-detail-back-btn" href="{{ backHref }}" data-track="link-to-order-list">
+    {% include 'icon_left' %}
+    <span class="lg:ml-1">{{ backText }}</span>
+  </a>
+  <span class="order-detail-back-title">{{ orderLang.order_detail }}</span>
+</div>
+
+{%- comment -%} Order shipment {%- endcomment -%}
+{% include 'order_detail_shipment', ship_type: SHIPMENT, title: generalLang.shipments %}
+{% include 'order_detail_shipment', ship_type: RETURN, title: generalLang.returns %}
+
+<spz-order-detail layout="container" order-id="{{ order.id }}">
+  <template>
+    <div class="page-container pb-8 md:pt-10 lg:pb-13">
+      {% include 'loading', has_full_mask: true %}
+      {%- comment -%} Order Actions {%- endcomment -%}
+      <div class="order-detail-header rounded-global-fixed">
+        <div class="md:text-center">
+          <div class="order-detail-header-status">
+            <span>${order_info.orderStatus}</span>
+            <span spz-if="${!!(payment_line && payment_line.method === 'cod')}">
+              {{ orderLang.cod }}
+            </span>
+          </div>
+          <div class="order-detail-header-tip">${order_info.orderTip}</div>
+        </div>
+        <div class="order-detail-action-buttons flex-shrink-0 flex items-center md:flex-col lg:ml-4">
+          <button class="clear" type="button" role="delete_order">{{ generalLang.delete_order }}</button>
+          <button class="clear" type="button" role="cancel_order">{{ generalLang.cancel_order }}</button>
+          {%- comment -%} TODO: Need to fixed button in the bottom {%- endcomment -%}
+          <div id="order-detail-need-sticky-buttons">
+            <button class="clear button-primary lg:ml-8" type="button" role="add_to_cart">{{ generalLang.add_to_cart }}</button>
+            <button class="button-primary lg:ml-8" type="button" role="repay_order">{{ generalLang.pay_again }}</button>
+            <a class="button-primary no-underline lg:ml-8" role="pay_order">{{ generalLang.pay_now }}</a>
+          </div>
+          <a class="button-primary lg:ml-8" role="download_invoice">
+            {{ generalLang.invoice_download }}
+          </a>
+        </div>
+      </div>
+
+      <spz-observer
+        spz-if="${data.allowed_actions.add_to_cart || data.allowed_actions.pay_order || data.allowed_actions.repay_order}"
+        class="lg:hidden"
+        layout="logic"
+        target="order-detail-need-sticky-buttons"
+        @scrollToVisible="order-detail-sticky-buttons.hideSticky"
+        @scrollToInvisible="order-detail-sticky-buttons.showSticky"
+      ></spz-observer>
+      <spz-sticky
+        class="lg:hidden order-detail-sticky-buttons bg-white"
+        id="order-detail-sticky-buttons"
+        layout="container"
+        hidden
+        position="bottom"
+        spz-if="${data.allowed_actions.add_to_cart || data.allowed_actions.pay_order || data.allowed_actions.repay_order}"
+      >
+        <div class="px-10 flex flex-col justify-center">
+          <button class="clear button-primary w-full" type="button" role="add_to_cart">{{ generalLang.add_to_cart }}</button>
+          <button class="button-primary w-full" type="button" role="repay_order">{{ generalLang.pay_again }}</button>
+          <a class="button-primary w-full flex items-center justify-center no-underline" role="pay_order">{{ generalLang.pay_now }}</a>
+        </div>
+      </spz-sticky>
+
+      {% comment %} Summary {% endcomment %}
+      <div class="order-detail-summary w-full mt-7 rounded-global-fixed lg:mt-6 lg:border" role="order-detail-summary">
+        <div class="order-detail-summary-title">{{ generalLang.order_details }}</div>
+        <div class="order-detail-summary-content mt-5 lg:flex lg:mt-7">
+          <ul class="order-detail-summary-item clear" spz-for="(category,index) in summary_sort" data-index="${index}">
+            <li spz-for="item in category" spz-if="${!!item.allValid}">
+              <span class="order-summary-item-label break-words" id="${item.key}">
+                ${item.label || item.key}
+                {% render 'icon_tip', attr: "spz-if='${!!item.extra.tip}'", icon_class: 'ml-1' %}
+              </span>
+              <spz-tooltip
+                layout="logic"
+                for="${item.key}"
+                content="${item.extra.tip}"
+                spz-if="${!!item.extra.tip}"
+                placement="top"
+                overlay-class="order-summary-tip"
+              ></spz-tooltip>
+              <spz-date
+                layout="container"
+                datetime="${item.value}"
+                spz-if="${!!item.extra.conver_time}"
+                style="color: ${!!item.extra.font ? item.extra.font : ''}"
+              ></spz-date>
+              <div spz-else style="color: ${!!item.extra.font ? item.extra.font : ''}">
+                <div class="text-right break-words" spz-for="line in item.value">
+                  <div>${line}</div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      {%- comment -%} Product list {%- endcomment -%}
+      <div class="rounded-global-fixed lg:mt-8 lg:border">
+        <div class="order-product-list-header">
+          <div data-add-to-cart="${showAddToCart}">{{ orderLang.product_detail }}</div>
+          <div>{{ orderLang.shipment_status }}</div>
+          <div>{{ orderLang.quantity }}</div>
+          <div>{{ orderLang.price }}</div>
+          <div data-type="total" data-add-to-cart="${showAddToCart}">{{ orderLang.total }}</div>
+          <div data-type="action" spz-if="${showAddToCart}">{{ generalLang.action }}</div>
+        </div>
+        <ul class="clear order-product-list" data-add-to-cart="${showAddToCart}">
+          ${line_items.map((product) => {
+            const productCount = 1;
+            const showStatus = true;
+            return `
+              <li>
+                {% include 'order_detail_product' %}
+                <div class="order-product-list-subitem">
+                  <div class="order-product-list-subitem-status rounded-global-fixed">
+                    ${product.shippingStatus}
+                  </div>
+                </div>
+                <div class="order-product-list-subitem">${product.xQty}</div>
+                <spz-currency class="md:hidden order-product-list-subitem text-base leading-none" value="${product.price}" code="${order_info.currency_code}" layout="container"></spz-currency>
+                <div class="order-product-list-subitem flex-col" data-add-to-cart="${showAddToCart}">
+                  <spz-currency spz-if="${!!product.final_total && +product.final_total < +product.total}" layout="container" value="${product.final_total}" code="${order_info.currency_code}"></spz-currency>
+                  <spz-currency class="order-product-list-total text-base leading-none ${!!product.final_total && +product.final_total < +product.total ? 'total_has_discount' : ''}" value="${product.total}" code="${order_info.currency_code}" layout="container"></spz-currency>
+                </div>
+                <div class="order-product-list-subitem" spz-if="${showAddToCart}">
+                  <button class="button-primary rounded-btn" type="button" role="oneAddToCart" data-product-id="${product.product_id}">
+                    {{ generalLang.add_to_cart }}
+                  </button>
+                </div>
+              </li>
+            `;
+          }).join('')}
+        </ul>
+      </div>
+    </div>
+  </template>
+</spz-order-detail>
+
+{% schema %}
+{
+  "name": "order_detail",
+  "settings": [],
+  "presets": [
+    {
+      "name": "order_detail",
+      "cname": {
+        "en-US": "Order detail",
+        "zh-CN": "订单详情"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "ccategory": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": false
+    }
+  ]
+}
+{% endschema %}

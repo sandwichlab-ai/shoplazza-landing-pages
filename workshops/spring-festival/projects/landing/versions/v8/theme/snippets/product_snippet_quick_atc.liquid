@@ -1,0 +1,19 @@
+{% if settings.product_quick_view_on and settings.quick_shop_style == 'button' %}
+  {% assign atc = 'i18n.product.product_detail.add_to_cart' | t %}
+  {% assign sold_out = 'i18n.product.product_detail.sold_out' | t %}
+  {% if card_product.isMock %}
+    <button class="product-snippet__quick-shop-btn button-secondary">
+      {{atc}}
+    </button>
+  {% elsif card_product.available %}
+    {% if card_product.variants.size == 1 %}
+      {% include 'product_snippet_atc_single', button_class: 'product-snippet__quick-shop-btn button-secondary', button_content: atc, attr: "" %}
+    {% else %}
+      {% include 'product_snippet_atc_select', button_class: 'product-snippet__quick-shop-btn button-secondary', button_content: atc %}
+    {% endif %}
+  {% else %}
+    <button class="product-snippet__quick-shop-btn button-secondary" disable>
+      {{sold_out}}
+    </button>
+  {% endif %}
+{% endif %}

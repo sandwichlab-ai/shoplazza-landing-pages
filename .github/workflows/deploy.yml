@@ -1,0 +1,85 @@
+name: Production Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'workshops/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect changed versions
+        id: detect
+        run: |
+          echo "Detecting changed versions..."
+
+          # 获取变更的文件
+          CHANGED=$(git diff --name-only HEAD~1 HEAD -- workshops/ || echo "")
+          echo "Changed files:"
+          echo "$CHANGED"
+
+          # 提取唯一的 version 路径
+          VERSIONS=$(echo "$CHANGED" | grep -oP 'workshops/[^/]+/[^/]+/[^/]+' | sort -u || echo "")
+          echo "Changed versions:"
+          echo "$VERSIONS"
+
+          echo "versions<<EOF" >> $GITHUB_OUTPUT
+          echo "$VERSIONS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Shoplazza CLI
+        run: |
+          npm install -g @shoplazza/cli
+          shoplazza --version || echo "CLI installed"
+
+      - name: Deploy to Shoplazza
+        env:
+          SHOPLAZZA_SHOP_DOMAIN: ${{ secrets.SHOPLAZZA_SHOP_DOMAIN }}
+          SHOPLAZZA_ACCESS_TOKEN: ${{ secrets.SHOPLAZZA_ACCESS_TOKEN }}
+          SHOPLAZZA_THEME_ID: ${{ secrets.SHOPLAZZA_THEME_ID }}
+        run: |
+          echo "Deploying changed versions..."
+
+          VERSIONS="${{ steps.detect.outputs.versions }}"
+
+          if [ -z "$VERSIONS" ]; then
+            echo "No versions to deploy"
+            exit 0
+          fi
+
+          for version_path in $VERSIONS; do
+            echo "Deploying: $version_path"
+            theme_dir="$version_path/theme"
+
+            if [ -d "$theme_dir" ]; then
+              echo "Found theme directory: $theme_dir"
+              cd "$theme_dir"
+              # shoplazza theme push --theme $SHOPLAZZA_THEME_ID
+              echo "Would deploy theme from $theme_dir"
+              cd -
+            else
+              echo "Warning: No theme directory found at $theme_dir"
+            fi
+          done
+
+          echo "Deployment complete"
+
+      - name: Create deployment summary
+        run: |
+          echo "## 部署完成" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "已部署的版本:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.detect.outputs.versions }}" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

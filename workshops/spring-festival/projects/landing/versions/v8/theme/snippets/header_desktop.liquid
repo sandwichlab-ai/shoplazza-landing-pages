@@ -1,0 +1,43 @@
+{% assign layout = section.settings.layout %}
+<style>
+  .header__menu-sticky {
+    padding-top: 28px;
+  }
+  .header__menu-sticky .header__menu-item-sub {
+    padding-bottom: 28px;
+  }
+</style>
+<div class="header__desktop md:hidden" data-layout="{{ layout }}">
+  <div class="header__layout relative z-50 pointer-events-auto">
+    <div class="header__layout-content page-container flex items-center direction_ltr_self">
+      {% render 'header_logo' %}
+
+      {% assign isShowInsideSearch = true %}
+      {% if layout == 'center' %}
+        {% assign isShowInsideSearch = false %}
+        {% render 'header_search', media: media %}
+      {% endif %}
+
+      {% render 'header_icons',
+        isShowInsideSearch: isShowInsideSearch,
+        media: 'pc'
+      %}
+      <div class="header__menu-sticky flex-1 overflow-hidden">
+        {% include 'header_menu', suffix_id: 'top' %}
+      </div>
+    </div>
+  </div>
+
+  {% if layout == 'left' or layout == 'center' %}
+    <div class="header__menu-wrapper header__scroll_hide header-bg overflow-hidden pointer-events-auto">
+      <div class="header__menu-content page-container">
+        {% include 'header_menu',
+          label_type: 'left_center',
+          suffix_id: 'bottom'
+        %}
+      </div>
+    </div>
+  {% endif %}
+  {%- comment -%} popup plug-in {%- endcomment -%}
+  <div class="plugin__fixed-div pointer-events-auto md:hidden"></div>
+</div>
