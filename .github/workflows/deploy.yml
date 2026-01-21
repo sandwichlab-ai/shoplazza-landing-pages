@@ -91,30 +91,28 @@ jobs:
           echo "Version: $VERSION"
           echo "Page handle: $PAGE_HANDLE"
 
-          # 创建/更新页面
-          API_URL="https://${SHOPLAZZA_SHOP_DOMAIN}.myshoplaza.com/openapi/2024-04/pages"
+          # 创建/更新页面 (使用 2025-06 API 版本)
+          API_URL="https://${SHOPLAZZA_SHOP_DOMAIN}.myshoplaza.com/openapi/2025-06/pages"
 
-          # 读取并转义 Liquid 内容
-          LIQUID_CONTENT=$(cat "$LIQUID_FILE" | jq -Rs .)
+          PAGE_TITLE="AI Landing Page - ${PROJECT} ${VERSION}"
 
-          # 检查页面是否已存在
+          # 检查页面是否已存在 (通过列出所有页面并按标题搜索)
           echo "Checking if page exists..."
-          EXISTING=$(curl -s -X GET "${API_URL}?handle=${PAGE_HANDLE}" \
+          EXISTING=$(curl -s -X GET "${API_URL}?page_size=50" \
             -H "Access-Token: ${SHOPLAZZA_ACCESS_TOKEN}" \
             -H "Content-Type: application/json")
 
-          PAGE_ID=$(echo "$EXISTING" | jq -r '.pages[0].id // empty')
+          # 查找标题匹配的页面
+          PAGE_ID=$(echo "$EXISTING" | jq -r --arg title "$PAGE_TITLE" '.data.pages[]? | select(.title == $title) | .id' | head -1)
 
-          if [ -n "$PAGE_ID" ]; then
-            echo "Page exists (ID: $PAGE_ID), updating..."
+          if [ -n "$PAGE_ID" ] && [ "$PAGE_ID" != "null" ]; then
+            echo "Page exists (ID: $PAGE_ID), updating title..."
             RESPONSE=$(curl -s -X PUT "${API_URL}/${PAGE_ID}" \
               -H "Access-Token: ${SHOPLAZZA_ACCESS_TOKEN}" \
               -H "Content-Type: application/json" \
               -d "{
                 \"page\": {
-                  \"title\": \"AI Landing Page - ${PROJECT} ${VERSION}\",
-                  \"handle\": \"${PAGE_HANDLE}\",
-                  \"body_html\": ${LIQUID_CONTENT},
+                  \"title\": \"${PAGE_TITLE}\",
                   \"published\": true
                 }
               }")
@@ -125,9 +123,7 @@ jobs:
               -H "Content-Type: application/json" \
               -d "{
                 \"page\": {
-                  \"title\": \"AI Landing Page - ${PROJECT} ${VERSION}\",
-                  \"handle\": \"${PAGE_HANDLE}\",
-                  \"body_html\": ${LIQUID_CONTENT},
+                  \"title\": \"${PAGE_TITLE}\",
                   \"published\": true
                 }
               }")
@@ -136,14 +132,20 @@ jobs:
           echo "API Response:"
           echo "$RESPONSE" | jq .
 
-          # 检查是否成功
-          NEW_PAGE_ID=$(echo "$RESPONSE" | jq -r '.page.id // empty')
+          # 检查是否成功 (2025-06 API response format)
+          NEW_PAGE_ID=$(echo "$RESPONSE" | jq -r '.data.page.id // empty')
+          PAGE_URL_PATH=$(echo "$RESPONSE" | jq -r '.data.page.url // empty')
+
           if [ -n "$NEW_PAGE_ID" ]; then
-            PAGE_URL="https://${SHOPLAZZA_SHOP_DOMAIN}.myshoplaza.com/pages/${PAGE_HANDLE}"
+            PAGE_URL="https://${SHOPLAZZA_SHOP_DOMAIN}.myshoplaza.com${PAGE_URL_PATH}"
             echo ""
             echo "=========================================="
-            echo "✅ 部署成功!"
+            echo "✅ 页面创建/更新成功!"
+            echo "页面 ID: $NEW_PAGE_ID"
             echo "页面 URL: $PAGE_URL"
+            echo ""
+            echo "注意: 页面内容通过主题模板渲染"
+            echo "请确保已推送主题文件到 Shoplazza"
             echo "=========================================="
             echo "page_url=$PAGE_URL" >> $GITHUB_OUTPUT
           else
