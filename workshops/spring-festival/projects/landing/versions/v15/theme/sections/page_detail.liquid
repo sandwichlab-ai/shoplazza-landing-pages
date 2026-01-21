@@ -1,4 +1,14 @@
 <style>
+/* Copyright Footer Styles */
+.sf-copyright {
+  font-size: 12px !important;
+  color: #888 !important;
+  text-align: center !important;
+  padding: 20px 0 !important;
+  margin-top: 40px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
 /* Enhanced Button Hover Effects - Golden Shadow & Scale */
 .sf-cta:hover {
   transform: translateY(-3px) scale(1.05) !important;
@@ -1293,6 +1303,10 @@
   display: none;
 }
 
+.sf-landing.detail-mode .sf-copyright {
+  display: none;
+}
+
 /* Legacy Modal Styles (kept for compatibility) */
 .sf-modal-overlay {
   display: none;
@@ -1881,6 +1895,11 @@
         <!-- Pagination will be rendered via JS -->
       </div>
     </div>
+  </div>
+
+  <!-- Copyright Footer -->
+  <div class="sf-copyright">
+    © 2026 Lunar New Year Sale. All rights reserved.
   </div>
 
   <!-- Full-Page Product Detail -->
