@@ -43,26 +43,54 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Shoplazza CLI
-        run: npm install -g shoplazza-cli
-
-      - name: Push theme to Shoplazza
+      - name: Push theme to Shoplazza via API
         if: steps.detect.outputs.first_version != ''
         env:
-          SHOPLAZZA_CLI_THEME_TOKEN: ${{ secrets.SHOPLAZZA_ACCESS_TOKEN }}
-          SHOPLAZZA_CLI_STORE: ${{ secrets.SHOPLAZZA_SHOP_DOMAIN }}.myshoplaza.com
+          SHOPLAZZA_SHOP_DOMAIN: ${{ secrets.SHOPLAZZA_SHOP_DOMAIN }}
+          SHOPLAZZA_ACCESS_TOKEN: ${{ secrets.SHOPLAZZA_ACCESS_TOKEN }}
           SHOPLAZZA_THEME_ID: ${{ secrets.SHOPLAZZA_THEME_ID }}
         run: |
           VERSION_PATH="${{ steps.detect.outputs.first_version }}"
           THEME_DIR="$VERSION_PATH/theme"
 
           echo "Pushing theme from: $THEME_DIR"
-          cd "$THEME_DIR"
 
-          # 推送主题文件
-          shoplazza theme push --theme "$SHOPLAZZA_THEME_ID"
+          # 更新 sections/page_detail.liquid 文件
+          LIQUID_FILE="$THEME_DIR/sections/page_detail.liquid"
+          if [ ! -f "$LIQUID_FILE" ]; then
+            echo "Error: page_detail.liquid not found"
+            exit 1
+          fi
 
-          echo "✅ Theme pushed successfully!"
+          # 读取文件内容并转义为 JSON
+          CONTENT=$(cat "$LIQUID_FILE" | jq -Rs .)
+
+          # 使用 Shoplazza Theme API 更新文件 (API 版本 2020-07)
+          API_URL="https://${SHOPLAZZA_SHOP_DOMAIN}.myshoplaza.com/openapi/2020-07/themes/${SHOPLAZZA_THEME_ID}/doc"
+
+          echo "Updating file via API: $API_URL"
+
+          RESPONSE=$(curl -s -X PATCH "$API_URL" \
+            -H "Access-Token: ${SHOPLAZZA_ACCESS_TOKEN}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"doc\": {
+                \"type\": \"sections\",
+                \"location\": \"page_detail.liquid\",
+                \"content\": $CONTENT
+              }
+            }")
+
+          echo "API Response: $RESPONSE"
+
+          # 检查是否成功
+          if echo "$RESPONSE" | grep -q '"code":"Success"'; then
+            echo "✅ Theme file updated successfully!"
+          else
+            echo "Error updating theme file"
+            echo "$RESPONSE"
+            exit 1
+          fi
 
       - name: Deploy to Shoplazza
         if: steps.detect.outputs.first_version != ''
