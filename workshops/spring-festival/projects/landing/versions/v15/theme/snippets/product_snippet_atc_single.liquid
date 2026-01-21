@@ -1,0 +1,22 @@
+<spz-product-form
+  product-id="{{card_product.id | default: '${data.id}'}}"
+  layout="container"
+  @atcError="theme-toast.showToast(content=event.message);"
+  {{attr}}
+>
+  <form>
+    <input name="variant_id" type="hidden" value="{{card_product.variants[0].id | default: '${data.variants[0].id}'}}">
+    <button
+      type="button"
+      class="{{button_class}}"
+      role="addToCart"
+      data-quick-shop="{{card_product.handle | default: '${data.handle}'}}"
+      data-track-product-id="{{card_product.id | default: '${data.id}'}}"
+      data-track="click"
+      data-track-content="add_to_cart"
+      data-track-source="quick_shop"
+    >
+      {{button_content}}
+    </button>
+  </form>
+</spz-product-form>

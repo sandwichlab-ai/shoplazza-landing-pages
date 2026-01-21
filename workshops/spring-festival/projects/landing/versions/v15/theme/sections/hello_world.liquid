@@ -1,0 +1,120 @@
+{{ 'hello-world.css' | asset_url | stylesheet_tag }}
+
+<section class="hello-world" data-section-id="{{ section.id }}">
+  <div class="hello-world__container">
+    <div class="hello-world__content">
+      {% if section.settings.icon %}
+        <div class="hello-world__icon">{{ section.settings.icon }}</div>
+      {% endif %}
+
+      <h1 class="hello-world__title">{{ section.settings.title }}</h1>
+
+      {% if section.settings.subtitle %}
+        <p class="hello-world__subtitle">{{ section.settings.subtitle }}</p>
+      {% endif %}
+
+      {% if section.settings.message %}
+        <div class="hello-world__message">{{ section.settings.message }}</div>
+      {% endif %}
+
+      {% if section.settings.show_timestamp %}
+        <p class="hello-world__timestamp">
+          Page rendered at: <span id="hello-world-time"></span>
+        </p>
+        <script>
+          document.getElementById('hello-world-time').textContent = new Date().toLocaleString();
+        </script>
+      {% endif %}
+
+      {% if section.settings.button_text %}
+        <a href="{{ section.settings.button_link }}" class="hello-world__button">
+          {{ section.settings.button_text }}
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "hello_world",
+  "class": "section-hello-world",
+  "templates": ["page"],
+  "limit": 1,
+  "settings": [
+    {
+      "type": "text",
+      "id": "icon",
+      "label": "Icon Emoji",
+      "default": "👋"
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Title",
+      "default": "Hello World!"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Welcome to Shoplazza AI Page Builder"
+    },
+    {
+      "type": "textarea",
+      "id": "message",
+      "label": "Message",
+      "default": "This is a custom page template created by Claude Code. It demonstrates the complete workflow of creating, pushing, and testing custom pages on Shoplazza."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_timestamp",
+      "label": "Show Timestamp",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Button Text",
+      "default": "Back to Home"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link",
+      "default": "/"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#f0f9ff"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#1e40af"
+    }
+  ],
+  "presets": [
+    {
+      "name": "hello_world",
+      "cname": {
+        "zh-CN": "Hello World",
+        "en-US": "Hello World"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "ccategory": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": true,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}

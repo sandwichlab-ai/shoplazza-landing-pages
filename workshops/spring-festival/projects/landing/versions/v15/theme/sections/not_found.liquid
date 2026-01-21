@@ -1,0 +1,35 @@
+<style>
+  .not_found_container {
+    padding-top: 100px;
+    padding-bottom: 100px;
+  }
+</style>
+<div class="page-container not_found_container flex items-center justify-center flex-col text-center">
+  <h4 class="m-0 uppercase text-lg lg:text-3xl mb-4 lg:mb-5 color-heading font-normal">{{ 'i18n.general.not_found.title' | t }}</h4>
+  <div class="not_found_texg text-sm lg:text-lg mb-6 lg:mb-7 color-body">{{ 'i18n.general.not_found.tips' | t }}</div>
+  <a href="{{ routes.root_url }}" class="px-6 py-3 no-underline button-primary">{{ 'i18n.general.not_found.continue_shopping' | t }}</a>
+</div>
+{% schema %}
+{
+  "name": "not_found",
+  "settings": [],
+  "presets": [
+    {
+      "name": "not_found",
+      "cname": {
+        "en-US": "404 page",
+        "zh-CN": "404页面"
+      },
+      "category": {
+        "zh-CN": "基础",
+        "en-US": "Basic"
+      },
+      "ccategory": {
+        "zh-CN": "基础",
+        "en-US": "Basic"
+      },
+      "display": false
+    }
+  ]
+}
+{% endschema %}

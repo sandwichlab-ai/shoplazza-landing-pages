@@ -1,0 +1,36 @@
+{% stylesheet %}
+  .theme-toast-wrap{
+    position: fixed;
+    z-index: var(--z-index-tooltip);
+    top: 64px;
+    right: 0;
+    left: 0;
+    pointer-events: none;
+  }
+  .theme-toast{
+    width: 100%;
+    background: rgba(41, 41, 41, 0.95);
+    color: #fff;
+    pointer-events: auto;
+    border-radius: 0px;
+    position: unset !important;
+    transform: unset !important;
+    text-align: left !important;
+  }
+  @media (min-width: 960px) {
+    .theme-toast-wrap {
+      top: 60px;
+    }
+    .theme-toast{
+      width: 400px;
+      border-radius: 2px;
+    }
+  }
+{% endstylesheet %}
+<div class="theme-toast-wrap lg:page-container flex justify-end">
+  <spz-toast class="theme-toast p-4 lg:py-8 lg:px-5 leading-1.2" id="theme-toast" layout="nodisplay" hidden></spz-toast>
+  <spz-toast class="theme-toast p-4 lg:py-8 lg:px-5 leading-1.2 flex items-center" id="theme-toast-success" layout="nodisplay" hidden>
+    {% include 'icon_successfully', icon_class: "flex-shrink-0 mr-3" %}
+    <span role="content"></span>
+  </spz-toast>
+</div>

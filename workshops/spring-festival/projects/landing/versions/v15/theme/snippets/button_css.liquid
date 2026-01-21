@@ -1,0 +1,121 @@
+{% assign btn_pc_top = settings.btn_spacing.pc.top | default: 0 %}
+{% assign btn_pc_bottom = settings.btn_spacing.pc.bottom | default: 0 %}
+{% assign btn_pc_left = settings.btn_spacing.pc.left | default: 0 %}
+{% assign btn_pc_right = settings.btn_spacing.pc.right | default: 0 %}
+{% assign btn_mobile_top = settings.btn_spacing.mobile.top | default: btn_pc_top %}
+{% assign btn_mobile_bottom = settings.btn_spacing.mobile.bottom | default: btn_pc_bottom %}
+{% assign btn_mobile_left = settings.btn_spacing.mobile.left | default: btn_pc_left %}
+{% assign btn_mobile_right = settings.btn_spacing.mobile.right | default: btn_pc_right %}
+
+<style>
+
+  /* Button */
+  .button-primary,
+  .button-secondary {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: {{ btn_pc_top }}px;
+    padding-right:{{ btn_pc_right }}px;
+    padding-bottom:{{ btn_pc_bottom }}px;
+    padding-left:{{ btn_pc_left }}px;
+    font-weight: bold;
+    text-align: center;
+    color: var(--color-primary-btn-text);
+    text-decoration: none;
+    background-color: var(--color-primary-btn-bg);
+    border-radius: var(--btn-border-radius);
+    border: 1px solid transparent;
+    position: relative;
+    overflow: hidden;
+    transition: opacity 0.15s ease-in-out, transform 0.3s ease-in-out;
+  }
+
+  .button-secondary {
+    color: var(--color-primary-btn-bg);
+    background-color: transparent;
+    border: 1px solid var(--color-primary-btn-bg);
+  }
+  
+  /* 悬浮放大 */
+  body[data-button-hover-animation="enlarge_hover"] .button-primary:hover,
+  body[data-button-hover-animation="enlarge_hover"] .button-secondary:hover {
+   transform: scale(1.05);
+  }
+
+  /* 颜色反转 */
+  body[data-button-hover-animation="color_invert"] .button-primary:hover {
+    color: var(--color-primary-btn-bg);
+    background-color: var(--color-primary-btn-text);
+    border: 1px solid var(--color-primary-btn-bg);
+  }
+  body[data-button-hover-animation="color_invert"] .button-secondary:hover {
+    color: var(--color-primary-btn-text);
+    background-color: var(--color-primary-btn-bg);
+  }
+
+  .button-primary::before,
+  .button-secondary::before {
+    content: "";
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    z-index: 1;
+    border-radius: var(--btn-border-radius);
+    pointer-events: none;
+  }
+
+  /* 左右扫光 */
+  body[data-button-hover-animation="horizontal_swipe"] .button-primary::before,
+  body[data-button-hover-animation="horizontal_swipe"] .button-secondary::before {
+    width: 200%;
+    height: 100%;
+  }
+  @keyframes button-swipe {
+    100% {
+      left: -200%;
+    }
+  }
+  body[data-button-hover-animation="horizontal_swipe"] .button-primary:hover::before,
+  body[data-button-hover-animation="horizontal_swipe"] .button-secondary:hover::before {
+    transform: skew(-20deg);
+    background-image: linear-gradient(90deg, transparent, hsla(0, 0%, 100%, 0.25), transparent);
+    animation: button-swipe 0.75s cubic-bezier(0.01, 0.56, 1, 1);
+    left: 150%;
+  }
+
+  /* 向右填充 */
+  body[data-button-hover-animation="fill_right"] .button-primary::before,
+  body[data-button-hover-animation="fill_right"] .button-secondary::before {
+    background-color: #fff;
+    opacity: 0.2;
+    width: 0;
+    height: 100%;
+    transition: width 0.5s ease-out;
+  }
+  body[data-button-hover-animation="fill_right"] .button-primary:hover::before,
+  body[data-button-hover-animation="fill_right"] .button-secondary:hover::before {
+    width: 100%;
+  }
+
+  .button-primary[loading] .loading-bounce {
+    border-bottom-color: var(--color-primary-btn-text);
+  }
+  .button-secondary[loading] .loading-bounce {
+    border-bottom-color: var(--color-primary-btn-bg);
+  }
+
+  @media (max-width: 960px) {
+    .button-primary,
+    .button-secondary {
+      padding-top: {{ btn_mobile_top }}px;
+      padding-right:{{ btn_mobile_right }}px;
+      padding-bottom:{{ btn_mobile_bottom }}px;
+      padding-left:{{ btn_mobile_left }}px;
+    }
+  }
+
+</style>

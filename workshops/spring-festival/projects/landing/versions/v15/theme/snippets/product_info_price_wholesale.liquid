@@ -1,0 +1,39 @@
+{% assign price_min = product.price_min %}
+{% assign price_max = product.price_max %}
+
+{% capture whole_price_min_to_max %}
+  <span class="money">{{ price_min | money_with_symbol }}</span>
+  {% if price_min < price_max %}
+    <span>-</span>
+    <span class="money">{{ price_max | money_with_symbol }}</span>
+  {% endif %}
+{% endcapture %}
+<spz-render class="flex mt-4 lg:mt-5" id="product-info-prices-wholesale" template="product-info-prices-wholesale-template" layout="container" manual {{ block.shoplaza_attributes }}>
+  <div class="w-full">
+    {% if productSelectedVariant and productSelectedVariant.wholesale_price and enable_selected_variants %}
+      {% assign wholesalePrice = productSelectedVariant.wholesale_price %}
+      <div class="product-info-wholesale flex w-full p-4 md:py-3 hide-scrollbar {% if settings.edges == 'round' %}rounded{% endif %}">
+        {% for item in wholesalePrice %}
+          {% if wholesalePrice.size > forloop.index %}
+            {% capture quantity_html %}
+              {{item.min_quantity}}-{{wholesalePrice[forloop.index].min_quantity | minus: 1}}
+            {% endcapture %}
+          {% else %}
+            {% capture quantity_html %}
+              >={{item.min_quantity}}
+            {% endcapture %}
+          {% endif %}
+          <div class="product-info-wholesale-item flex-grow flex-shrink-0 {% if forloop.index == 1 %}highlight{% endif %}">
+            <div class="money text-2xl md:text-base leading-1.4 font-semibold">{{item.price | money_with_symbol }}</div>
+            <div class="opacity-70 mt-1 md:text-xs">{{quantity_html}} {{ 'i18n.products.general.pieces' | t }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="mr-2 md:mx-4 text-2xl leading-1.2 font-semibold color-price product-info__header_price">
+        {{whole_price_min_to_max}}
+      </div>
+    {% endif %}
+  </div>
+</spz-render>
+{% include 'price_wholesale_template', template_id: 'product-info-prices-wholesale-template', whole_price_min_to_max: whole_price_min_to_max %}

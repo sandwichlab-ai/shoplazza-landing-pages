@@ -1,0 +1,527 @@
+<style>
+  {% if section.settings.style == 'magazine' %}
+    [data-section-id="{{ section.id }}"] {
+      margin-bottom: 100px;
+    }
+  {% endif %}
+  .classic {
+    overflow: hidden;
+  }
+  .overlay_text_container {
+    margin-top: 40px;
+    margin-bottom: 40px;
+  }
+  [data-section-id="{{ section.id }}"] .overlay_text_outer {
+    background-color: rgba(255,255,255, {% if section.settings.style == "classic"  %}{{ 100 | minus: section.settings.floating_layer_transparency | divided_by: 100 }} {% else %} 1 {% endif %});
+  }
+  [data-section-id="{{ section.id }}"] .overlay_img_outer {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+  }
+  {% comment %} classic {% endcomment %}
+  [data-section-id="{{ section.id }}"] .classic .overlay_img_outer {
+    bottom: 0;
+  }
+  [data-section-id="{{ section.id }}"] .classic .overlay_text_text_container {
+    position: absolute;
+    padding: 0px;
+    min-height: 200px;
+  }
+  [data-section-id="{{ section.id }}"] .classic .left .overlay_text_text_container {
+    left: 144px;
+  }
+  [data-section-id="{{ section.id }}"] .classic .right .overlay_text_text_container {
+    right: 144px;
+  }
+  [data-section-id="{{ section.id }}"] .classic .overlay_text_outer {
+    max-width: 380px;
+    padding: 28px;
+    text-align: left;
+    border-radius: 4px;
+  }
+  {% comment %} magazine {% endcomment %}
+  [data-section-id="{{ section.id }}"] .magazine {
+    {% comment %} padding-bottom: 100px; {% endcomment %}
+  }
+  [data-section-id="{{ section.id }}"] .magazine .overlay_img_outer {
+    {% comment %} bottom: 80px; {% endcomment %}
+  }
+  [data-section-id="{{ section.id }}"] .magazine .overlay_text_text_container {
+    position: relative;
+    padding-top: {{ section.settings.section_height | divided_by: 2 }}px;
+    box-sizing: border-box;
+    top: auto;
+    width: 40.55%;
+    transform: none;
+    left: 0;
+  }
+  [data-section-id="{{ section.id }}"] .magazine .overlay_text_outer {
+    width: 100%;
+    padding: 80px;
+  }
+  [data-section-id="{{ section.id }}"] .magazine .right .overlay_text_text_container {
+    margin-left: auto;
+    margin-right: 0;
+  }
+  [data-section-id="{{ section.id }}"] .magazine .left .overlay_text_text_container {
+    margin-left: 0;
+    margin-right: auto;
+  }
+  @media (min-width: {{ settings.breakpoint }}px) {
+    .overlay_text_container {
+      min-height: {{ section.settings.section_height }}px;
+    }
+    [data-section-id="{{ section.id }}"] .magazine .overlay_text_text_container {
+      {% comment %} max-height: 650px; {% endcomment %}
+      min-height: {{ section.settings.section_height }}px;
+      {% if section.settings.section_height > 650 %}
+        bottom: -100px;
+      {% endif %}
+    }
+    [data-section-id="{{ section.id }}"] .classic .overlay_text_text_container {
+      top: 76px;
+    }
+    [data-section-id="{{ section.id }}"] .magazine .overlay_text_text_container {
+      bottom: -100px;
+      padding-top: {{ section.settings.section_height | divided_by: 2 }}px;
+    }
+  }
+  @media (max-width: {{ settings.breakpoint }}px) {
+    [data-section-id="{{ section.id }}"] .overlay_text_container {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      min-height: unset;
+    }
+    .overlay_text_text_container {
+      min-height: 200px;
+      position: relative !important;
+      left: unset !important;
+      right: unset !important;
+    }
+    [data-section-id="{{ section.id }}"] .classic .overlay_text_text_container {
+      padding-left: 16px !important;
+      padding-right: 16px !important;
+      padding-top: 200px !important;
+      padding-bottom: 16px !important;
+    }
+    [data-section-id="{{ section.id }}"] .classic .overlay_text_outer {
+      max-width: 380px;
+      padding: 20px 36px;
+      text-align: center;
+      border-radius: 4px;
+    }
+    [data-section-id="{{ section.id }}"] .magazine .overlay_text_text_container {
+      width: 81.33%;
+      position: relative;
+      bottom: -80px;
+    }
+    [data-section-id="{{ section.id }}"] .magazine .overlay_text_outer {
+      padding: 24px;
+      min-height: 200px;
+    }
+    [data-section-id="{{ section.id }}"] .magazine .overlay_text_text_container {
+      min-height: unset;
+    }
+    [data-section-id="{{ section.id }}"] .magazine .left .overlay_text_text_container {
+      margin-left: 0;
+      margin-right: auto;
+    }
+    [data-section-id="{{ section.id }}"] .magazine .right .overlay_text_text_container {
+      margin-left: auto;
+      margin-right: 0;
+    }
+    [data-section-id="{{ section.id }}"] .magazine .overlay_text_text_container {
+      padding-top: 225px;
+    }
+    [data-section-id="{{ section.id }}"] .classic .overlay_text_outer .mt-5 {
+      text-align: center;
+    }
+    [data-section-id="{{ section.id }}"] .magazine .overlay_img_outer {
+      bottom: 80px;
+    }
+  }
+</style>
+
+{% if shop.locale == 'ar-SA' %}
+  <style>
+    .overlay_text_outer {
+      text-align: right !important;
+    }
+  </style>
+{% endif %}
+
+{% include 'card_spacing_css', is_update_page_container: false %}
+
+{% assign pc_image = section.settings.image  %}
+{% comment %} If there is no PC picture, do not display the mobile picture. {% endcomment %}
+{% if pc_image %}
+  {% assign mobile_image = section.settings.mobile_image | default: pc_image %}
+{% endif %}
+{% case section.settings.image_focal_point %}
+  {% when 'left-top' %}
+    {% assign image_focal_point = 'left top' %}
+  {% when 'right-top' %}
+    {% assign image_focal_point = 'right top' %}
+  {% when 'left-bottom' %}
+    {% assign image_focal_point = 'left bottom' %}
+  {% when 'right-bottom' %}
+    {% assign image_focal_point = 'right bottom' %}
+  {% else %}
+    {% assign image_focal_point = section.settings.image_focal_point %}
+{% endcase %}
+{% assign style = section.settings.style | default: 'classic'%}
+{% assign layout = section.settings.layout %}
+{% if section.settings.enable_full_width == false %}
+  {% assign container_width_style = "page-container" %} 
+{% endif %}
+
+<div class="{{container_width_style}}">
+  <div class="overlay_text_container relative {{style}}">
+    <div class="{{layout}}">
+      {% include 'global_img', image: pc_image, image_outer: 'md:hidden overlay_img_outer', image_class: 'h-full', current_image_class: 'h-full', ssrIndex: 0, sizeRatio: 1 %}
+      {% include 'global_img', image: mobile_image, image_outer: 'lg:hidden overlay_img_outer', image_class: 'h-full', current_image_class: 'h-full', ssrIndex: 0, sizeRatio: 1  %}
+      <div class="overlay_text_text_container">
+       {% include 'global_text', container_class: 'overlay_text_outer', image_focal_point: image_focal_point %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "overlay_text",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": {
+        "en-US": "Image",
+        "zh-CN": "图片"
+      }
+    },
+    {
+      "type": "image_picker",
+      "id": "mobile_image",
+      "label": {
+        "en-US": "Mobile image",
+        "zh-CN": "移动端图片"
+      }
+    },
+    {
+      "type": "select",
+      "id": "image_focal_point",
+      "label": {
+        "en-US": "Image focal point",
+        "zh-CN": "图片焦点"
+      },
+      "options": [
+        {
+          "value": "left-top",
+          "label": {
+            "en-US": "Top left",
+            "zh-CN": "左上"
+          }
+        },
+        {
+          "value": "top",
+          "label": {
+            "en-US": "Top",
+            "zh-CN": "上"
+          }
+        },
+        {
+          "value": "right-top",
+          "label": {
+            "en-US": "Top right",
+            "zh-CN": "右上"
+          }
+        },
+        {
+          "value": "left",
+          "label": {
+            "en-US": "Left",
+            "zh-CN": "左"
+          }
+        },
+        {
+          "value": "center",
+          "label": {
+            "en-US": "Center",
+            "zh-CN": "中间"
+          }
+        },
+        {
+          "value": "right",
+          "label": {
+            "en-US": "Right",
+            "zh-CN": "右"
+          }
+        },
+        {
+          "value": "left-bottom",
+          "label": {
+            "en-US": "Bottom left",
+            "zh-CN": "左下"
+          }
+        },
+        {
+          "value": "bottom",
+          "label": {
+            "en-US": "Bottom",
+            "zh-CN": "下"
+          }
+        },
+        {
+          "value": "right-bottom",
+          "label": {
+            "en-US": "Bottom right",
+            "zh-CN": "右下"
+          }
+        }
+      ],
+      "default": "center",
+      "info": {
+        "en-US": "Used to keep the subject of your photo in view.",
+        "zh-CN": "用于保持图片的主题在视觉范围内"
+      }
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": {
+        "en-US": "Layout",
+        "zh-CN": "布局"
+      },
+      "options": [
+        {
+          "value": "left",
+          "label": {
+            "en-US": "Text on left",
+            "zh-CN": "文字在左"
+          }
+        },
+        {
+          "value": "right",
+          "label": {
+            "en-US": "Text on right",
+            "zh-CN": "文字在右"
+          }
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_full_width",
+      "label": {
+        "en-US": "Enable full width",
+        "zh-CN": "开启全屏宽度"
+      },
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "floating_layer_transparency",
+      "label": {
+        "en-US": "Floating layer transparency",
+        "zh-CN": "浮层透明度"
+      },
+      "unit": "%",
+      "step": 1,
+      "min": 0,
+      "max": 100,
+      "default": 0
+    },
+    {
+      "type": "paragraph",
+      "content": {
+        "zh-CN": "仅对经典风格文字蒙层生效",
+        "en-US": "Only valid for the mask layer of classic style text"
+      }
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "default": "classic",
+      "label": {
+        "en-US": "Style",
+        "zh-CN": "风格"
+      },
+      "options": [
+        {
+          "label": {
+            "en-US": "Classic",
+            "zh-CN": "经典"
+          },
+          "value": "classic"
+        },
+        {
+          "label": {
+            "en-US": "Magazine",
+            "zh-CN": "杂志"
+          },
+          "value": "magazine"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "section_height",
+      "label": {
+        "en-US": "Section height",
+        "zh-CN": "区域高度"
+      },
+      "unit": "px",
+      "step": 100,
+      "min": 450,
+      "max": 750,
+      "default": 550
+    },
+    {
+      "type": "spacing",
+      "id": "spacing",
+      "label": {
+        "en-US": "Spacing",
+        "zh-CN": "间距留白"
+      },
+      "pc": {
+        "top": "40",
+        "right": "",
+        "bottom": "40",
+        "left": ""
+      },
+      "mobile": {
+        "top": "20",
+        "right": "",
+        "bottom": "20",
+        "left": ""
+      },
+      "default": {
+        "pc": {
+          "top": "40",
+          "right": "",
+          "bottom": "40",
+          "left": ""
+        },
+        "mobile": {
+          "top": "20",
+          "right": "",
+          "bottom": "20",
+          "left": ""
+        }
+      }
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": {
+        "en-US": "Heading",
+        "zh-CN": "标题"
+      },
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "heading",
+          "label": {
+            "en-US": "Heading",
+            "zh-CN": "标题"
+          },
+          "default": "Large image with text box"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": {
+        "en-US": "Text",
+        "zh-CN": "文字"
+      },
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": {
+            "en-US": "Text",
+            "zh-CN": "文字"
+          },
+          "default": "Pair large text with a full-width image to draw attention to an important detail of your brand or product line."
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "id": "button",
+      "name": {
+        "en-US": "Button",
+        "zh-CN": "按钮"
+      },
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": {
+            "en-US": "Button text",
+            "zh-CN": "按钮文字"
+          },
+          "default": "Option button"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": {
+            "en-US": "Button link",
+            "zh-CN": "按钮链接"
+          }
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "overlay_text",
+      "cname": {
+        "en-US": "Large image with text box",
+        "zh-CN": "浮层图文"
+      },
+      "category": {
+        "en-US": "Image with text",
+        "zh-CN": "图文"
+      },
+      "ccategory": {
+        "en-US": "Image with text",
+        "zh-CN": "图文"
+      },
+      "icon": "oss/operation/f23a13486b2c6db319d468e26b2bb2e9.svg",
+      "display": true,
+      "blocks": [
+        {
+          "type": "heading",
+          "settings": {
+            "heading": "Large image with text box"
+          }
+        },
+        {
+          "type": "text",
+          "settings": {
+            "text": "Pair large text with a full-width image to draw attention to an important detail of your brand or product line."
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "button_text": "Option button"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

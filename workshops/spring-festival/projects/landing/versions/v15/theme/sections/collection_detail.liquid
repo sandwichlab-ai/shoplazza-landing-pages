@@ -1,0 +1,305 @@
+{% assign product_total = collection.products_count %}
+{% assign columns_mobile = section.settings.columns_mobile %}
+{% assign columns_pc = section.settings.columns %}
+{% assign rows = section.settings.rows %}
+{% assign pagination_type = section.settings.pagination_type %}
+{% assign limit = columns_pc | times: rows %}
+{% assign collectionUrlPrefix = '/api/collections/' | append: collection.id %}
+{% assign filtersSrc = collectionUrlPrefix | append: '/filters' | add_root_url %}
+{% assign collectionListSrc = collectionUrlPrefix | append: '/cps' | add_root_url %}
+{% assign page_count = product_total | divided_by: limit | ceil %}
+{% assign show_filter = section.settings.show_filter %}
+{% assign show_sort = section.settings.show_sort %}
+{% assign filter_size = collection.filters | size %}
+{% assign filter_layout = section.settings.filter_layout %}
+
+{% if filter_size == 0 %}
+  {% assign show_filter = false %}
+{% endif %}
+
+{% if filter_layout == nil %}
+  {% assign filter_layout = 'full' %}
+{% endif %}
+
+{% include 'collection_css' %}
+{% include 'collection_params' %}
+
+{% assign showPagination = false %}
+{% if page_count > 1 or urlHasFilterParams == true %}
+  {% assign showPagination = true %}
+{% endif %}
+
+<div class='page-container collection-detail-container mb-5'>
+  <h1 class='collection_title title-color mt-3'>{{ collection.title | escape }}</h1>
+  <div class='pt-5 mb-3'  id='collection_list_target'>
+    {% include 'collection_product_count', product_total: product_total  %}
+  </div>
+
+  <template id='collection-list-template'>
+    {% include 'product_snippet', source_id: 'collection-list', product_id: '${data.id}' %}
+  </template>
+
+  {% if filter_layout == 'full' %}
+    <div class='flex justify-between items-start mt-3 md:hidden'>
+      {% if product_total != 0 %}
+        {% if show_filter or show_sort %}
+          <spz-filter
+            class='md:hidden w-full pb-3 lg:pt-5'
+            id='collection-filter'
+            list-id='collection-list'
+            result-id='filter-result'
+            collection-id='{{ collection.id }}'
+            layout='container'
+          >
+            <div class="flex {% if show_filter %} justify-between {% else %} justify-end {% endif %} pb-3">
+              {% if show_filter %}
+                {% include 'collection_filter' %}
+              {% endif %}
+              {% include 'collection_filter_sort', isChange: true %}
+            </div>
+            {% if show_filter %}
+              {% include 'collection_filter_result', id: 'filter-result' %}
+            {% endif %}
+          </spz-filter>
+        {% endif %}
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% include 'collection_filter_mobile' %}
+
+  <div class="{% if filter_layout == 'left' and show_filter %} flex {% endif %}">
+    {% if filter_layout == 'left' and show_filter %}
+      {% include 'collection_filter_left' %}
+    {% endif %}
+
+    <div {% if filter_layout == 'left' and show_filter %} class="flex-1 collection-filter-sticky"{% endif %}>
+      {% if filter_layout == 'left' %}
+        {% include 'collection_filter_sort', isChange: true, class: 'md:hidden justify-end pb-4' %}
+      {% endif %}
+
+      <spz-list
+        class='collection-list'
+        manual
+        layout='container'
+        size='limit'
+        page-size='{{limit}}'
+        list='data.products'
+        initial-page='0'
+        total='data.count'
+        {% if pagination_type == 'number' and showPagination %}
+          inherit-url-search="filter,sort_by,page"
+        {% else %}
+          inherit-url-search="filter,sort_by"
+        {% endif %}
+        initial-total='{{ product_total }}'
+        id='collection-list'
+        src='{{ collectionListSrc }}?page=0&limit={{ limit }}'
+        @dom-update='collection-filter-empty.rerender(data=event);collection_product_count.rerender(data=event);'
+        template='collection-list-template'
+        {% if pagination_type == 'scroll' and showPagination %}
+          infinite-scroll
+        {% endif %}
+        record-params-page-plus-one
+        {% if pagination_type == 'number' and showPagination and filter_layout == 'full' %}
+          maintain-page-state
+        {% endif %}
+      >
+        {% paginate collection.products by limit %}
+          {% for product in collection.products %}
+            {% include 'product', card_product: product, ssrIndex: forloop.index0, s_columns: columns_pc, s_breakpoint: 4, s_common_columns: 4, sm_columns: columns_mobile, sm_breakpoint: 2, sm_common_columns: 2 %}
+          {% endfor %}
+        {% endpaginate %}
+        {% if pagination_type == 'click' and showPagination %}
+          <div class='flex justify-center items-center click_pagination' role='loadmore'>
+            <button class='search_load_more button-secondary' type='button'>{{ 'i18n.general.general.load_more' | t }}</button>
+          </div>
+        {% endif %}
+      </spz-list>
+      {% if pagination_type == 'number' and showPagination %}
+        {% include 'pagination_css' %}
+        <spz-pagination class='w-full' list-id='collection-list' layout='container' num-display-active='1'>
+          {% include 'icon_chevron_up', attr: 'role="arrow"' %}
+        </spz-pagination>
+      {% endif %}
+
+      <spz-render id="collection-filter-empty" layout="container" manual>
+        {% if product_total == 0 %}
+          <div class="collection_empty flex justify-center items-center body-plus-2">{{ 'i18n.collections.general.no_matches' | t }}</div>
+        {% endif %}
+        <template>
+          <div spz-if="${data.total == 0}" class="collection_empty text-center body-plus-2">
+            {{ 'i18n.collections.general.no_find' | t: event: '@tap="filter-mobile.clearAll;collection-filter.clearAll;"' }}
+          </div>
+        </template>
+      </spz-render>
+
+      {% include 'loading', display: false, has_full_mask: true %}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "collection_detail",
+  "templates": ["collection"],
+  "limit": 1,
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": {
+        "zh-CN": "移动端商品布局",
+        "en-US": "Mobile product layout"
+      },
+      "default": 2,
+      "options": [
+        {
+          "value": 1,
+          "label": {
+            "en-US": "Large grid",
+            "zh-CN": "一栏"
+          }
+        },
+        {
+          "value": 2,
+          "label": {
+            "en-US": "Small grid",
+            "zh-CN": "两栏"
+          }
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "step": 1,
+      "max": 6,
+      "min": 2,
+      "label": {
+        "en-US": "Desktop products per row",
+        "zh-CN": "PC端每行商品数量"
+      },
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "rows",
+      "step": 1,
+      "max": 20,
+      "min": 3,
+      "label": {
+        "zh-CN": "每页商品行数",
+        "en-US": "Rows per page"
+      },
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "pagination_type",
+      "label": {
+        "en-US": "Pagination",
+        "zh-CN": "分页"
+      },
+      "default": "number",
+      "options": [
+        {
+          "value": "number",
+          "label": {
+            "en-US": "Number",
+            "zh-CN": "数字分页"
+          }
+        },
+        {
+          "value": "scroll",
+          "label": {
+            "en-US": "Scroll loading",
+            "zh-CN": "滚动加载"
+          }
+        },
+        {
+          "value": "click",
+          "label": {
+            "en-US": "Click loading",
+            "zh-CN": "点击加载"
+          }
+        }
+      ]
+    },
+    {
+      "content": {
+        "zh-CN": "常规设置",
+        "en-US": "General"
+      },
+      "type": "header"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_filter",
+      "label": {
+        "zh-CN": "开启筛选",
+        "en-US": "Enable filter"
+      },
+      "info": {
+        "zh-CN": "展示筛选器需要在后台添加<a href='/admin/smart_apps/store/menus' target='_blank'>筛选纬度</a>。",
+        "en-US": "To display the filter, add and <a href='/admin/smart_apps/store/menus' target='_blank'>customize filters</a>."
+      },
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sort",
+      "label": {
+        "zh-CN": "排序选项",
+        "en-US": "Enable sort options"
+      },
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "filter_layout",
+      "label": {
+        "en-US": "Filter style",
+        "zh-CN": "筛选器样式"
+      },
+      "default": "full",
+      "options": [
+        {
+          "value": "full",
+          "label": {
+            "en-US": "Horizontal",
+            "zh-CN": "横向"
+          }
+        },
+        {
+          "value": "left",
+          "label": {
+            "en-US": "Vertical",
+            "zh-CN": "纵向"
+          }
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "collection_detail",
+      "cname": {
+        "en-US": "Collection pages",
+        "zh-CN": "专辑页面"
+      },
+      "category": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "ccategory": {
+        "en-US": "Page",
+        "zh-CN": "页面"
+      },
+      "display": true,
+      "blocks": []
+    }
+  ]
+}
+{% endschema %}
