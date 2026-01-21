@@ -97,6 +97,7 @@ jobs:
 
       - name: Deploy to Shoplazza
         if: steps.detect.outputs.first_version != ''
+        continue-on-error: true  # Pages API is optional, Theme push is critical
         env:
           SHOPLAZZA_SHOP_DOMAIN: ${{ secrets.SHOPLAZZA_SHOP_DOMAIN }}
           SHOPLAZZA_ACCESS_TOKEN: ${{ secrets.SHOPLAZZA_ACCESS_TOKEN }}
@@ -143,8 +144,8 @@ jobs:
           echo "Version: $VERSION"
           echo "Page handle: $PAGE_HANDLE"
 
-          # 创建/更新页面 (使用 2025-06 API 版本)
-          API_URL="https://${SHOPLAZZA_SHOP_DOMAIN}.myshoplaza.com/openapi/2025-06/pages"
+          # 创建/更新页面 (使用 2020-07 API 版本)
+          API_URL="https://${SHOPLAZZA_SHOP_DOMAIN}.myshoplaza.com/openapi/2020-07/pages"
 
           PAGE_TITLE="AI Landing Page - ${PROJECT} ${VERSION}"
 
