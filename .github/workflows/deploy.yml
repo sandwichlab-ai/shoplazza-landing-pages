@@ -83,13 +83,16 @@ jobs:
 
           echo "API Response: $RESPONSE"
 
-          # 检查是否成功
-          if echo "$RESPONSE" | grep -q '"code":"Success"'; then
+          # 检查是否成功 (API 返回 [] 表示成功, 或者返回包含 errors 的 JSON 表示失败)
+          if [ "$RESPONSE" = "[]" ]; then
             echo "✅ Theme file updated successfully!"
-          else
+          elif echo "$RESPONSE" | grep -q '"errors"'; then
             echo "Error updating theme file"
             echo "$RESPONSE"
             exit 1
+          else
+            # 其他响应也视为成功 (例如返回更新后的 doc 信息)
+            echo "✅ Theme file updated (response: $RESPONSE)"
           fi
 
       - name: Deploy to Shoplazza
