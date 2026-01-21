@@ -43,6 +43,27 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install Shoplazza CLI
+        run: npm install -g @aspect/shoplazza-cli
+
+      - name: Push theme to Shoplazza
+        if: steps.detect.outputs.first_version != ''
+        env:
+          SHOPLAZZA_CLI_THEME_TOKEN: ${{ secrets.SHOPLAZZA_ACCESS_TOKEN }}
+          SHOPLAZZA_CLI_STORE: ${{ secrets.SHOPLAZZA_SHOP_DOMAIN }}.myshoplaza.com
+          SHOPLAZZA_THEME_ID: ${{ secrets.SHOPLAZZA_THEME_ID }}
+        run: |
+          VERSION_PATH="${{ steps.detect.outputs.first_version }}"
+          THEME_DIR="$VERSION_PATH/theme"
+
+          echo "Pushing theme from: $THEME_DIR"
+          cd "$THEME_DIR"
+
+          # 推送主题文件
+          shoplazza theme push --theme "$SHOPLAZZA_THEME_ID"
+
+          echo "✅ Theme pushed successfully!"
+
       - name: Deploy to Shoplazza
         if: steps.detect.outputs.first_version != ''
         env:
