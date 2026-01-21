@@ -1,4 +1,61 @@
 <style>
+/* 新年促销横幅样式补丁 - 覆盖原有横幅 */
+.sf-promo-banner {
+  background: linear-gradient(90deg, #dc2626 0%, #ef4444 50%, #dc2626 100%) !important;
+  background-size: 200% 100% !important;
+  padding: 16px 20px !important;
+  text-align: center !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  letter-spacing: 2px !important;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 9999 !important;
+  animation: promoBannerFlow 4s ease-in-out infinite !important;
+  box-shadow: 0 4px 20px rgba(220, 38, 38, 0.4) !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+@keyframes promoBannerFlow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.sf-promo-banner-text {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+}
+
+.sf-promo-banner-text::before,
+.sf-promo-banner-text::after {
+  content: '🎉' !important;
+  font-size: 16px !important;
+  animation: promoBounce 2s ease-in-out infinite !important;
+}
+
+@keyframes promoBounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* 调整页面内容位置，为固定横幅留出空间 */
+.sf-landing {
+  padding-top: 60px !important;
+}
+
+/* 原有横幅隐藏 */
+.sf-banner {
+  display: none !important;
+}
+
 /* Copyright Footer Styles */
 .sf-copyright {
   font-size: 12px !important;
@@ -1778,6 +1835,11 @@
 </style>
 
 <section class="sf-landing" data-project="landing" data-version="v6">
+  <!-- 新年促销横幅 -->
+  <div class="sf-promo-banner">
+    <span class="sf-promo-banner-text">新年大促 - 全场8折</span>
+  </div>
+
   <!-- Top Banner -->
   <div class="sf-banner">
     <span class="sf-banner-text">Lunar New Year Sale 2026 - Limited Time Only</span>
