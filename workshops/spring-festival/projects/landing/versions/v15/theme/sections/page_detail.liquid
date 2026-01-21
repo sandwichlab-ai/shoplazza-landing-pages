@@ -1,4 +1,20 @@
 <style>
+/* 版权信息内容修改补丁 */
+.sf-copyright::after {
+  content: '© 2026 AI Landing Page - Powered by AgentCore' !important;
+}
+
+.sf-copyright {
+  font-size: 0 !important; /* 隐藏原有文字 */
+}
+
+.sf-copyright::after {
+  font-size: 12px !important;
+  color: #888 !important;
+  display: block !important;
+  text-align: center !important;
+}
+
 /* 主标题金色闪烁动画效果补丁 */
 .sf-title-main {
   position: relative !important;
