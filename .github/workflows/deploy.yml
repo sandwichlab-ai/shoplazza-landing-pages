@@ -5,14 +5,7 @@ on:
     branches: [main]
     paths:
       - 'workshops/**'
-
-permissions:
-  id-token: write
-  contents: read
-
-env:
-  AWS_REGION: us-west-2
-  SHARED_SERVICES_ACCOUNT_ID: '009661764016'
+  workflow_dispatch:  # 支持手动触发
 
 jobs:
   deploy:
@@ -21,13 +14,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
-
-      - name: Configure AWS credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::${{ env.SHARED_SERVICES_ACCOUNT_ID }}:role/GitHubActionsRole
-          aws-region: ${{ env.AWS_REGION }}
-          role-session-name: GitHubActions-LandingPages-Deploy
 
       - name: Detect changed versions
         id: detect
@@ -40,9 +26,13 @@ jobs:
           echo "$CHANGED"
 
           # 提取唯一的 version 路径
-          VERSIONS=$(echo "$CHANGED" | grep -oP 'workshops/[^/]+/[^/]+/[^/]+' | sort -u || echo "")
+          VERSIONS=$(echo "$CHANGED" | grep -oP 'workshops/[^/]+/projects/[^/]+/versions/[^/]+' | sort -u || echo "")
           echo "Changed versions:"
           echo "$VERSIONS"
+
+          # 取第一个版本路径
+          FIRST_VERSION=$(echo "$VERSIONS" | head -1)
+          echo "first_version=$FIRST_VERSION" >> $GITHUB_OUTPUT
 
           echo "versions<<EOF" >> $GITHUB_OUTPUT
           echo "$VERSIONS" >> $GITHUB_OUTPUT
@@ -53,66 +43,131 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Shoplazza CLI
-        run: |
-          npm install -g @shoplazza/cli
-          shoplazza --version || echo "CLI installed"
-
-      - name: Get Shoplazza credentials from SSM
-        id: ssm
-        run: |
-          # 从 SSM Parameter Store 获取 Shoplazza 凭证
-          SHOP_DOMAIN=$(aws ssm get-parameter --name "/sandwichlab/shoplazza/shop-domain" --with-decryption --query "Parameter.Value" --output text 2>/dev/null || echo "")
-          ACCESS_TOKEN=$(aws ssm get-parameter --name "/sandwichlab/shoplazza/access-token" --with-decryption --query "Parameter.Value" --output text 2>/dev/null || echo "")
-          THEME_ID=$(aws ssm get-parameter --name "/sandwichlab/shoplazza/theme-id" --with-decryption --query "Parameter.Value" --output text 2>/dev/null || echo "")
-
-          if [ -n "$SHOP_DOMAIN" ]; then
-            echo "shop_domain=$SHOP_DOMAIN" >> $GITHUB_OUTPUT
-            echo "access_token=$ACCESS_TOKEN" >> $GITHUB_OUTPUT
-            echo "theme_id=$THEME_ID" >> $GITHUB_OUTPUT
-            echo "has_credentials=true" >> $GITHUB_OUTPUT
-          else
-            echo "Warning: SSM parameters not found, using GitHub secrets"
-            echo "has_credentials=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Deploy to Shoplazza
+        if: steps.detect.outputs.first_version != ''
         env:
-          SHOPLAZZA_SHOP_DOMAIN: ${{ steps.ssm.outputs.has_credentials == 'true' && steps.ssm.outputs.shop_domain || secrets.SHOPLAZZA_SHOP_DOMAIN }}
-          SHOPLAZZA_ACCESS_TOKEN: ${{ steps.ssm.outputs.has_credentials == 'true' && steps.ssm.outputs.access_token || secrets.SHOPLAZZA_ACCESS_TOKEN }}
-          SHOPLAZZA_THEME_ID: ${{ steps.ssm.outputs.has_credentials == 'true' && steps.ssm.outputs.theme_id || secrets.SHOPLAZZA_THEME_ID }}
+          SHOPLAZZA_SHOP_DOMAIN: ${{ secrets.SHOPLAZZA_SHOP_DOMAIN }}
+          SHOPLAZZA_ACCESS_TOKEN: ${{ secrets.SHOPLAZZA_ACCESS_TOKEN }}
         run: |
-          echo "Deploying changed versions..."
+          echo "Deploying to Shoplazza..."
 
-          VERSIONS="${{ steps.detect.outputs.versions }}"
+          VERSION_PATH="${{ steps.detect.outputs.first_version }}"
+          THEME_DIR="$VERSION_PATH/theme"
 
-          if [ -z "$VERSIONS" ]; then
-            echo "No versions to deploy"
-            exit 0
+          if [ ! -d "$THEME_DIR" ]; then
+            echo "Error: Theme directory not found: $THEME_DIR"
+            exit 1
           fi
 
-          for version_path in $VERSIONS; do
-            echo "Deploying: $version_path"
-            theme_dir="$version_path/theme"
+          # 检查凭证
+          if [ -z "$SHOPLAZZA_SHOP_DOMAIN" ] || [ -z "$SHOPLAZZA_ACCESS_TOKEN" ]; then
+            echo "Error: Missing Shoplazza credentials"
+            echo "Please set SHOPLAZZA_SHOP_DOMAIN and SHOPLAZZA_ACCESS_TOKEN secrets"
+            exit 1
+          fi
 
-            if [ -d "$theme_dir" ]; then
-              echo "Found theme directory: $theme_dir"
-              cd "$theme_dir"
-              # shoplazza theme push --theme $SHOPLAZZA_THEME_ID
-              echo "Would deploy theme from $theme_dir"
-              cd -
-            else
-              echo "Warning: No theme directory found at $theme_dir"
-            fi
-          done
+          echo "Theme directory: $THEME_DIR"
+          echo "Shop domain: $SHOPLAZZA_SHOP_DOMAIN"
 
-          echo "Deployment complete"
+          # 读取 page_detail.liquid 内容
+          LIQUID_FILE="$THEME_DIR/sections/page_detail.liquid"
+          if [ ! -f "$LIQUID_FILE" ]; then
+            echo "Error: page_detail.liquid not found"
+            exit 1
+          fi
+
+          echo "Found Liquid file: $LIQUID_FILE"
+          echo "File size: $(wc -c < "$LIQUID_FILE") bytes"
+
+          # 提取版本信息用于页面 handle
+          # 路径格式: workshops/spring-festival/projects/landing/versions/v14
+          WORKSHOP=$(echo "$VERSION_PATH" | cut -d'/' -f2)
+          PROJECT=$(echo "$VERSION_PATH" | cut -d'/' -f4)
+          VERSION=$(echo "$VERSION_PATH" | cut -d'/' -f6)
+          PAGE_HANDLE="ai-landing-${PROJECT}-${VERSION}"
+
+          echo "Workshop: $WORKSHOP"
+          echo "Project: $PROJECT"
+          echo "Version: $VERSION"
+          echo "Page handle: $PAGE_HANDLE"
+
+          # 创建/更新页面
+          API_URL="https://${SHOPLAZZA_SHOP_DOMAIN}.myshoplaza.com/openapi/2024-04/pages"
+
+          # 读取并转义 Liquid 内容
+          LIQUID_CONTENT=$(cat "$LIQUID_FILE" | jq -Rs .)
+
+          # 检查页面是否已存在
+          echo "Checking if page exists..."
+          EXISTING=$(curl -s -X GET "${API_URL}?handle=${PAGE_HANDLE}" \
+            -H "Access-Token: ${SHOPLAZZA_ACCESS_TOKEN}" \
+            -H "Content-Type: application/json")
+
+          PAGE_ID=$(echo "$EXISTING" | jq -r '.pages[0].id // empty')
+
+          if [ -n "$PAGE_ID" ]; then
+            echo "Page exists (ID: $PAGE_ID), updating..."
+            RESPONSE=$(curl -s -X PUT "${API_URL}/${PAGE_ID}" \
+              -H "Access-Token: ${SHOPLAZZA_ACCESS_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"page\": {
+                  \"title\": \"AI Landing Page - ${PROJECT} ${VERSION}\",
+                  \"handle\": \"${PAGE_HANDLE}\",
+                  \"body_html\": ${LIQUID_CONTENT},
+                  \"published\": true
+                }
+              }")
+          else
+            echo "Creating new page..."
+            RESPONSE=$(curl -s -X POST "${API_URL}" \
+              -H "Access-Token: ${SHOPLAZZA_ACCESS_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"page\": {
+                  \"title\": \"AI Landing Page - ${PROJECT} ${VERSION}\",
+                  \"handle\": \"${PAGE_HANDLE}\",
+                  \"body_html\": ${LIQUID_CONTENT},
+                  \"published\": true
+                }
+              }")
+          fi
+
+          echo "API Response:"
+          echo "$RESPONSE" | jq .
+
+          # 检查是否成功
+          NEW_PAGE_ID=$(echo "$RESPONSE" | jq -r '.page.id // empty')
+          if [ -n "$NEW_PAGE_ID" ]; then
+            PAGE_URL="https://${SHOPLAZZA_SHOP_DOMAIN}.myshoplaza.com/pages/${PAGE_HANDLE}"
+            echo ""
+            echo "=========================================="
+            echo "✅ 部署成功!"
+            echo "页面 URL: $PAGE_URL"
+            echo "=========================================="
+            echo "page_url=$PAGE_URL" >> $GITHUB_OUTPUT
+          else
+            echo "Error: Failed to create/update page"
+            echo "$RESPONSE"
+            exit 1
+          fi
 
       - name: Create deployment summary
+        if: steps.detect.outputs.first_version != ''
         run: |
-          echo "## 部署完成" >> $GITHUB_STEP_SUMMARY
+          VERSION_PATH="${{ steps.detect.outputs.first_version }}"
+          WORKSHOP=$(echo "$VERSION_PATH" | cut -d'/' -f2)
+          PROJECT=$(echo "$VERSION_PATH" | cut -d'/' -f4)
+          VERSION=$(echo "$VERSION_PATH" | cut -d'/' -f6)
+          PAGE_HANDLE="ai-landing-${PROJECT}-${VERSION}"
+          PAGE_URL="https://${{ secrets.SHOPLAZZA_SHOP_DOMAIN }}.myshoplaza.com/pages/${PAGE_HANDLE}"
+
+          echo "## 🚀 部署完成" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "已部署的版本:" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.detect.outputs.versions }}" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "### 部署信息" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workshop**: $WORKSHOP" >> $GITHUB_STEP_SUMMARY
+          echo "- **Project**: $PROJECT" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version**: $VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 页面链接" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [$PAGE_URL]($PAGE_URL)" >> $GITHUB_STEP_SUMMARY
