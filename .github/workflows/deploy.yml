@@ -44,7 +44,7 @@ jobs:
           node-version: '20'
 
       - name: Install Shoplazza CLI
-        run: npm install -g @aspect/shoplazza-cli
+        run: npm install -g shoplazza-cli
 
       - name: Push theme to Shoplazza
         if: steps.detect.outputs.first_version != ''
