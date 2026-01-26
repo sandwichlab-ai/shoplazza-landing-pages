@@ -1,3 +1,23 @@
+<style>
+/* 页面标题蓝色样式 */
+.bf-title-black,
+.bf-title-friday {
+  color: #0066cc !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+  background-clip: unset !important;
+}
+
+.landing-title {
+  color: #0066cc !important;
+}
+
+.type-heading-font-family {
+  color: #0066cc !important;
+}
+</style>
+
 {% comment %} 根据页面 URL 选择不同的渲染方式 {% endcomment %}
 {% assign is_hello_world = false %}
 {% if page.url contains 'hello-world' %}
@@ -151,8 +171,8 @@
   font-size: 72px;
   font-weight: 900;
   letter-spacing: -2px;
-  color: #fff;
-  text-shadow: 0 0 40px rgba(255,255,255,0.3);
+  color: #0066cc;
+  text-shadow: 0 0 40px rgba(0,102,204,0.3);
 }
 
 .bf-title-friday {
@@ -160,10 +180,7 @@
   font-size: 72px;
   font-weight: 900;
   letter-spacing: -2px;
-  background: linear-gradient(135deg, #ff0000, #ff6b6b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #0066cc;
 }
 
 .bf-subtitle {
